@@ -7,10 +7,17 @@ router.get('/', async (req, res) => {
   try {
     console.log('👥 Запрос всех пользователей...');
     const users = await User.find().sort({ createdAt: -1 });
-    console.log(`✅ Найдено пользователей: ${users.length}`);
-    users.forEach(u => {
-      console.log(`  - ${u.nickname} (Telegram ID: ${u.telegramId})`);
-    });
+    console.log(`✅ Найдено пользователей в БД: ${users.length}`);
+    
+    if (users.length === 0) {
+      console.warn('⚠️ База данных пуста! Нет зарегистрированных пользователей.');
+    } else {
+      console.log('📋 Список пользователей:');
+      users.forEach((u, index) => {
+        console.log(`  ${index + 1}. ${u.nickname} (Telegram ID: ${u.telegramId}, City: ${u.city})`);
+      });
+    }
+    
     res.json(users);
   } catch (error) {
     console.error('❌ Ошибка получения пользователей:', error);
@@ -67,7 +74,21 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
-    console.log('✅ Пользователь создан:', user._id, `(Telegram: ${id}, Nickname: ${nickname})`);
+    console.log('✅ Пользователь создан в БД:', {
+      _id: user._id,
+      telegramId: user.telegramId,
+      nickname: user.nickname,
+      city: user.city
+    });
+    
+    // Проверяем что пользователь действительно сохранился
+    const savedUser = await User.findById(user._id);
+    if (!savedUser) {
+      console.error('❌ Пользователь не найден после сохранения!');
+      return res.status(500).json({ message: 'Ошибка сохранения пользователя' });
+    }
+    
+    console.log('✅ Подтверждение: пользователь найден в БД');
     res.status(201).json(user);
   } catch (error) {
     console.error('❌ Ошибка регистрации:', error);

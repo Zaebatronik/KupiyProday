@@ -80,11 +80,24 @@ export default function NicknamePage() {
           createdAt: new Date(),
         };
       }
+      // Сохраняем пользователя в состояние
       setUser(user);
       addUserToRegistry(user);
+      
+      // Сохраняем в localStorage для надёжности
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      console.log('✅ Регистрация завершена:', {
+        telegramId: user.telegramId || user.id,
+        nickname: user.nickname,
+        city: user.city
+      });
+      
+      // Очищаем временные данные регистрации
       localStorage.removeItem('registrationCountry');
       localStorage.removeItem('registrationCity');
       localStorage.removeItem('registrationRadius');
+      
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || t('common.error'));
