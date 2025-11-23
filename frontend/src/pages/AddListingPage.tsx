@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
@@ -19,6 +19,8 @@ const CATEGORIES = [
   { id: 'other', icon: '📦', labelKey: 'categories.other' },
 ];
 
+const DRAFT_KEY = 'listing_draft';
+
 export default function AddListingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -32,6 +34,71 @@ export default function AddListingPage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [negotiable, setNegotiable] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Загрузка черновика при монтировании
+  useEffect(() => {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        setTitle(parsed.title || '');
+        setDescription(parsed.description || '');
+        setPrice(parsed.price || '');
+        setCategory(parsed.category || '');
+        setPhotos(parsed.photos || []);
+        setNegotiable(parsed.negotiable || false);
+        console.log('✅ Черновик загружен');
+      } catch (e) {
+        console.error('❌ Ошибка загрузки черновика:', e);
+      }
+    }
+  }, []);
+
+  // Автосохранение черновика каждые 3 секунды
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (title || description || price || category || photos.length > 0) {
+        const draft = { title, description, price, category, photos, negotiable };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        setLastSaved(new Date());
+        console.log('💾 Черновик сохранён');
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [title, description, price, category, photos, negotiable]);
+
+  // Валидация в реальном времени
+  useEffect(() => {
+    const newErrors: Record<string, string> = {};
+    
+    if (title && title.length < 3) {
+      newErrors.title = 'Название должно быть минимум 3 символа';
+    }
+    if (description && description.length < 10) {
+      newErrors.description = 'Описание должно быть минимум 10 символов';
+    }
+    if (price && parseFloat(price) <= 0) {
+      newErrors.price = 'Цена должна быть больше 0';
+    }
+    if (photos.length === 0 && (title || description)) {
+      newErrors.photos = 'Добавьте хотя бы 1 фото';
+    }
+    
+    setErrors(newErrors);
+  }, [title, description, price, photos]);
+
+  const isFormValid = () => {
+    return title.trim().length >= 3 
+      && description.trim().length >= 10 
+      && price && parseFloat(price) > 0 
+      && category 
+      && photos.length > 0
+      && Object.keys(errors).length === 0;
+  };
 
   const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -127,6 +194,11 @@ export default function AddListingPage() {
     }
   };
 
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setLastSaved(null);
+  };
+
   return (
     <div className="add-listing-page">
       <div className="container">
@@ -135,13 +207,116 @@ export default function AddListingPage() {
             ← {t('common.back')}
           </button>
           <h1 className="page-title">{t('addListing.title')}</h1>
+          <button 
+            className="preview-button"
+            onClick={() => setShowPreview(!showPreview)}
+            style={{
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginLeft: 'auto'
+            }}
+          >
+            {showPreview ? '✏️ Редактировать' : '👁️ Предпросмотр'}
+          </button>
         </div>
+        
+        {lastSaved && (
+          <div style={{
+            textAlign: 'center',
+            color: '#10b981',
+            fontSize: '13px',
+            marginBottom: '12px',
+            fontWeight: '600'
+          }}>
+            💾 Черновик сохранён {lastSaved.toLocaleTimeString('ru-RU')}
+          </div>
+        )}
 
-        {/* Фото */}
-        <div className="form-section">
-          <label className="section-label">
-            {t('addListing.photos')} ({photos.length}/5)
-          </label>
+        {/* Предпросмотр */}
+        {showPreview && (
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
+          }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '22px', fontWeight: '700' }}>
+              📋 Предпросмотр объявления
+            </h2>
+            {photos.length > 0 && (
+              <div style={{ marginBottom: '16px' }}>
+                <img 
+                  src={photos[0]} 
+                  alt="Preview" 
+                  style={{
+                    width: '100%',
+                    height: '300px',
+                    objectFit: 'cover',
+                    borderRadius: '12px'
+                  }}
+                />
+                {photos.length > 1 && (
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px', overflowX: 'auto' }}>
+                    {photos.slice(1).map((photo, i) => (
+                      <img 
+                        key={i}
+                        src={photo} 
+                        alt={`Thumb ${i}`}
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          objectFit: 'cover',
+                          borderRadius: '8px'
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            <div style={{ marginBottom: '12px' }}>
+              <span style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                background: '#e0e7ff',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#4338ca'
+              }}>
+                {category && CATEGORIES.find(c => c.id === category)?.icon} {category && t(CATEGORIES.find(c => c.id === category)?.labelKey || '')}
+              </span>
+            </div>
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '8px' }}>
+              {title || 'Название объявления'}
+            </h3>
+            <p style={{ color: '#64748b', marginBottom: '12px', fontSize: '15px' }}>
+              {description || 'Описание объявления...'}
+            </p>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#667eea', marginBottom: '8px' }}>
+              {price ? `${parseFloat(price).toLocaleString('ru-RU')} ₽` : '0 ₽'}
+              {negotiable && <span style={{ fontSize: '14px', color: '#64748b', marginLeft: '8px' }}>• Торг</span>}
+            </div>
+            <div style={{ fontSize: '14px', color: '#94a3b8' }}>
+              📍 {user?.city}, {user?.country}
+            </div>
+          </div>
+        )}
+
+        {!showPreview && (
+          <>
+            {/* Фото */}
+            <div className="form-section">
+              <label className="section-label">
+                {t('addListing.photos')} ({photos.length}/5)
+                {errors.photos && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '13px' }}>⚠️ {errors.photos}</span>}
+              </label>
           <div className="photo-grid">
             {photos.map((photo, index) => (
               <div key={index} className="photo-item">
@@ -191,67 +366,123 @@ export default function AddListingPage() {
           </div>
         </div>
 
-        {/* Название */}
-        <div className="form-section">
-          <label className="section-label">{t('addListing.itemTitle')}</label>
-          <input
-            type="text"
-            className="input"
-            placeholder={t('addListing.itemTitlePlaceholder')}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            maxLength={100}
-          />
-          <div className="char-count">{title.length}/100</div>
-        </div>
+            {/* Название */}
+            <div className="form-section">
+              <label className="section-label">
+                {t('addListing.itemTitle')}
+                {errors.title && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '13px' }}>⚠️ {errors.title}</span>}
+              </label>
+              <input
+                type="text"
+                className={`input ${errors.title ? 'input-error' : ''}`}
+                placeholder={t('addListing.itemTitlePlaceholder')}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={100}
+              />
+              <div className="char-count" style={{ color: title.length > 80 ? '#f59e0b' : '#94a3b8' }}>
+                {title.length}/100
+              </div>
+            </div>
 
-        {/* Описание */}
-        <div className="form-section">
-          <label className="section-label">{t('addListing.description')}</label>
-          <textarea
-            className="textarea"
-            placeholder={t('addListing.descriptionPlaceholder')}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={5}
-            maxLength={500}
-          />
-          <div className="char-count">{description.length}/500</div>
-        </div>
+            {/* Описание */}
+            <div className="form-section">
+              <label className="section-label">
+                {t('addListing.description')}
+                {errors.description && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '13px' }}>⚠️ {errors.description}</span>}
+              </label>
+              <textarea
+                className={`textarea ${errors.description ? 'input-error' : ''}`}
+                placeholder={t('addListing.descriptionPlaceholder')}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={5}
+                maxLength={500}
+              />
+              <div className="char-count" style={{ color: description.length > 450 ? '#f59e0b' : '#94a3b8' }}>
+                {description.length}/500
+              </div>
+            </div>
 
-        {/* Цена */}
-        <div className="form-section">
-          <label className="section-label">{t('addListing.price')}</label>
-          <div className="price-input-wrapper">
-            <input
-              type="number"
-              className="input price-input"
-              placeholder="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              min="0"
-            />
-            <span className="currency">₽</span>
-          </div>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={negotiable}
-              onChange={(e) => setNegotiable(e.target.checked)}
-              className="checkbox-input"
-            />
-            <span className="checkbox-text">{t('addListing.negotiable')}</span>
-          </label>
-        </div>
+            {/* Цена */}
+            <div className="form-section">
+              <label className="section-label">
+                {t('addListing.price')}
+                {errors.price && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '13px' }}>⚠️ {errors.price}</span>}
+              </label>
+              <div className="price-input-wrapper">
+                <input
+                  type="number"
+                  className={`input price-input ${errors.price ? 'input-error' : ''}`}
+                  placeholder="0"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  min="0"
+                />
+                <span className="currency">₽</span>
+              </div>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={negotiable}
+                  onChange={(e) => setNegotiable(e.target.checked)}
+                  className="checkbox-input"
+                />
+                <span className="checkbox-text">{t('addListing.negotiable')}</span>
+              </label>
+            </div>
+
+            {/* Подсказки */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '20px',
+              border: '2px solid rgba(102, 126, 234, 0.2)'
+            }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: '#667eea' }}>
+                💡 Советы для лучшего объявления:
+              </h4>
+              <ul style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.8', paddingLeft: '20px' }}>
+                <li>Добавьте качественные фото с разных ракурсов</li>
+                <li>Опишите состояние товара честно и подробно</li>
+                <li>Укажите причину продажи - это повышает доверие</li>
+                <li>Реагируйте быстро на сообщения покупателей</li>
+              </ul>
+            </div>
+          </>
+        )}
 
         {/* Кнопка публикации */}
         <div className="form-actions">
+          {!isFormValid() && !showPreview && (
+            <div style={{
+              textAlign: 'center',
+              color: '#ef4444',
+              fontSize: '14px',
+              marginBottom: '12px',
+              fontWeight: '600'
+            }}>
+              ⚠️ Заполните все обязательные поля правильно
+            </div>
+          )}
           <button
             className="btn btn-primary btn-large"
-            onClick={handleSubmit}
-            disabled={isSubmitting || !title || !description || !price || !category || photos.length === 0}
+            onClick={() => {
+              if (showPreview) {
+                handleSubmit();
+                clearDraft();
+              } else {
+                setShowPreview(true);
+              }
+            }}
+            disabled={isSubmitting || !isFormValid()}
+            style={{
+              opacity: isFormValid() ? 1 : 0.5,
+              cursor: isFormValid() ? 'pointer' : 'not-allowed'
+            }}
           >
-            {isSubmitting ? t('addListing.publishing') : t('addListing.publish')}
+            {isSubmitting ? t('addListing.publishing') : showPreview ? '✅ Опубликовать' : '👁️ Предпросмотр и публикация'}
           </button>
         </div>
       </div>
