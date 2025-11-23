@@ -78,7 +78,7 @@ export default function CatalogPage() {
         
         setListings(formattedListings);
         setFilteredListings(formattedListings);
-        console.log(`Loaded ${formattedListings.length} listings from server`);
+        console.log(`✅ Loaded ${formattedListings.length} listings from server:`, formattedListings.map((l: Listing) => l.title));
       } catch (error) {
         console.error('Failed to load listings from server:', error);
         // Fallback на локальные данные
@@ -103,6 +103,14 @@ export default function CatalogPage() {
     };
 
     loadListings();
+    
+    // Автообновление каждые 5 секунд
+    const interval = setInterval(() => {
+      console.log('🔄 CatalogPage: Автообновление списка объявлений...');
+      loadListings();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [storeListings]);
 
   // Фильтрация и сортировка

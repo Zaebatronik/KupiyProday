@@ -85,15 +85,19 @@ export default function AddListingPage() {
         updatedAt: new Date(),
       };
 
+      console.log('📝 Создаём объявление:', listing);
+      
       // Сохраняем локально
       addListing(listing);
+      console.log('✅ Объявление сохранено локально');
 
       // Отправляем на сервер
       try {
-        await listingsAPI.create(listing);
-        console.log('Listing saved to server');
+        const response = await listingsAPI.create(listing);
+        console.log('✅ Объявление сохранено на сервере:', response.data);
       } catch (serverError) {
-        console.warn('Server unavailable, listing saved locally only:', serverError);
+        console.error('❌ Ошибка при сохранении на сервер:', serverError);
+        console.warn('⚠️ Объявление сохранено только локально');
       }
 
       if (window.Telegram?.WebApp?.HapticFeedback) {
