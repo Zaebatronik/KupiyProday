@@ -6,28 +6,33 @@ const listingSchema = new mongoose.Schema({
     type: String,
     default: () => nanoid(10),
     unique: true,
+    index: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String, // Изменили на String для поддержки Telegram ID
     required: true,
+    index: true,
   },
   userNickname: {
     type: String,
     required: true,
+    index: true,
   },
   category: {
     type: String,
     required: true,
+    index: true,
   },
   title: {
     type: String,
     required: true,
     trim: true,
+    index: 'text', // Для текстового поиска
   },
   description: {
     type: String,
     required: true,
+    index: 'text', // Для текстового поиска
   },
   price: {
     type: Number,
@@ -40,10 +45,12 @@ const listingSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
+    index: true,
   },
   country: {
     type: String,
     required: true,
+    index: true,
   },
   photos: [{
     type: String,
@@ -52,6 +59,7 @@ const listingSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'hidden', 'rejected', 'deleted'],
     default: 'active',
+    index: true,
   },
   views: {
     type: Number,
@@ -60,16 +68,19 @@ const listingSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+    index: true, // Для сортировки по дате
   },
   updatedAt: {
     type: Date,
     default: Date.now,
   },
+}, {
+  timestamps: true,
 });
 
-listingSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// Составной индекс для быстрого поиска активных объявлений
+listingSchema.index({ status: 1, createdAt: -1 });
+listingSchema.index({ userId: 1, status: 1 });
+listingSchema.index({ city: 1, status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Listing', listingSchema);
