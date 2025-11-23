@@ -29,7 +29,7 @@ export default function MainMenu() {
       clearUser();
       localStorage.clear();
       // Переходим на страницу прощания
-      window.location.href = '/goodbye';
+      navigate('/goodbye', { replace: true });
     }
   };
 
