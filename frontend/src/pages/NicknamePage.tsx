@@ -65,27 +65,18 @@ export default function NicknamePage() {
         createdAt: new Date().toISOString(),
         registrationDate: new Date().toISOString(),
       };
-      let user: User;
-      try {
-        const response = await userAPI.register(userData);
-        user = {
-          ...response.data,
-          createdAt: new Date(response.data.createdAt),
-        };
-      } catch (apiError) {
-        user = {
-          ...userData,
-          createdAt: new Date(),
-        };
-      }
-      // Сохраняем пользователя в состояние
+      
+      const user: User = {
+        ...userData,
+        createdAt: new Date(),
+      };
+      
+      // Сохраняем пользователя СРАЗУ локально
       setUser(user);
       addUserToRegistry(user);
-      
-      // Сохраняем в localStorage для надёжности
       localStorage.setItem('currentUser', JSON.stringify(user));
       
-      console.log('✅ Регистрация завершена:', {
+      console.log('✅ Регистрация завершена локально:', {
         telegramId: user.telegramId || user.id,
         nickname: user.nickname,
         city: user.city
@@ -96,7 +87,15 @@ export default function NicknamePage() {
       localStorage.removeItem('registrationCity');
       localStorage.removeItem('registrationRadius');
       
+      // Переходим на главную СРАЗУ
       navigate('/');
+      
+      // Пытаемся отправить на сервер в фоне (не блокируем UI)
+      userAPI.register(userData).then(response => {
+        console.log('✅ Данные отправлены на сервер:', response.data);
+      }).catch(error => {
+        console.log('⚠️ Не удалось отправить на сервер, но регистрация локально выполнена:', error);
+      });
     } catch (err: any) {
       setError(err.response?.data?.message || t('common.error'));
     } finally {
