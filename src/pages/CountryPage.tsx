@@ -32,13 +32,11 @@ export default function CountryPage() {
     if (window.Telegram?.WebApp?.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
-  };
-
-  const handleContinue = () => {
-    if (selectedCountry) {
-      localStorage.setItem('registrationCountry', JSON.stringify(selectedCountry));
+    // Автоматический переход после выбора
+    localStorage.setItem('registrationCountry', JSON.stringify(country));
+    setTimeout(() => {
       navigate('/city');
-    }
+    }, 300);
   };
 
   return (
@@ -65,16 +63,6 @@ export default function CountryPage() {
             <span className="country-name">{country.name}</span>
           </button>
         ))}
-      </div>
-
-      <div className="fixed-bottom">
-        <button
-          className="btn btn-primary btn-large"
-          disabled={!selectedCountry}
-          onClick={handleContinue}
-        >
-          {t('registration.continue')}
-        </button>
       </div>
       </div>
     </div>
