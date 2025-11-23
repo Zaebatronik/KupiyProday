@@ -386,21 +386,12 @@ export default function AdminPage() {
             ← Назад
           </button>
           <h1 className="page-title">🐻 Берлога - Админ-панель</h1>
-          <button
+          <button 
+            className={`refresh-btn ${liveUpdating ? 'refreshing' : ''}`}
             onClick={() => window.location.reload()}
-            style={{
-              padding: '8px 16px',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginLeft: '12px',
-              fontSize: '14px'
-            }}
           >
-            🔄 Обновить
+            <span className="refresh-icon">🔄</span>
+            Обновить
           </button>
           {liveUpdating && (
             <div style={{
@@ -492,38 +483,16 @@ export default function AdminPage() {
             </div>
 
             {/* Экспорт данных */}
-            <div style={{ marginTop: 24, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="export-buttons">
               <button 
-                className="export-btn"
+                className="export-btn export-csv"
                 onClick={exportToCSV}
-                style={{
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                  transition: 'all 0.3s'
-                }}
               >
                 📥 Экспорт в CSV
               </button>
               <button 
-                className="export-btn"
+                className="export-btn export-json"
                 onClick={exportToJSON}
-                style={{
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                  transition: 'all 0.3s'
-                }}
               >
                 📥 Экспорт в JSON
               </button>
