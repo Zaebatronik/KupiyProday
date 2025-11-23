@@ -136,7 +136,7 @@ export default function AddListingPage() {
       // Используем telegramId как основной ID (если есть) или id
       const userId = user?.telegramId || user?.id || 'unknown';
       
-      const listing = {
+      const listingData = {
         userId: userId, // Telegram ID пользователя
         userNickname: user?.nickname || 'Anonymous',
         category,
@@ -151,6 +151,15 @@ export default function AddListingPage() {
         views: 0,
       };
 
+      // Полный объект объявления с всеми обязательными полями для типа Listing
+      const listing = {
+        id: `listing_${Date.now()}`,
+        serialNumber: `SN${Date.now()}`,
+        ...listingData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
       console.log('📝 Создаём объявление:', {
         userId,
         title: listing.title,
@@ -161,13 +170,13 @@ export default function AddListingPage() {
       addListing(listing);
       console.log('✅ Объявление сохранено локально');
 
-      // Отправляем на сервер
+      // Отправляем на сервер (только данные, без локальных ID)
       try {
         console.log('🌐 Отправка на сервер:', {
           url: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-          data: listing
+          data: listingData
         });
-        const response = await listingsAPI.create(listing);
+        const response = await listingsAPI.create(listingData);
         console.log('✅ Объявление сохранено на сервере:', response.data);
       } catch (serverError: any) {
         console.error('❌ Ошибка при сохранении на сервер:', {
@@ -187,6 +196,9 @@ export default function AddListingPage() {
         window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
       }
 
+      // Очищаем черновик после успешной публикации
+      clearDraft();
+      
       alert(t('addListing.success'));
       navigate('/my-listings');
     } catch (error) {
