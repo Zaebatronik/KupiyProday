@@ -40,21 +40,45 @@ export default function UserProfilePage() {
   const loadUserData = async () => {
     setLoading(true);
     try {
-      // Загружаем данные пользователя
-      const foundUser = allUsers.find((u: any) => 
-        u.id === userId || u.telegramId === userId
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      console.log('🔍 UserProfilePage: Загружаю данные для userId:', userId);
+      console.log('🔍 UserProfilePage: Пользователи в store:', allUsers.length);
+      
+      // Сначала пробуем найти в store
+      let foundUser = allUsers.find((u: any) => 
+        u.id === userId || u.telegramId === userId || u._id === userId
       );
 
+      // Если не нашли в store, загружаем всех пользователей с сервера
       if (!foundUser) {
-        console.error('❌ Пользователь не найден:', userId);
+        console.log('⚠️ UserProfilePage: Пользователь не найден в store, загружаю с сервера...');
+        try {
+          const usersResponse = await fetch(`${API_URL}/api/users`);
+          if (usersResponse.ok) {
+            const serverUsers = await usersResponse.json();
+            console.log('📥 UserProfilePage: Загружено пользователей с сервера:', serverUsers.length);
+            foundUser = serverUsers.find((u: any) => 
+              u.id === userId || u.telegramId === userId || u._id === userId
+            );
+          }
+        } catch (err) {
+          console.error('❌ Ошибка загрузки пользователей:', err);
+        }
+      }
+
+      if (!foundUser) {
+        console.error('❌ Пользователь не найден ни в store, ни на сервере:', userId);
+        alert(`Пользователь с ID ${userId} не найден`);
         navigate('/admin');
         return;
       }
 
+      console.log('✅ UserProfilePage: Пользователь найден:', foundUser.nickname);
       setUser(foundUser);
 
       // Загружаем объявления пользователя с сервера
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      console.log('📦 UserProfilePage: Загружаю объявления...');
       const response = await fetch(`${API_URL}/api/listings/admin/all`);
       
       if (!response.ok) {
@@ -62,10 +86,19 @@ export default function UserProfilePage() {
       }
 
       const allListings = await response.json();
-      const userListings = allListings.filter((listing: any) => 
-        listing.userId === userId || listing.userId === foundUser.telegramId
-      );
+      console.log('📦 UserProfilePage: Всего объявлений на сервере:', allListings.length);
+      
+      const userTelegramId = foundUser.telegramId || foundUser.id || (foundUser as any)._id;
+      const userListings = allListings.filter((listing: any) => {
+        const matches = listing.userId === userId || 
+                       listing.userId === userTelegramId ||
+                       listing.userId === (foundUser as any)._id;
+        return matches;
+      });
 
+      console.log('📦 UserProfilePage: Объявлений пользователя:', userListings.length);
+      console.log('📦 UserProfilePage: Объявления:', userListings);
+      
       setListings(userListings);
       
       // Форматируем цены
@@ -73,6 +106,7 @@ export default function UserProfilePage() {
       
     } catch (error) {
       console.error('❌ Ошибка загрузки данных:', error);
+      alert('Ошибка загрузки данных пользователя');
     } finally {
       setLoading(false);
     }

@@ -680,11 +680,48 @@ export default function AdminPage() {
                     <div className="user-details">
                       <span>ID: {user.id}</span>
                       <span>{user.country} • {user.city}</span>
-                      <span>{user.listingsCount} объявлений</span>
+                      <span>
+                        📦 {user.listingsCount} объявлений
+                        {user.listingsCount > 0 && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/user/${user.id}`);
+                            }}
+                            style={{
+                              marginLeft: '8px',
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: '#667eea',
+                              color: 'white',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            👁️ Смотреть
+                          </button>
+                        )}
+                      </span>
                       <span>С {user.joinedAt}</span>
                     </div>
                   </div>
                   <div className="user-actions" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/user/${user.id}`);
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      👤 Профиль
+                    </button>
                     {!user.isAdmin && (
                       user.status === 'active' ? (
                         <button 
