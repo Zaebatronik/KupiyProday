@@ -291,7 +291,7 @@ export default function AdminPage() {
           <button className="back-button" onClick={() => navigate('/menu')}>
             ← Назад
           </button>
-          }}>🐻 Берлога - Админ-панель</h1>
+          <h1 className="page-title">🐻 Берлога - Админ-панель</h1>
           {liveUpdating && (
             <div style={{
               display: 'inline-flex',
