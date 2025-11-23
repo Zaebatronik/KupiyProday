@@ -13,6 +13,8 @@ body {
   background-color: var(--tg-theme-bg-color, #ffffff);
   color: var(--tg-theme-text-color, #000000);
   overflow-x: hidden;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
 }
 
 #root {
@@ -55,49 +57,100 @@ img {
 
 .btn {
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-primary {
-  background-color: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #ffffff);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: var(--tg-theme-text-color, #000000);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .btn-outline {
   border: 2px solid var(--tg-theme-button-color, #2481cc);
   color: var(--tg-theme-button-color, #2481cc);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: var(--tg-theme-button-color, #2481cc);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .btn-large {
   padding: 16px 32px;
   font-size: 18px;
   width: 100%;
+  font-weight: 700;
 }
 
 .input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--tg-theme-hint-color, #999999);
-  border-radius: 8px;
+  padding: 14px 18px;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
   font-size: 16px;
-  background-color: var(--tg-theme-bg-color, #ffffff);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   color: var(--tg-theme-text-color, #000000);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.input:focus {
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
 }
 
 .input:focus {

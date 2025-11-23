@@ -1,52 +1,79 @@
 .main-menu {
   min-height: 100vh;
   padding: 24px;
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .menu-header {
   position: relative;
   text-align: center;
   margin-bottom: 40px;
-  padding-top: 10px;
+  padding: 24px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .menu-header h1 {
-  font-size: 32px;
-  font-weight: bold;
+  font-size: 36px;
+  font-weight: 800;
   margin-bottom: 8px;
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  animation: titlePulse 3s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .menu-description {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #999);
+  color: rgba(255, 255, 255, 0.9);
   margin-top: 4px;
+  font-weight: 500;
 }
 
 .logout-button {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 40px;
-  height: 40px;
-  background: #fc8181;
+  top: 10px;
+  left: 10px;
+  width: 44px;
+  height: 44px;
+  background: rgba(252, 129, 129, 0.9);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(252, 129, 129, 0.4);
+  backdrop-filter: blur(5px);
 }
 
 .logout-button:hover {
-  background: #f56565;
-  transform: scale(1.1);
+  background: rgba(245, 101, 101, 1);
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 0 6px 20px rgba(252, 129, 129, 0.6);
 }
 
 .logout-button:active {
-  transform: scale(0.95);
+  transform: scale(0.95) rotate(0deg);
 }
 
 .notification-bell {
@@ -103,29 +130,63 @@
 }
 
 .menu-item {
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #ffffff);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
   padding: 32px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.menu-item:hover::before {
+  left: 100%;
 }
 
 .menu-item:active {
-  transform: scale(0.95);
+  transform: translateY(-2px) scale(0.98);
 }
 
 .menu-icon {
-  font-size: 48px;
+  font-size: 52px;
+  animation: iconFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .menu-label {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Адаптация для мобильных */

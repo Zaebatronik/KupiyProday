@@ -1,7 +1,15 @@
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   padding-bottom: 80px;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Шапка */
@@ -44,11 +52,25 @@
 /* Карточка профиля */
 .profile-card {
   margin: 20px;
-  padding: 30px;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 35px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 28px;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.15);
   text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: cardFadeIn 0.6s ease-out;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .profile-avatar {
@@ -58,18 +80,29 @@
 }
 
 .avatar-circle {
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: 52px;
   color: white;
-  font-weight: 700;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-  border: 4px solid white;
+  font-weight: 800;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5), 0 0 60px rgba(102, 126, 234, 0.3);
+  border: 5px solid white;
+  position: relative;
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+
+@keyframes avatarPulse {
+  0%, 100% {
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5), 0 0 60px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 16px 50px rgba(102, 126, 234, 0.7), 0 0 80px rgba(102, 126, 234, 0.5);
+  }
 }
 
 .admin-crown {
@@ -132,22 +165,29 @@
 }
 
 .stat-item {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .stat-item:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
 }
 
 .stat-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: 5px;
 }
 
