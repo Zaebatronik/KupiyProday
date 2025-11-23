@@ -50,6 +50,8 @@ export default function AdminPage() {
         const response = await userAPI.getAll();
         const serverUsers = response.data;
 
+        console.log('🔄 AdminPage: Загружено пользователей с сервера:', serverUsers.length);
+
         const adminUsers: AdminUser[] = serverUsers.map((user: any) => ({
           id: user.id,
           nickname: user.nickname,
@@ -61,24 +63,17 @@ export default function AdminPage() {
           isAdmin: user.id === ADMIN_ID,
         }));
 
-        // Добавляем админа первым если его еще нет
-        const hasAdmin = adminUsers.some((u) => u.id === ADMIN_ID);
-        if (!hasAdmin) {
-          adminUsers.unshift({
-            id: ADMIN_ID,
-            nickname: 'Администратор',
-            country: 'Система',
-            city: 'Система',
-            listingsCount: 0,
-            joinedAt: new Date().toLocaleDateString('ru-RU'),
-            status: 'active',
-            isAdmin: true,
-          });
-        }
+        // Сортируем: админ первый, остальные по дате
+        adminUsers.sort((a, b) => {
+          if (a.isAdmin) return -1;
+          if (b.isAdmin) return 1;
+          return 0;
+        });
 
         setUsers(adminUsers);
+        console.log('✅ AdminPage: Список обновлён, всего пользователей:', adminUsers.length);
       } catch (error) {
-        console.error('Failed to load users from server:', error);
+        console.error('❌ Failed to load users from server:', error);
         // Fallback на локальные данные
         const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
           id: user.id,
@@ -95,6 +90,14 @@ export default function AdminPage() {
     };
 
     loadUsers();
+    
+    // Обновляем список каждые 3 секунды
+    const interval = setInterval(() => {
+      console.log('🔄 AdminPage: Автообновление списка пользователей...');
+      loadUsers();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [allUsers, listings]);
 
   // Проверка доступа (в реальном приложении это будет на бэкенде)
