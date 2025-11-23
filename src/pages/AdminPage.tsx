@@ -91,11 +91,11 @@ export default function AdminPage() {
 
     loadUsers();
     
-    // Обновляем список каждые 3 секунды
+    // Обновляем список каждые 10 секунд (вместо 3)
     const interval = setInterval(() => {
       console.log('🔄 AdminPage: Автообновление списка пользователей...');
       loadUsers();
-    }, 3000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [allUsers, listings]);
