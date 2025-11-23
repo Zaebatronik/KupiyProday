@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import '../styles/AdminPage.css';
 
 // ID админа (ваш Telegram ID)
-const ADMIN_ID = '123456789'; // Замените на ваш реальный Telegram ID
+const ADMIN_ID = '670170626';
 
 interface User {
   id: string;
