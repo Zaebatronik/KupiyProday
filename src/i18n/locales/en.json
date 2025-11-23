@@ -55,7 +55,17 @@
     "sort": "Sort",
     "categories": "Categories",
     "noResults": "No listings found",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "recentSearches": "Recent Searches",
+    "clearHistory": "Clear",
+    "onlyNegotiable": "Only with price negotiation",
+    "sortBy": "Sort by",
+    "newest": "Newest first",
+    "oldest": "Oldest first",
+    "cheapest": "Price: Low to High",
+    "expensive": "Price: High to Low",
+    "found": "Found",
+    "listings": "listings"
   },
   "categories": {
     "all": "All categories",
@@ -136,6 +146,19 @@
     "submit": "Submit report",
     "thankYou": "Thank you! Your report has been submitted.",
     "instructions": "Usage instructions"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "markAllRead": "Mark all as read",
+    "clearRead": "Clear read",
+    "noUnread": "No unread notifications",
+    "empty": "No notifications yet",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago"
   },
   "common": {
     "ok": "OK",
