@@ -55,6 +55,14 @@ export default function AdminPage() {
       try {
         const { userAPI } = await import('../services/api');
         console.log('🔍 AdminPage: Загрузка пользователей с сервера...');
+        
+        if (isInitial) {
+          setLogs(lgs => [
+            '⏳ Подключение к серверу... (может занять 10-30 сек если сервер "спал")',
+            ...lgs
+          ]);
+        }
+        
         const response = await userAPI.getAll();
         console.log('📦 AdminPage: Получен ответ от сервера:', response.data);
         const serverUsers = response.data;

@@ -8,7 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // Увеличили таймаут до 10 секунд
+  timeout: 60000, // 60 секунд для пробуждения Render сервера
 });
 
 // Interceptor для добавления Telegram user data и логирования
