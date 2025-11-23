@@ -9,7 +9,7 @@ export default function MainMenu() {
   const { setUser } = useStore();
 
   // ID админа
-  const ADMIN_ID = '123456789'; // Замените на ваш реальный Telegram ID
+  const ADMIN_ID = '670170626';
   const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
   const isAdmin = currentUserId === ADMIN_ID;
 
