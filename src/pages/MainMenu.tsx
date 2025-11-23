@@ -30,28 +30,11 @@ export default function MainMenu() {
   return (
     <div className="main-menu">
       <div className="menu-header">
-        <h1>🛒 KupyProdai</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            padding: '8px 16px',
-            background: '#fc8181',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#f56565')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = '#fc8181')}
-        >
-          🚪 Выйти
+        <button className="logout-button" onClick={handleLogout}>
+          🚪
         </button>
+        <h1>🐻 Берлога</h1>
+        <p className="menu-description">Покупай и продавай что угодно рядом с домом</p>
       </div>
       <div className="menu-grid">
         {menuItems.map((item) => (

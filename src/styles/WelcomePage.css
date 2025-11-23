@@ -583,6 +583,14 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.app-slogan {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-top: 10px;
+  font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
 .welcome-messages {
   text-align: center;
   margin-bottom: 40px;
@@ -643,4 +651,57 @@
 
 .language-button .lang-name {
   flex: 1;
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 32px;
+  }
+  
+  .app-slogan {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  
+  .welcome-messages {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+  
+  .language-selector {
+    padding: 20px;
+  }
+  
+  .language-button {
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .language-button .flag {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-title {
+    font-size: 28px;
+  }
+  
+  .app-slogan {
+    font-size: 13px;
+  }
+  
+  .welcome-messages {
+    font-size: 13px;
+  }
+  
+  .language-button {
+    padding: 10px;
+    font-size: 15px;
+  }
+  
+  .language-button .flag {
+    font-size: 22px;
+  }
 }

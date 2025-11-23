@@ -528,3 +528,80 @@
 .apply-button:active {
   transform: translateY(0);
 }
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .catalog-header {
+    padding: 10px 12px;
+  }
+  
+  .catalog-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .search-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .filter-button {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .category-chip {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .listings-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .listing-card {
+    min-height: 140px;
+  }
+  
+  .listing-image {
+    height: 140px;
+  }
+  
+  .listing-title {
+    font-size: 15px;
+  }
+  
+  .listing-price {
+    font-size: 16px;
+  }
+  
+  .listing-location {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .catalog-header {
+    padding: 8px 10px;
+  }
+  
+  .catalog-title {
+    font-size: 18px;
+  }
+  
+  .search-input,
+  .filter-button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .listing-card {
+    min-height: 120px;
+  }
+  
+  .listing-image {
+    height: 120px;
+  }
+}

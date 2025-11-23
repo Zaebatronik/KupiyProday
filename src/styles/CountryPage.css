@@ -123,3 +123,40 @@
   font-size: 18px;
   width: 100%;
 }
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .country-page {
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+  
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .country-item {
+    padding: 14px 16px;
+    font-size: 16px;
+    gap: 12px;
+  }
+  
+  .country-item .flag {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .country-page {
+    padding: 12px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .country-item {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+}

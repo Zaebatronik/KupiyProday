@@ -55,3 +55,42 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .agreement-page {
+    padding: 16px 0;
+  }
+  
+  .page-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .agreement-content {
+    padding: 16px;
+    max-height: 300px;
+  }
+  
+  .agreement-text {
+    font-size: 14px;
+  }
+  
+  .checkbox-label {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .agreement-content {
+    padding: 12px;
+  }
+  
+  .agreement-text {
+    font-size: 13px;
+  }
+}

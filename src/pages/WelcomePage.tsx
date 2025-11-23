@@ -127,13 +127,14 @@ export default function WelcomePage() {
             </div>
           </div>
         </div>
-        <h1 className="app-title">KupyProdai</h1>
+        <h1 className="app-title">🐻 Берлога</h1>
+        <p className="app-slogan">Покупай и продавай что угодно рядом с домом</p>
       </div>
 
       <div className="welcome-messages">
-        <p>Добро пожаловать в KupyProdai!</p>
-        <p>Welcome to KupyProdai!</p>
-        <p>Ласкаво просимо до KupyProdai!</p>
+        <p>Добро пожаловать в Берлогу!</p>
+        <p>Welcome to Berloga!</p>
+        <p>Ласкаво просимо до Берлога!</p>
       </div>
 
       <div className="language-selector">
