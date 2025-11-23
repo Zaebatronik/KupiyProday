@@ -20,6 +20,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import SupportPage from './pages/SupportPage';
 import ChatPage from './pages/ChatPage';
 import AdminPage from './pages/AdminPage';
+import UserProfilePage from './pages/UserProfilePage';
 import GoodbyePage from './pages/GoodbyePage';
 import BannedPage from './pages/BannedPage';
 
@@ -134,6 +135,7 @@ function App() {
             <Route path="/support" element={<SupportPage />} />
             <Route path="/chat/:chatId" element={<ChatPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/user/:userId" element={<UserProfilePage />} />
           </>
         )}
       </Routes>

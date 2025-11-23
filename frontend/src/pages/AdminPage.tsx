@@ -697,7 +697,20 @@ export default function AdminPage() {
             </div>
             <div className="users-list">
               {filteredUsers.map(user => (
-                <div key={user.id} className={`user-card ${user.isAdmin ? 'admin-card' : ''} ${user.status === 'banned' ? 'banned' : ''}`}>
+                <div 
+                  key={user.id} 
+                  className={`user-card ${user.isAdmin ? 'admin-card' : ''} ${user.status === 'banned' ? 'banned' : ''}`}
+                  onClick={() => navigate(`/user/${user.id}`)}
+                  style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
+                >
                   <div className="user-info">
                     <div className="user-header">
                       <span className="user-nickname">
@@ -711,23 +724,29 @@ export default function AdminPage() {
                     <div className="user-details">
                       <span>ID: {user.id}</span>
                       <span>{user.country} • {user.city}</span>
-                      <span>{user.listingsCount} объявлений <button style={{marginLeft:4,padding:'4px 8px',borderRadius:6,border:'none',background:'#667eea',color:'white',cursor:'pointer'}} onClick={() => loadUserListings(user.id)}>👁️ Показать</button></span>
+                      <span>{user.listingsCount} объявлений</span>
                       <span>С {user.joinedAt}</span>
                     </div>
                   </div>
-                  <div className="user-actions">
+                  <div className="user-actions" onClick={(e) => e.stopPropagation()}>
                     {!user.isAdmin && (
                       user.status === 'active' ? (
                         <button 
                           className="action-btn ban-btn"
-                          onClick={() => handleBanUser(user.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBanUser(user.id);
+                          }}
                         >
                           🚫 Забанить
                         </button>
                       ) : (
                         <button 
                           className="action-btn unban-btn"
-                          onClick={() => handleUnbanUser(user.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnbanUser(user.id);
+                          }}
                         >
                           ✅ Разбанить
                         </button>
