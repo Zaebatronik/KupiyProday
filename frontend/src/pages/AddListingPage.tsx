@@ -100,7 +100,51 @@ export default function AddListingPage() {
       && Object.keys(errors).length === 0;
   };
 
-  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Максимальные размеры
+          const maxWidth = 1200;
+          const maxHeight = 1200;
+          let width = img.width;
+          let height = img.height;
+          
+          // Пропорциональное уменьшение
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Сжатие до 70% качества
+          const compressed = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressed);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePhotoSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
@@ -109,13 +153,14 @@ export default function AddListingPage() {
     for (let i = 0; i < Math.min(files.length, maxPhotos - photos.length); i++) {
       const file = files[i];
       if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            setPhotos(prev => [...prev, e.target!.result as string]);
-          }
-        };
-        reader.readAsDataURL(file);
+        try {
+          const compressed = await compressImage(file);
+          setPhotos(prev => [...prev, compressed]);
+          console.log(`✅ Фото сжато: ${(file.size / 1024).toFixed(0)}KB → ${(compressed.length / 1024).toFixed(0)}KB`);
+        } catch (error) {
+          console.error('❌ Ошибка сжатия фото:', error);
+          alert('Ошибка при обработке фото. Попробуйте другое изображение.');
+        }
       }
     }
   };
@@ -189,8 +234,11 @@ export default function AddListingPage() {
         });
         console.log('✅ Объявление сохранено на сервере:', response.data);
         
-        // Показываем успешное сообщение
-        alert('✅ Объявление успешно опубликовано!');
+        // Вибрация успеха
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        
       } catch (serverError: any) {
         console.error('❌ Ошибка при сохранении на сервер:', {
           message: serverError?.message,
@@ -204,17 +252,20 @@ export default function AddListingPage() {
         
         console.warn('⚠️ Объявление сохранено только локально');
         
+        // Вибрация ошибки
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+        }
+        
         // Показываем пользователю подробную ошибку
-        alert(`⚠️ Не удалось опубликовать на сервер:\n\n${errorMessage}\n${errorDetails}\n\nОбъявление сохранено локально. Попробуйте позже или обратитесь к администратору.`);
-      }
-
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        alert(`⚠️ Ошибка публикации:\n\n${errorMessage}\n${errorDetails}\n\nОбъявление сохранено локально и будет синхронизировано позже.`);
       }
 
       // Очищаем черновик после успешной публикации
       clearDraft();
       
+      // Показываем успех и переходим
+      alert('✅ Объявление успешно опубликовано!');
       navigate('/my-listings');
     } catch (error: any) {
       console.error('❌ Критическая ошибка при создании объявления:', error);
