@@ -17,7 +17,8 @@ const io = new Server(httpServer, {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Увеличен лимит для base64 фото
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // Делаем io доступным для всех роутов
