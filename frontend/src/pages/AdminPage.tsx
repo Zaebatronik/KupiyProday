@@ -116,13 +116,28 @@ export default function AdminPage() {
         }
       } catch (error: any) {
         console.error('❌ AdminPage: Ошибка загрузки пользователей:', error);
-        console.error('Детали:', error.response?.data, error.message);
+        console.error('Полный объект ошибки:', {
+          message: error.message,
+          response: error.response,
+          request: error.request,
+          config: error.config
+        });
+        
+        const errorMessage = error.response?.data?.message || error.message || String(error);
+        const errorDetails = JSON.stringify(error.response?.data || {});
+        
         setLogs(lgs => [
-          `❌ Ошибка загрузки пользователей: ${error.message || error}`,
+          `❌ ОШИБКА загрузки: ${errorMessage}`,
           `🔗 URL: ${error.config?.url || 'неизвестно'}`,
           `📡 Статус: ${error.response?.status || 'нет ответа'}`,
+          `📋 Детали: ${errorDetails}`,
           ...lgs
         ]);
+        
+        // Показываем alert с ошибкой
+        if (isInitial) {
+          alert(`❌ Ошибка загрузки пользователей:\n\n${errorMessage}\n\nСтатус: ${error.response?.status || 'нет связи'}\n\nПроверьте консоль для деталей.`);
+        }
         if (isInitial) {
           console.log('⚠️ AdminPage: Используем fallback на локальные данные:', allUsers);
           const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
@@ -363,6 +378,22 @@ export default function AdminPage() {
             ← Назад
           </button>
           <h1 className="page-title">🐻 Берлога - Админ-панель</h1>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginLeft: '12px',
+              fontSize: '14px'
+            }}
+          >
+            🔄 Обновить
+          </button>
           {liveUpdating && (
             <div style={{
               display: 'inline-flex',
