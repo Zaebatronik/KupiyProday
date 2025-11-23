@@ -20,6 +20,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import SupportPage from './pages/SupportPage';
 import ChatPage from './pages/ChatPage';
 import AdminPage from './pages/AdminPage';
+import GoodbyePage from './pages/GoodbyePage';
 
 function App() {
   const { i18n } = useTranslation();
@@ -40,6 +41,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Страница прощания (доступна всегда) */}
+        <Route path="/goodbye" element={<GoodbyePage />} />
+        
         {/* Регистрация */}
         {!isRegistered ? (
           <>
