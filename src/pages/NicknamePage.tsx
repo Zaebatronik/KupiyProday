@@ -77,10 +77,18 @@ export default function NicknamePage() {
         };
       }
 
-      // Сохраняем пользователя
+      // Сохраняем пользователя локально
       setUser(user);
-      // Добавляем в общий реестр для админа
+      // Добавляем в общий реестр для админа (локально)
       addUserToRegistry(user);
+
+      // Отправляем на сервер (если доступен)
+      try {
+        await userAPI.register(user);
+        console.log('User saved to server');
+      } catch (serverError) {
+        console.warn('Server unavailable, user saved locally only:', serverError);
+      }
 
       // Очищаем temporary data
       localStorage.removeItem('registrationCountry');

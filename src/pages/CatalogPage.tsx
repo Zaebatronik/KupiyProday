@@ -53,25 +53,56 @@ export default function CatalogPage() {
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
 
-  // Загрузка данных из store
+  // Загрузка данных с сервера
   useEffect(() => {
-    setLoading(true);
-    const formattedListings = storeListings.map(l => ({
-      id: l.id,
-      title: l.title,
-      description: l.description,
-      price: l.price || 0,
-      negotiable: l.negotiable,
-      category: l.category,
-      city: l.city,
-      photos: l.photos,
-      createdAt: new Date(l.createdAt).toISOString(),
-      userId: l.userId,
-      isFavorite: false
-    }));
-    setListings(formattedListings);
-    setFilteredListings(formattedListings);
-    setLoading(false);
+    const loadListings = async () => {
+      setLoading(true);
+      try {
+        const { listingsAPI } = await import('../services/api');
+        const response = await listingsAPI.getAll();
+        const serverListings = response.data;
+
+        const formattedListings = serverListings.map((l: any) => ({
+          id: l.id,
+          title: l.title,
+          description: l.description,
+          price: l.price || 0,
+          negotiable: l.negotiable,
+          category: l.category,
+          city: l.city,
+          photos: l.photos,
+          createdAt: l.createdAt,
+          userId: l.userId,
+          isFavorite: false
+        }));
+        
+        setListings(formattedListings);
+        setFilteredListings(formattedListings);
+        console.log(`Loaded ${formattedListings.length} listings from server`);
+      } catch (error) {
+        console.error('Failed to load listings from server:', error);
+        // Fallback на локальные данные
+        const formattedListings = storeListings.map(l => ({
+          id: l.id,
+          title: l.title,
+          description: l.description,
+          price: l.price || 0,
+          negotiable: l.negotiable,
+          category: l.category,
+          city: l.city,
+          photos: l.photos,
+          createdAt: new Date(l.createdAt).toISOString(),
+          userId: l.userId,
+          isFavorite: false
+        }));
+        setListings(formattedListings);
+        setFilteredListings(formattedListings);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadListings();
   }, [storeListings]);
 
   // Фильтрация и сортировка

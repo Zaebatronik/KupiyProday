@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useStore } from '../store';
+import { listingsAPI } from '../services/api';
 import '../styles/AddListingPage.css';
 
 const CATEGORIES = [
@@ -20,6 +22,7 @@ const CATEGORIES = [
 export default function AddListingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, addListing } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
@@ -61,15 +64,50 @@ export default function AddListingPage() {
 
     setIsSubmitting(true);
 
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    }
+    try {
+      const listing = {
+        id: `listing_${Date.now()}`,
+        serialNumber: `SN${Date.now()}`,
+        userId: user?.id || 'unknown',
+        userNickname: user?.nickname || 'Anonymous',
+        category,
+        title: title.trim(),
+        description: description.trim(),
+        price: parseFloat(price),
+        negotiable,
+        city: user?.city || 'Не указан',
+        country: user?.country || 'RU',
+        photos,
+        status: 'active' as const,
+        views: 0,
+        favoritesCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
-    // Имитация отправки (в будущем здесь будет API запрос)
-    setTimeout(() => {
+      // Сохраняем локально
+      addListing(listing);
+
+      // Отправляем на сервер
+      try {
+        await listingsAPI.create(listing);
+        console.log('Listing saved to server');
+      } catch (serverError) {
+        console.warn('Server unavailable, listing saved locally only:', serverError);
+      }
+
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+
       alert(t('addListing.success'));
       navigate('/my-listings');
-    }, 1000);
+    } catch (error) {
+      console.error('Failed to create listing:', error);
+      alert('Ошибка при создании объявления');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

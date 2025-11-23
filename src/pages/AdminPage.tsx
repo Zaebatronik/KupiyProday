@@ -41,35 +41,60 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
 
-  // Формируем список пользователей из реестра
+  // Загружаем пользователей с сервера
   useEffect(() => {
-    const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
-      id: user.id,
-      nickname: user.nickname,
-      country: user.country,
-      city: user.city,
-      listingsCount: listings.filter((l) => l.userId === user.id).length,
-      joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
-      status: 'active' as const,
-      isAdmin: user.id === ADMIN_ID,
-    }));
+    const loadUsers = async () => {
+      try {
+        // Импортируем API
+        const { userAPI } = await import('../services/api');
+        const response = await userAPI.getAll();
+        const serverUsers = response.data;
 
-    // Добавляем администратора если его еще нет
-    const hasAdmin = adminUsers.some((u) => u.id === ADMIN_ID);
-    if (!hasAdmin) {
-      adminUsers.unshift({
-        id: ADMIN_ID,
-        nickname: 'Администратор',
-        country: 'Система',
-        city: 'Система',
-        listingsCount: 0,
-        joinedAt: new Date().toLocaleDateString('ru-RU'),
-        status: 'active',
-        isAdmin: true,
-      });
-    }
+        const adminUsers: AdminUser[] = serverUsers.map((user: User) => ({
+          id: user.id,
+          nickname: user.nickname,
+          country: user.country,
+          city: user.city,
+          listingsCount: listings.filter((l) => l.userId === user.id).length,
+          joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
+          status: 'active' as const,
+          isAdmin: user.id === ADMIN_ID,
+        }));
 
-    setUsers(adminUsers);
+        // Добавляем админа первым если его еще нет
+        const hasAdmin = adminUsers.some((u) => u.id === ADMIN_ID);
+        if (!hasAdmin) {
+          adminUsers.unshift({
+            id: ADMIN_ID,
+            nickname: 'Администратор',
+            country: 'Система',
+            city: 'Система',
+            listingsCount: 0,
+            joinedAt: new Date().toLocaleDateString('ru-RU'),
+            status: 'active',
+            isAdmin: true,
+          });
+        }
+
+        setUsers(adminUsers);
+      } catch (error) {
+        console.error('Failed to load users from server:', error);
+        // Fallback на локальные данные
+        const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
+          id: user.id,
+          nickname: user.nickname,
+          country: user.country,
+          city: user.city,
+          listingsCount: listings.filter((l) => l.userId === user.id).length,
+          joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
+          status: 'active' as const,
+          isAdmin: user.id === ADMIN_ID,
+        }));
+        setUsers(adminUsers);
+      }
+    };
+
+    loadUsers();
   }, [allUsers, listings]);
 
   // Проверка доступа (в реальном приложении это будет на бэкенде)
