@@ -6,7 +6,7 @@ interface AppState {
   // User
   user: User | null;
   isRegistered: boolean;
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void;
   updateUser: (updates: Partial<User>) => void;
   clearUser: () => void;
 
