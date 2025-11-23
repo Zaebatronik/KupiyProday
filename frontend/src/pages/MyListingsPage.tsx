@@ -52,7 +52,7 @@ export default function MyListingsPage() {
           favorites: 0,
           createdAt: new Date(l.createdAt).toLocaleDateString('ru-RU')
         }));
-        setListings(formatted);ed);
+        setListings(formatted);
         
         // Форматируем цены
         const priceMap = new Map<string, string>();
@@ -72,7 +72,9 @@ export default function MyListingsPage() {
     };
     
     loadMyListings();
-  }, [user?.telegramId, user?.id, user?.country]);  const filteredListings = filter === 'all' 
+  }, [user?.telegramId, user?.id, user?.country]);
+
+  const filteredListings = filter === 'all' 
     ? listings 
     : listings.filter(l => l.status === filter);
 
