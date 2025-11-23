@@ -47,9 +47,38 @@ export default function AdminPage() {
   const [liveUpdating, setLiveUpdating] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
+  // Загрузка локальных пользователей
+  const loadLocalUsers = () => {
+    console.log('💾 Загрузка локальных пользователей из store:', allUsers);
+    const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
+      id: user.telegramId || user.id,
+      nickname: user.nickname,
+      country: user.country,
+      city: user.city,
+      listingsCount: listings.filter((l) => l.userId === (user.telegramId || user.id)).length,
+      joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
+      status: 'active' as const,
+      isAdmin: (user.telegramId || user.id) === ADMIN_ID,
+    }));
+    adminUsers.sort((a, b) => {
+      if (a.isAdmin) return -1;
+      if (b.isAdmin) return 1;
+      return 0;
+    });
+    setUsers(adminUsers);
+    setLogs(lgs => [
+      `💾 Загружено ${adminUsers.length} пользователей из локального хранилища`,
+      ...lgs
+    ]);
+  };
+
   // Умная загрузка пользователей с инкрементальными обновлениями
   useEffect(() => {
     let isSubscribed = true;
+    
+    // Сначала загружаем локальные данные
+    loadLocalUsers();
+    
     const loadUsers = async (isInitial = false) => {
       if (!isSubscribed) return;
       try {
