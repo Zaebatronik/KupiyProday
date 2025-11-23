@@ -28,8 +28,8 @@ export default function MainMenu() {
       // Очищаем данные пользователя
       setUser(null);
       localStorage.clear();
-      // Переходим на страницу приветствия
-      navigate('/welcome');
+      // Переходим на домашнюю страницу
+      navigate('/');
     }
   };
 
