@@ -40,6 +40,11 @@ export default function NicknamePage() {
 
       // Получаем Telegram ID пользователя
       const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || `local_${Date.now()}`;
+      
+      console.log('=== РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ ===');
+      console.log('Telegram ID:', telegramId);
+      console.log('Telegram WebApp доступен:', !!window.Telegram?.WebApp);
+      console.log('User data:', window.Telegram?.WebApp?.initDataUnsafe?.user);
 
       // Создаём данные пользователя
       const userData = {
@@ -54,6 +59,8 @@ export default function NicknamePage() {
         registrationDate: new Date().toISOString(),
       };
 
+      console.log('Отправляем на сервер:', userData);
+
       let user: User;
 
       // Пытаемся зарегистрировать через API
@@ -67,19 +74,28 @@ export default function NicknamePage() {
         }
 
         // Регистрация пользователя на сервере
+        console.log('Отправка на http://192.168.0.235:3001/users...');
         const response = await userAPI.register(userData);
+        console.log('Ответ от сервера:', response.data);
+        
         user = {
           ...response.data,
           createdAt: new Date(response.data.createdAt),
         };
-        console.log('User registered on server:', user);
+        console.log('✅ User registered on server:', user);
       } catch (apiError) {
         // Если API недоступен, создаём пользователя локально
-        console.warn('API unavailable, creating user locally:', apiError);
+        console.error('❌ ОШИБКА при регистрации на сервере:', apiError);
+        console.error('Детали ошибки:', {
+          message: (apiError as any)?.message,
+          response: (apiError as any)?.response?.data,
+          status: (apiError as any)?.response?.status,
+        });
         user = {
           ...userData,
           createdAt: new Date(),
         };
+        console.warn('⚠️ Создан локальный пользователь (сервер недоступен)');
       }
 
       // Сохраняем пользователя локально
