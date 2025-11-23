@@ -22,6 +22,7 @@ import ChatPage from './pages/ChatPage';
 import AdminPage from './pages/AdminPage';
 import GoodbyePage from './pages/GoodbyePage';
 import BannedPage from './pages/BannedPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   const { i18n } = useTranslation();
@@ -105,6 +106,7 @@ function App() {
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/chat/:chatId" element={<ChatPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/admin" element={<AdminPage />} />
           </>
         )}
