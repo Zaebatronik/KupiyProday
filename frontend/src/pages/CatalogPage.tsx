@@ -90,7 +90,7 @@ export default function CatalogPage() {
         const response = await listingsAPI.getAll(params);
         const serverListings = response.data;
         const formattedListings = serverListings.map((l: any) => ({
-          id: l.id,
+          id: l._id || l.id,
           title: l.title,
           description: l.description,
           price: l.price || 0,

@@ -64,14 +64,39 @@ router.get('/', async (req, res) => {
 // Получить объявление по ID
 router.get('/:id', async (req, res) => {
   try {
-    const listing = await Listing.findById(req.params.id);
+    console.log('🔍 Поиск объявления по ID:', req.params.id);
+    
+    let listing;
+    
+    // Пытаемся найти по MongoDB _id
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      listing = await Listing.findById(req.params.id);
+      console.log('📌 Поиск по MongoDB _id:', listing ? 'найдено' : 'не найдено');
+    }
+    
+    // Если не найдено, ищем по serialNumber или другим полям
     if (!listing) {
+      listing = await Listing.findOne({
+        $or: [
+          { serialNumber: req.params.id },
+          { id: req.params.id }
+        ]
+      });
+      console.log('📌 Поиск по serialNumber/id:', listing ? 'найдено' : 'не найдено');
+    }
+    
+    if (!listing) {
+      console.log('❌ Объявление не найдено:', req.params.id);
       return res.status(404).json({ message: 'Объявление не найдено' });
     }
+    
+    // Увеличиваем просмотры
     listing.views += 1;
     await listing.save();
+    console.log('✅ Объявление найдено:', listing._id, listing.title);
     res.json(listing);
   } catch (error) {
+    console.error('❌ Ошибка при поиске объявления:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });
