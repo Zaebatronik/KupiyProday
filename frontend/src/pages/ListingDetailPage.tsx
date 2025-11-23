@@ -394,14 +394,34 @@ export default function ListingDetailPage() {
           color: '#6b7280',
           lineHeight: '1.6'
         }}>
-          <div style={{ marginBottom: '8px' }}>
-            <strong>ID:</strong> {listing.serialNumber}
+          <div style={{ 
+            marginBottom: '12px',
+            padding: '10px',
+            background: 'white',
+            borderRadius: '8px',
+            border: '2px dashed rgba(102, 126, 234, 0.3)'
+          }}>
+            <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px' }}>
+              ИДЕНТИФИКАЦИОННЫЙ НОМЕР
+            </div>
+            <div style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              fontFamily: 'monospace',
+              color: '#667eea',
+              letterSpacing: '0.5px'
+            }}>
+              {listing.serialNumber}
+            </div>
+            <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
+              💡 Используйте при подаче жалобы
+            </div>
           </div>
           <div style={{ marginBottom: '8px' }}>
-            <strong>Просмотры:</strong> {listing.views}
+            <strong>👁️ Просмотры:</strong> {listing.views}
           </div>
           <div>
-            <strong>Опубликовано:</strong> {new Date(listing.createdAt).toLocaleDateString('ru-RU')}
+            <strong>📅 Опубликовано:</strong> {new Date(listing.createdAt).toLocaleDateString('ru-RU')}
           </div>
         </div>
       </div>

@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
-const { nanoid } = require('nanoid');
+
+// Генератор уникального ID в формате nickname_XXXXX
+function generateListingId(userNickname) {
+  const randomDigits = Math.floor(10000 + Math.random() * 90000); // 5-значное число
+  return `${userNickname}_${randomDigits}`;
+}
 
 const listingSchema = new mongoose.Schema({
   serialNumber: {
     type: String,
-    default: () => nanoid(10),
     unique: true,
     index: true,
   },
@@ -82,6 +86,35 @@ const listingSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+});
+
+// Pre-save хук для генерации serialNumber
+listingSchema.pre('save', function(next) {
+  if (!this.serialNumber) {
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    const generateUniqueId = async () => {
+      const id = generateListingId(this.userNickname);
+      const existing = await mongoose.model('Listing').findOne({ serialNumber: id });
+      
+      if (!existing) {
+        this.serialNumber = id;
+        next();
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        generateUniqueId();
+      } else {
+        // Fallback: добавляем timestamp если не получилось за 10 попыток
+        this.serialNumber = `${this.userNickname}_${Date.now()}`;
+        next();
+      }
+    };
+    
+    generateUniqueId();
+  } else {
+    next();
+  }
 });
 
 // Составной индекс для быстрого поиска активных объявлений
