@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "670170626",
+      "nickname": "Администратор",
+      "country": "RU",
+      "city": "Система",
+      "radius": 0,
+      "language": "ru",
+      "contacts": {},
+      "createdAt": "2025-11-23T00:00:00.000Z"
+    },
+    {
+      "id": "test999",
+      "nickname": "????????",
+      "country": "RU",
+      "city": "?????",
+      "radius": 10,
+      "language": "ru",
+      "contacts": {},
+      "createdAt": "2025-11-23T12:00:00.000Z"
+    }
+  ],
+  "listings": [],
+  "chats": []
+}

@@ -1,0 +1,153 @@
+{
+  "welcome": {
+    "title": "Witamy w KupyProdai!",
+    "selectLanguage": "Wybierz język"
+  },
+  "languages": {
+    "ru": "Rosyjski",
+    "en": "English",
+    "uk": "Українська",
+    "de": "Deutsch",
+    "fr": "Français",
+    "es": "Español",
+    "pl": "Polski",
+    "more": "Więcej języków"
+  },
+  "agreement": {
+    "title": "Umowa użytkownika",
+    "text": "Korzystając z KupyProdai, akceptujesz następujące warunki:\n\n• Użytkownicy są w pełni odpowiedzialni za transakcje i dokładność ogłoszeń.\n• Administrator nie uczestniczy w transakcjach, ale blokuje oszustów.\n• Oszustwo, spam, zabronione treści — natychmiastowy ban.\n• Wszystkie spory rozwiązywane są tylko między użytkownikami.\n• Nie przechowujemy danych osobowych bez Twojej zgody.",
+    "accept": "Akceptuję warunki",
+    "decline": "Odrzuć"
+  },
+  "registration": {
+    "selectCountry": "Wybierz kraj",
+    "selectCity": "Wybierz miasto",
+    "searchCountry": "Szukaj kraju...",
+    "searchCity": "Szukaj miasta...",
+    "enterManually": "Wprowadź ręcznie",
+    "useGeolocation": "Użyj geolokalizacji",
+    "selectRadius": "Ustaw promień wyszukiwania",
+    "radius": "Promień",
+    "onlyMyCity": "Tylko moje miasto",
+    "radius50": "+50 km",
+    "radius150": "+150 km",
+    "radius500": "+500 km",
+    "enterNickname": "Wprowadź pseudonim",
+    "nicknamePlaceholder": "Twój unikalny pseudonim",
+    "nicknameRules": "Litery łacińskie lub cyrylica, 3-20 znaków",
+    "nicknameTaken": "Ten pseudonim jest już zajęty",
+    "continue": "Kontynuuj",
+    "back": "Wstecz",
+    "finish": "Zakończ rejestrację"
+  },
+  "menu": {
+    "catalog": "Katalog",
+    "addListing": "Dodaj",
+    "myListings": "Moje ogłoszenia",
+    "profile": "Profil",
+    "favorites": "Ulubione",
+    "support": "Pomoc"
+  },
+  "catalog": {
+    "title": "Katalog ogłoszeń",
+    "search": "Szukaj...",
+    "filter": "Filtruj",
+    "sort": "Sortuj",
+    "categories": "Kategorie",
+    "noResults": "Nie znaleziono ogłoszeń",
+    "loading": "Ładowanie..."
+  },
+  "categories": {
+    "all": "Wszystkie kategorie",
+    "transport": "Transport",
+    "realestate": "Nieruchomości",
+    "electronics": "Elektronika",
+    "services": "Usługi",
+    "fashion": "Moda",
+    "home": "Dom i Ogród",
+    "hobbies": "Hobby i Wypoczynek",
+    "animals": "Zwierzęta",
+    "jobs": "Praca",
+    "other": "Inne"
+  },
+  "listing": {
+    "title": "Tytuł",
+    "description": "Opis",
+    "price": "Cena",
+    "negotiable": "Do negocjacji",
+    "city": "Miasto",
+    "photos": "Zdjęcia",
+    "uploadPhotos": "Prześlij zdjęcia (1-5)",
+    "category": "Kategoria",
+    "selectCategory": "Wybierz kategorię",
+    "contacts": "Kontakty",
+    "publish": "Opublikuj",
+    "edit": "Edytuj",
+    "hide": "Ukryj",
+    "show": "Pokaż",
+    "delete": "Usuń",
+    "details": "Szczegóły",
+    "writeToSeller": "Napisz do sprzedawcy",
+    "serialNumber": "Numer seryjny",
+    "published": "Opublikowano",
+    "status": {
+      "active": "Aktywne",
+      "hidden": "Ukryte",
+      "rejected": "Odrzucone",
+      "deleted": "Usunięte"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "typemessage": "Wpisz wiadomość...",
+    "send": "Wyślij",
+    "showMyContacts": "Pokaż moje kontakty",
+    "contactsShared": "Kontakty udostępnione",
+    "noMessages": "Brak wiadomości",
+    "newMessages": "Nowe wiadomości"
+  },
+  "favorites": {
+    "title": "Ulubione",
+    "addToFavorites": "Dodaj do ulubionych",
+    "removeFromFavorites": "Usuń z ulubionych",
+    "noFavorites": "Nie masz jeszcze ulubionych ogłoszeń"
+  },
+  "profile": {
+    "title": "Profil",
+    "nickname": "Pseudonim",
+    "country": "Kraj",
+    "city": "Miasto",
+    "radius": "Promień wyszukiwania",
+    "language": "Język",
+    "contactsForSharing": "Kontakty do udostępnienia",
+    "telegram": "Telegram",
+    "phone": "Telefon",
+    "email": "Email",
+    "save": "Zapisz",
+    "logout": "Wyloguj",
+    "deleteAccount": "Usuń konto"
+  },
+  "support": {
+    "title": "Wsparcie",
+    "faq": "FAQ",
+    "reportListing": "Zgłoś ogłoszenie",
+    "serialNumber": "Numer seryjny ogłoszenia",
+    "description": "Opis problemu",
+    "submit": "Wyślij zgłoszenie",
+    "thankYou": "Dziękujemy! Twoje zgłoszenie zostało wysłane.",
+    "instructions": "Instrukcje użytkowania"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "confirm": "Potwierdź",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces",
+    "required": "Pole wymagane",
+    "km": "km"
+  }
+}

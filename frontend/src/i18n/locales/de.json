@@ -1,0 +1,153 @@
+{
+  "welcome": {
+    "title": "Willkommen bei KupyProdai!",
+    "selectLanguage": "Sprache wählen"
+  },
+  "languages": {
+    "ru": "Russisch",
+    "en": "English",
+    "uk": "Українська",
+    "de": "Deutsch",
+    "fr": "Français",
+    "es": "Español",
+    "pl": "Polski",
+    "more": "Mehr Sprachen"
+  },
+  "agreement": {
+    "title": "Nutzungsvereinbarung",
+    "text": "Durch die Nutzung von KupyProdai stimmen Sie den folgenden Bedingungen zu:\n\n• Benutzer sind vollständig für Transaktionen und die Genauigkeit der Anzeigen verantwortlich.\n• Der Administrator nimmt nicht an Transaktionen teil, blockiert aber Betrüger.\n• Betrug, Spam, verbotene Inhalte — sofortige Sperre.\n• Alle Streitigkeiten werden nur zwischen Benutzern gelöst.\n• Wir speichern keine persönlichen Daten ohne Ihre Zustimmung.",
+    "accept": "Ich akzeptiere die Bedingungen",
+    "decline": "Ablehnen"
+  },
+  "registration": {
+    "selectCountry": "Land auswählen",
+    "selectCity": "Stadt auswählen",
+    "searchCountry": "Land suchen...",
+    "searchCity": "Stadt suchen...",
+    "enterManually": "Manuell eingeben",
+    "useGeolocation": "Standort verwenden",
+    "selectRadius": "Suchradius festlegen",
+    "radius": "Radius",
+    "onlyMyCity": "Nur meine Stadt",
+    "radius50": "+50 km",
+    "radius150": "+150 km",
+    "radius500": "+500 km",
+    "enterNickname": "Spitznamen eingeben",
+    "nicknamePlaceholder": "Ihr einzigartiger Spitzname",
+    "nicknameRules": "Lateinische oder kyrillische Buchstaben, 3-20 Zeichen",
+    "nicknameTaken": "Dieser Spitzname ist bereits vergeben",
+    "continue": "Weiter",
+    "back": "Zurück",
+    "finish": "Registrierung abschließen"
+  },
+  "menu": {
+    "catalog": "Katalog",
+    "addListing": "Hinzufügen",
+    "myListings": "Meine Anzeigen",
+    "profile": "Profil",
+    "favorites": "Favoriten",
+    "support": "Hilfe"
+  },
+  "catalog": {
+    "title": "Anzeigenkatalog",
+    "search": "Suchen...",
+    "filter": "Filter",
+    "sort": "Sortieren",
+    "categories": "Kategorien",
+    "noResults": "Keine Anzeigen gefunden",
+    "loading": "Laden..."
+  },
+  "categories": {
+    "all": "Alle Kategorien",
+    "transport": "Transport",
+    "realestate": "Immobilien",
+    "electronics": "Elektronik",
+    "services": "Dienstleistungen",
+    "fashion": "Mode",
+    "home": "Haus & Garten",
+    "hobbies": "Hobbys & Freizeit",
+    "animals": "Tiere",
+    "jobs": "Jobs",
+    "other": "Sonstiges"
+  },
+  "listing": {
+    "title": "Titel",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "negotiable": "Verhandelbar",
+    "city": "Stadt",
+    "photos": "Fotos",
+    "uploadPhotos": "Fotos hochladen (1-5)",
+    "category": "Kategorie",
+    "selectCategory": "Kategorie wählen",
+    "contacts": "Kontakte",
+    "publish": "Veröffentlichen",
+    "edit": "Bearbeiten",
+    "hide": "Verbergen",
+    "show": "Anzeigen",
+    "delete": "Löschen",
+    "details": "Details",
+    "writeToSeller": "An Verkäufer schreiben",
+    "serialNumber": "Seriennummer",
+    "published": "Veröffentlicht",
+    "status": {
+      "active": "Aktiv",
+      "hidden": "Verborgen",
+      "rejected": "Abgelehnt",
+      "deleted": "Gelöscht"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "typemessage": "Nachricht eingeben...",
+    "send": "Senden",
+    "showMyContacts": "Meine Kontakte anzeigen",
+    "contactsShared": "Kontakte geteilt",
+    "noMessages": "Keine Nachrichten",
+    "newMessages": "Neue Nachrichten"
+  },
+  "favorites": {
+    "title": "Favoriten",
+    "addToFavorites": "Zu Favoriten hinzufügen",
+    "removeFromFavorites": "Aus Favoriten entfernen",
+    "noFavorites": "Sie haben noch keine Favoriten"
+  },
+  "profile": {
+    "title": "Profil",
+    "nickname": "Spitzname",
+    "country": "Land",
+    "city": "Stadt",
+    "radius": "Suchradius",
+    "language": "Sprache",
+    "contactsForSharing": "Kontakte zum Teilen",
+    "telegram": "Telegram",
+    "phone": "Telefon",
+    "email": "Email",
+    "save": "Speichern",
+    "logout": "Abmelden",
+    "deleteAccount": "Konto löschen"
+  },
+  "support": {
+    "title": "Support",
+    "faq": "FAQ",
+    "reportListing": "Anzeige melden",
+    "serialNumber": "Seriennummer der Anzeige",
+    "description": "Problembeschreibung",
+    "submit": "Meldung absenden",
+    "thankYou": "Danke! Ihre Meldung wurde übermittelt.",
+    "instructions": "Gebrauchsanweisung"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "required": "Pflichtfeld",
+    "km": "km"
+  }
+}

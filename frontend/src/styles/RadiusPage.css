@@ -1,0 +1,285 @@
+.radius-page {
+  padding-top: 24px;
+  padding-bottom: 120px;
+}
+
+.slider-container {
+  margin: 40px 0;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slider-value {
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--tg-theme-text-color, #000);
+  margin-bottom: 30px;
+  min-height: 45px;
+}
+
+/* Круговой компас-локатор */
+.compass-container {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  margin: 30px auto;
+}
+
+.compass-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  border: 3px solid var(--tg-theme-button-color, #3390ec);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.1),
+    inset 0 2px 10px rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Метки по кругу */
+.compass-marks {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.compass-mark {
+  position: absolute;
+  width: 2px;
+  height: 12px;
+  background: var(--tg-theme-hint-color, #999);
+  top: 5px;
+  left: 50%;
+  transform-origin: 50% 95px;
+}
+
+.compass-mark:nth-child(1) { transform: translateX(-50%) rotate(0deg); }
+.compass-mark:nth-child(2) { transform: translateX(-50%) rotate(45deg); }
+.compass-mark:nth-child(3) { transform: translateX(-50%) rotate(90deg); }
+.compass-mark:nth-child(4) { transform: translateX(-50%) rotate(135deg); }
+.compass-mark:nth-child(5) { transform: translateX(-50%) rotate(180deg); }
+.compass-mark:nth-child(6) { transform: translateX(-50%) rotate(225deg); }
+.compass-mark:nth-child(7) { transform: translateX(-50%) rotate(270deg); }
+.compass-mark:nth-child(8) { transform: translateX(-50%) rotate(315deg); }
+
+/* Центральная точка компаса */
+.compass-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* Стрелка-указатель */
+.compass-arrow {
+  position: absolute;
+  width: 6px;
+  height: 70px;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 50%;
+  transition: transform 0.3s ease-out;
+  z-index: 5;
+}
+
+.compass-arrow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 70px solid var(--tg-theme-button-color, #3390ec);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.compass-arrow::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 15px solid #ff4757;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+}
+
+.radius-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #e0e0e0 0%, #e0e0e0 100%);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.radius-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.radius-slider::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.radius-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.radius-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.radius-slider::-moz-range-thumb:active {
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+  padding: 0 5px;
+}
+
+.radius-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 40px;
+  padding: 0 10px;
+}
+
+.radius-btn {
+  padding: 16px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid var(--tg-theme-button-color, #3390ec);
+  border-radius: 12px;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-button-color, #3390ec);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+}
+
+.radius-btn:hover {
+  background: var(--tg-theme-button-color, #3390ec);
+  color: var(--tg-theme-button-text-color, #fff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(51, 144, 236, 0.3);
+}
+
+.radius-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(51, 144, 236, 0.2);
+}
+
+.radius-btn.active {
+  background: var(--tg-theme-button-color, #3390ec);
+  color: var(--tg-theme-button-text-color, #fff);
+  box-shadow: 0 4px 12px rgba(51, 144, 236, 0.4);
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .radius-page {
+    padding-top: 20px;
+    padding-bottom: 100px;
+  }
+  
+  .slider-value {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .compass-container {
+    width: 160px;
+    height: 160px;
+    margin: 20px auto;
+  }
+  
+  .compass-center {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .radius-slider {
+    width: 90%;
+  }
+  
+  .quick-buttons {
+    gap: 8px;
+  }
+  
+  .radius-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .slider-value {
+    font-size: 24px;
+  }
+  
+  .compass-container {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .radius-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

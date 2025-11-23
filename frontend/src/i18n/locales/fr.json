@@ -1,0 +1,152 @@
+{
+  "welcome": {
+    "title": "Bienvenue chez KupyProdai!",
+    "selectLanguage": "Sélectionner la langue"
+  },
+  "languages": {
+    "ru": "Russe",
+    "en": "English",
+    "uk": "Українська",
+    "de": "Deutsch",
+    "fr": "Français",
+    "es": "Español",
+    "pl": "Polski",
+    "more": "Plus de langues"
+  },
+  "agreement": {
+    "title": "Accord d'utilisation",
+    "text": "En utilisant KupyProdai, vous acceptez les conditions suivantes:\n\n• Les utilisateurs sont entièrement responsables des transactions et de l'exactitude des annonces.\n• L'administrateur ne participe pas aux transactions mais bloque les escrocs.\n• Fraude, spam, contenu interdit — bannissement immédiat.\n• Tous les litiges sont résolus uniquement entre utilisateurs.\n• Nous ne stockons pas de données personnelles sans votre consentement.",
+    "accept": "J'accepte les conditions",
+    "decline": "Refuser"
+  },
+  "registration": {
+    "selectCountry": "Sélectionner le pays",
+    "selectCity": "Sélectionner la ville",
+    "searchCountry": "Rechercher un pays...",
+    "searchCity": "Rechercher une ville...",
+    "enterManually": "Saisir manuellement",
+    "useGeolocation": "Utiliser la géolocalisation",
+    "selectRadius": "Définir le rayon de recherche",
+    "onlyMyCity": "Seulement ma ville",
+    "radius50": "+50 km",
+    "radius150": "+150 km",
+    "radius500": "+500 km",
+    "enterNickname": "Entrer un pseudo",
+    "nicknamePlaceholder": "Votre pseudo unique",
+    "nicknameRules": "Lettres latines ou cyrilliques, 3-20 caractères",
+    "nicknameTaken": "Ce pseudo est déjà pris",
+    "continue": "Continuer",
+    "back": "Retour",
+    "finish": "Terminer l'inscription"
+  },
+  "menu": {
+    "catalog": "Catalogue",
+    "addListing": "Ajouter",
+    "myListings": "Mes annonces",
+    "profile": "Profil",
+    "favorites": "Favoris",
+    "support": "Aide"
+  },
+  "catalog": {
+    "title": "Catalogue d'annonces",
+    "search": "Rechercher...",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "categories": "Catégories",
+    "noResults": "Aucune annonce trouvée",
+    "loading": "Chargement..."
+  },
+  "categories": {
+    "all": "Toutes les catégories",
+    "transport": "Transport",
+    "realestate": "Immobilier",
+    "electronics": "Électronique",
+    "services": "Services",
+    "fashion": "Mode",
+    "home": "Maison & Jardin",
+    "hobbies": "Loisirs",
+    "animals": "Animaux",
+    "jobs": "Emplois",
+    "other": "Autre"
+  },
+  "listing": {
+    "title": "Titre",
+    "description": "Description",
+    "price": "Prix",
+    "negotiable": "Négociable",
+    "city": "Ville",
+    "photos": "Photos",
+    "uploadPhotos": "Télécharger des photos (1-5)",
+    "category": "Catégorie",
+    "selectCategory": "Sélectionner une catégorie",
+    "contacts": "Contacts",
+    "publish": "Publier",
+    "edit": "Modifier",
+    "hide": "Masquer",
+    "show": "Afficher",
+    "delete": "Supprimer",
+    "details": "Détails",
+    "writeToSeller": "Écrire au vendeur",
+    "serialNumber": "Numéro de série",
+    "published": "Publié",
+    "status": {
+      "active": "Actif",
+      "hidden": "Masqué",
+      "rejected": "Rejeté",
+      "deleted": "Supprimé"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "typemessage": "Taper un message...",
+    "send": "Envoyer",
+    "showMyContacts": "Afficher mes contacts",
+    "contactsShared": "Contacts partagés",
+    "noMessages": "Pas de messages",
+    "newMessages": "Nouveaux messages"
+  },
+  "favorites": {
+    "title": "Favoris",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "noFavorites": "Vous n'avez pas encore de favoris"
+  },
+  "profile": {
+    "title": "Profil",
+    "nickname": "Pseudo",
+    "country": "Pays",
+    "city": "Ville",
+    "radius": "Rayon de recherche",
+    "language": "Langue",
+    "contactsForSharing": "Contacts à partager",
+    "telegram": "Telegram",
+    "phone": "Téléphone",
+    "email": "Email",
+    "save": "Enregistrer",
+    "logout": "Se déconnecter",
+    "deleteAccount": "Supprimer le compte"
+  },
+  "support": {
+    "title": "Support",
+    "faq": "FAQ",
+    "reportListing": "Signaler une annonce",
+    "serialNumber": "Numéro de série de l'annonce",
+    "description": "Description du problème",
+    "submit": "Envoyer le signalement",
+    "thankYou": "Merci! Votre signalement a été envoyé.",
+    "instructions": "Instructions d'utilisation"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "required": "Champ obligatoire",
+    "km": "km"
+  }
+}

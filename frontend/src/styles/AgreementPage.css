@@ -1,0 +1,96 @@
+.agreement-page {
+  min-height: 100vh;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.agreement-content {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.agreement-text {
+  line-height: 1.6;
+  white-space: pre-line;
+  font-size: 15px;
+}
+
+.checkbox-container {
+  margin-bottom: 24px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .agreement-page {
+    padding: 16px 0;
+  }
+  
+  .page-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .agreement-content {
+    padding: 16px;
+    max-height: 300px;
+  }
+  
+  .agreement-text {
+    font-size: 14px;
+  }
+  
+  .checkbox-label {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .agreement-content {
+    padding: 12px;
+  }
+  
+  .agreement-text {
+    font-size: 13px;
+  }
+}

@@ -1,34 +1,31 @@
 {
-  "name": "kupyprodai-frontend",
-  "private": true,
+  "name": "kupyprodai",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Telegram Mini App для размещения объявлений",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
   },
-  "dependencies": {
-    "@twa-dev/sdk": "^7.0.1",
-    "axios": "^1.6.2",
-    "i18next": "^23.7.6",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-i18next": "^13.5.0",
-    "react-router-dom": "^6.20.1",
-    "zustand": "^4.4.7"
-  },
+  "keywords": [
+    "telegram",
+    "mini-app",
+    "classifieds",
+    "marketplace"
+  ],
+  "author": "",
+  "license": "MIT",
   "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^8.55.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "json-server": "^1.0.0-beta.3"
   }
 }
