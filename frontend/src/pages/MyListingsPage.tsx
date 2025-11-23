@@ -24,13 +24,11 @@ export default function MyListingsPage() {
   const [filter, setFilter] = useState<'all' | 'active' | 'hidden' | 'sold'>('all');
   const [dualPrices, setDualPrices] = useState<Map<string, string>>(new Map());
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadMyListings = async () => {
       if (!user?.telegramId && !user?.id) return;
       
-      setLoading(true);
       try {
         const { listingsAPI } = await import('../services/api');
         const userId = user.telegramId || user.id;
@@ -66,8 +64,6 @@ export default function MyListingsPage() {
         setDualPrices(priceMap);
       } catch (error) {
         console.error('❌ Ошибка загрузки объявлений:', error);
-      } finally {
-        setLoading(false);
       }
     };
     
