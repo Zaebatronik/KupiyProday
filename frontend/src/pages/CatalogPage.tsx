@@ -74,9 +74,6 @@ export default function CatalogPage() {
     }
   }, []);
 
-  // Теперь страны и города загружаются через LocationSelector
-  }, [selectedCountry]);
-
   // Загрузка данных с сервера + live-обновление через Socket.IO
   useEffect(() => {
     let isMounted = true;
