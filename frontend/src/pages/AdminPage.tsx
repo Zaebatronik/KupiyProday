@@ -60,16 +60,28 @@ export default function AdminPage() {
         const serverUsers = response.data;
         if (!isSubscribed) return;
         console.log(`👥 AdminPage: Обрабатываю ${serverUsers.length} пользователей`);
-        const newAdminUsers: AdminUser[] = serverUsers.map((user: any) => ({
-          id: user.id,
-          nickname: user.nickname,
-          country: user.country,
-          city: user.city,
-          listingsCount: listings.filter((l) => l.userId === user.id).length,
-          joinedAt: user.created_at ? new Date(user.created_at).toLocaleDateString('ru-RU') : 'Неизвестно',
-          status: user.banned ? 'banned' : 'active',
-          isAdmin: user.id === ADMIN_ID,
-        }));
+        const newAdminUsers: AdminUser[] = serverUsers.map((user: any) => {
+          // Используем telegramId как основной ID (если есть), иначе _id из MongoDB
+          const userId = user.telegramId || user._id || user.id;
+          console.log('🔍 Маппинг пользователя:', {
+            telegramId: user.telegramId,
+            _id: user._id,
+            nickname: user.nickname,
+            finalId: userId
+          });
+          
+          return {
+            id: userId,
+            nickname: user.nickname,
+            country: user.country,
+            city: user.city,
+            listingsCount: listings.filter((l) => l.userId === userId).length,
+            joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 
+                      user.created_at ? new Date(user.created_at).toLocaleDateString('ru-RU') : 'Неизвестно',
+            status: user.banned ? 'banned' : 'active',
+            isAdmin: userId === ADMIN_ID,
+          };
+        });
         newAdminUsers.sort((a, b) => {
           if (a.isAdmin) return -1;
           if (b.isAdmin) return 1;

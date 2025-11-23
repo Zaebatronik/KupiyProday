@@ -5,9 +5,15 @@ const User = require('../models/User');
 // Получить всех пользователей (для админа)
 router.get('/', async (req, res) => {
   try {
+    console.log('👥 Запрос всех пользователей...');
     const users = await User.find().sort({ createdAt: -1 });
+    console.log(`✅ Найдено пользователей: ${users.length}`);
+    users.forEach(u => {
+      console.log(`  - ${u.nickname} (Telegram ID: ${u.telegramId})`);
+    });
     res.json(users);
   } catch (error) {
+    console.error('❌ Ошибка получения пользователей:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });
