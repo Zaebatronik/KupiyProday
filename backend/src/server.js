@@ -81,16 +81,32 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/kupyprodai';
 
+console.log('🔧 Конфигурация сервера:');
+console.log('   PORT:', PORT);
+console.log('   MONGODB_URI:', MONGODB_URI ? `${MONGODB_URI.substring(0, 20)}...` : 'НЕ УСТАНОВЛЕН');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+
 mongoose
-  .connect(MONGODB_URI)
+  .connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
-    console.log('✅ MongoDB подключен');
-    httpServer.listen(PORT, () => {
+    console.log('✅ MongoDB успешно подключен');
+    console.log('📊 База данных готова к работе');
+    httpServer.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Сервер запущен на порту ${PORT}`);
+      console.log(`📡 Доступен по адресу: http://0.0.0.0:${PORT}`);
+      console.log('🔄 Роуты доступны:');
+      console.log('   GET  /health');
+      console.log('   GET  /users');
+      console.log('   POST /users/register');
+      console.log('   GET  /api/users (legacy)');
     });
   })
   .catch((err) => {
-    console.error('❌ Ошибка подключения к MongoDB:', err);
+    console.error('❌ Критическая ошибка подключения к MongoDB:', err.message);
+    console.error('💡 Проверьте переменную окружения MONGODB_URI в Render');
     process.exit(1);
   });
 
