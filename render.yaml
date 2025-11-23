@@ -6,8 +6,8 @@ services:
     plan: free
     branch: main
     rootDir: backend
-    buildCommand: cd .. && chmod +x build.sh && ./build.sh
-    startCommand: cd src && node server.js
+    buildCommand: npm install --production
+    startCommand: node src/server.js
     envVars:
       - key: NODE_ENV
         value: production

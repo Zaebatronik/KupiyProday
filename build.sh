@@ -1,17 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "🔨 Building frontend..."
-cd frontend
-npm install
-npm run build
-
-echo "📦 Copying frontend to backend..."
-rm -rf ../backend/dist
-cp -r dist ../backend/
-
 echo "🔧 Installing backend dependencies..."
-cd ../backend
-npm install
+cd backend
+npm install --production
 
-echo "✅ Build complete!"
+echo "✅ Backend build complete!"
+echo "ℹ️ Frontend будет деплоиться отдельно на Cloudflare Pages"
