@@ -1,7 +1,15 @@
 .admin-page {
   min-height: 100vh;
   padding-bottom: 80px;
-  background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+  background: linear-gradient(-45deg, #1e3a8a, #7c3aed, #ec4899, #f59e0b);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .page-header {

@@ -284,6 +284,65 @@ export default function AdminPage() {
     }
   };
 
+  // Экспорт данных в CSV
+  const exportToCSV = () => {
+    const headers = ['ID', 'Nickname', 'Country', 'City', 'Listings', 'Joined', 'Status'];
+    const rows = filteredUsers.map(u => [
+      u.id,
+      u.nickname,
+      u.country,
+      u.city,
+      u.listingsCount,
+      u.joinedAt,
+      u.status
+    ]);
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    setLogs(lgs => [`📥 Экспортировано ${filteredUsers.length} пользователей в CSV`, ...lgs]);
+  };
+
+  // Экспорт данных в JSON
+  const exportToJSON = () => {
+    const data = {
+      exportDate: new Date().toISOString(),
+      totalUsers: filteredUsers.length,
+      users: filteredUsers,
+      statistics: stats
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `users_export_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    setLogs(lgs => [`📥 Экспортировано ${filteredUsers.length} пользователей в JSON`, ...lgs]);
+  };
+
+  // Статистика по городам
+  const cityStats = users.reduce((acc, user) => {
+    const city = user.city;
+    acc[city] = (acc[city] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topCities = Object.entries(cityStats)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // Статистика по странам
+  const countryStats = users.reduce((acc, user) => {
+    const country = user.country;
+    acc[country] = (acc[country] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topCountries = Object.entries(countryStats)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
   return (
     <div className="admin-page">
       <div className="container">
@@ -339,6 +398,12 @@ export default function AdminPage() {
           >
             🚨 Жалобы {stats.pendingReports > 0 && <span className="badge">{stats.pendingReports}</span>}
           </button>
+          <button 
+            className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('logs')}
+          >
+            📋 Логи {logs.length > 0 && <span className="badge">{logs.length}</span>}
+          </button>
         </div>
 
         {/* Статистика */}
@@ -372,6 +437,116 @@ export default function AdminPage() {
                 <div className="stat-icon">🚨</div>
                 <div className="stat-value">{stats.pendingReports}</div>
                 <div className="stat-label">Новых жалоб</div>
+              </div>
+            </div>
+
+            {/* Экспорт данных */}
+            <div style={{ marginTop: 24, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button 
+                className="export-btn"
+                onClick={exportToCSV}
+                style={{
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                  transition: 'all 0.3s'
+                }}
+              >
+                📥 Экспорт в CSV
+              </button>
+              <button 
+                className="export-btn"
+                onClick={exportToJSON}
+                style={{
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  transition: 'all 0.3s'
+                }}
+              >
+                📥 Экспорт в JSON
+              </button>
+            </div>
+
+            {/* Топ городов */}
+            <div style={{ marginTop: 32 }}>
+              <h3 style={{ marginBottom: 16, textAlign: 'center', fontSize: 20, fontWeight: 700 }}>🏙️ Топ-5 городов</h3>
+              <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: 20 }}>
+                {topCities.map(([city, count], index) => (
+                  <div key={city} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    transition: 'all 0.3s'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24, fontWeight: 800, color: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'white' }}>
+                        {index + 1}
+                      </span>
+                      <span style={{ fontSize: 16, fontWeight: 600 }}>{city}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ 
+                        width: `${(count / topCities[0][1]) * 150}px`, 
+                        height: 8, 
+                        background: 'linear-gradient(90deg, #667eea, #764ba2)',
+                        borderRadius: 4,
+                        transition: 'width 0.5s'
+                      }} />
+                      <span style={{ fontSize: 18, fontWeight: 700, minWidth: 40, textAlign: 'right' }}>{count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Топ стран */}
+            <div style={{ marginTop: 24 }}>
+              <h3 style={{ marginBottom: 16, textAlign: 'center', fontSize: 20, fontWeight: 700 }}>🌍 Топ-5 стран</h3>
+              <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: 20 }}>
+                {topCountries.map(([country, count], index) => (
+                  <div key={country} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    transition: 'all 0.3s'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24, fontWeight: 800, color: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'white' }}>
+                        {index + 1}
+                      </span>
+                      <span style={{ fontSize: 16, fontWeight: 600 }}>{country}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ 
+                        width: `${(count / topCountries[0][1]) * 150}px`, 
+                        height: 8, 
+                        background: 'linear-gradient(90deg, #f093fb, #4facfe)',
+                        borderRadius: 4,
+                        transition: 'width 0.5s'
+                      }} />
+                      <span style={{ fontSize: 18, fontWeight: 700, minWidth: 40, textAlign: 'right' }}>{count}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
