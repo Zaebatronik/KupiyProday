@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import type { Listing } from '../types';
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useStore();
   
   const [listing, setListing] = useState<Listing | null>(null);
@@ -306,7 +308,7 @@ export default function ListingDetailPage() {
             fontWeight: '500',
             display: 'inline-block'
           }}>
-            {listing.category}
+            {t(`categories.${listing.category}`)}
           </div>
         </div>
 
@@ -335,7 +337,7 @@ export default function ListingDetailPage() {
             fontWeight: '600',
             color: '#1f2937'
           }}>
-            Описание
+            {t('listing.descriptionLabel')}
           </h3>
           <p style={{
             margin: 0,

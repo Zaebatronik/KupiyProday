@@ -22,6 +22,10 @@
   "registration": {
     "selectCountry": "Land auswählen",
     "selectCity": "Stadt auswählen",
+    "cityHint": "Wählen Sie Land und Stadt für Verkauf und Kauf von Waren in der Nähe",
+    "citySearchHint": "Tipp: Beginnen Sie mit der Eingabe des Stadtnamens in das Suchfeld. Das System unterstützt mehr als 1000 Städte weltweit!",
+    "continueToCity": "Weiter →",
+    "selectCityButton": "Stadt wählen",
     "searchCountry": "Land suchen...",
     "searchCity": "Stadt suchen...",
     "enterManually": "Manuell eingeben",
@@ -64,10 +68,14 @@
     "electronics": "Elektronik",
     "services": "Dienstleistungen",
     "fashion": "Mode",
+    "clothes": "Kleidung",
     "home": "Haus & Garten",
     "hobbies": "Hobbys & Freizeit",
+    "hobby": "Hobbys",
     "animals": "Tiere",
     "jobs": "Jobs",
+    "toys": "Spielzeug",
+    "food": "Lebensmittel",
     "other": "Sonstiges"
   },
   "listing": {
@@ -87,6 +95,7 @@
     "show": "Anzeigen",
     "delete": "Löschen",
     "details": "Details",
+    "descriptionLabel": "Beschreibung",
     "writeToSeller": "An Verkäufer schreiben",
     "serialNumber": "Seriennummer",
     "published": "Veröffentlicht",

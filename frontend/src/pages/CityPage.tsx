@@ -43,7 +43,7 @@ export default function CityPage() {
           {t('registration.selectCity')}
         </h1>
         <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '15px' }}>
-          Выберите страну и город для продажи и покупки товаров поблизости
+          {t('registration.cityHint')}
         </p>
 
         <LocationSelector
@@ -76,7 +76,7 @@ export default function CityPage() {
           onMouseDown={(e) => selectedCity && (e.currentTarget.style.transform = 'scale(0.97)')}
           onMouseUp={(e) => selectedCity && (e.currentTarget.style.transform = 'scale(1)')}
         >
-          {selectedCity ? `Продолжить → ${selectedCity}` : 'Выберите город'}
+          {selectedCity ? `${t('registration.continueToCity')} ${selectedCity}` : t('registration.selectCityButton')}
         </button>
 
         <div style={{
@@ -88,7 +88,7 @@ export default function CityPage() {
           color: '#64748b',
           lineHeight: '1.6'
         }}>
-          💡 <strong>Подсказка:</strong> Начните вводить название города в поле поиска. Система поддерживает более 1000 городов по всему миру!
+          {t('registration.citySearchHint')}
         </div>
       </div>
     </div>
