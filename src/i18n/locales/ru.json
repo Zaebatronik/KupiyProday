@@ -154,6 +154,26 @@
     "fillAllFields": "Заполните все поля и добавьте минимум 1 фото",
     "success": "Объявление опубликовано!"
   },
+  "myListings": {
+    "title": "Мои объявления",
+    "addNew": "Добавить",
+    "totalListings": "Всего",
+    "activeListings": "Активных",
+    "totalViews": "Просмотров",
+    "all": "Все",
+    "active": "Активные",
+    "hidden": "Скрытые",
+    "sold": "Проданные",
+    "statusActive": "Активно",
+    "statusHidden": "Скрыто",
+    "statusSold": "Продано",
+    "noListings": "У вас пока нет объявлений",
+    "createFirst": "Создать первое объявление",
+    "editListing": "Редактировать объявление",
+    "hide": "Скрыть",
+    "show": "Показать",
+    "confirmDelete": "Вы уверены, что хотите удалить объявление?"
+  },
   "common": {
     "ok": "ОК",
     "cancel": "Отмена",
