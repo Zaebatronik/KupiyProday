@@ -47,6 +47,10 @@ const listingSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+  photos: {
+    type: [String], // Массив URL или base64 строк
+    default: [],
+  },
   country: {
     type: String,
     required: true,

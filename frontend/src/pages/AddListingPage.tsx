@@ -133,10 +133,11 @@ export default function AddListingPage() {
     setIsSubmitting(true);
 
     try {
+      // Используем telegramId как основной ID (если есть) или id
+      const userId = user?.telegramId || user?.id || 'unknown';
+      
       const listing = {
-        id: `listing_${Date.now()}`,
-        serialNumber: `SN${Date.now()}`,
-        userId: user?.id || 'unknown',
+        userId: userId, // Telegram ID пользователя
         userNickname: user?.nickname || 'Anonymous',
         category,
         title: title.trim(),
@@ -145,14 +146,16 @@ export default function AddListingPage() {
         negotiable,
         city: user?.city || 'Не указан',
         country: user?.country || 'RU',
-        photos,
+        photos, // Base64 фотографии
         status: 'active' as const,
         views: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
-      console.log('📝 Создаём объявление:', listing);
+      console.log('📝 Создаём объявление:', {
+        userId,
+        title: listing.title,
+        photosCount: photos.length
+      });
       
       // Сохраняем локально
       addListing(listing);

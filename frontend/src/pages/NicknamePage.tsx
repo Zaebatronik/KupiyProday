@@ -42,12 +42,23 @@ export default function NicknamePage() {
       const country = JSON.parse(localStorage.getItem('registrationCountry') || '{}');
       const city = localStorage.getItem('registrationCity') || '';
       const radius = parseInt(localStorage.getItem('registrationRadius') || '0');
-      // Получаем Telegram ID пользователя
+      // Получаем Telegram ID пользователя (основной идентификатор)
       const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || `local_${Date.now()}`;
+      const telegramUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || '';
+      
+      console.log('🔑 Регистрация пользователя:', {
+        telegramId,
+        telegramUsername,
+        nickname,
+        city
+      });
+      
       // Создаём данные пользователя
       const userData = {
         id: telegramId,
-        nickname,
+        telegramId: telegramId, // Основной ID из Telegram
+        nickname, // Выбранный никнейм
+        telegramUsername, // Оригинальный username из Telegram (если есть)
         country: country.code || 'RU',
         city,
         radius,
@@ -108,6 +119,49 @@ export default function NicknamePage() {
 
   return (
     <div className="container" style={{ paddingTop: '24px', paddingBottom: '80px' }}>
+      {/* Прогресс-бар регистрации */}
+      <div style={{
+        marginBottom: '24px',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '12px',
+        padding: '16px',
+        backdropFilter: 'blur(10px)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>Шаг 4 из 4</span>
+          <span style={{ fontSize: '14px', fontWeight: '600', color: '#10b981' }}>80%</span>
+        </div>
+        <div style={{
+          width: '100%',
+          height: '8px',
+          background: 'rgba(255,255,255,0.2)',
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            width: '80%',
+            height: '100%',
+            background: 'linear-gradient(90deg, #10b981, #059669)',
+            borderRadius: '8px',
+            transition: 'width 0.5s ease',
+            boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)'
+          }} />
+        </div>
+        <div style={{ 
+          marginTop: '12px', 
+          fontSize: '13px', 
+          color: 'rgba(255,255,255,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>✅ Язык</span>
+          <span>✅ Страна</span>
+          <span>✅ Город</span>
+          <span style={{ color: '#fbbf24' }}>🔄 Никнейм</span>
+        </div>
+      </div>
+      
       <h1 className="page-title">{t('registration.enterNickname')}</h1>
 
       <div className="form-group">

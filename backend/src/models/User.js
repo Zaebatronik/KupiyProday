@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     maxlength: 20,
     index: true,
   },
+  telegramUsername: {
+    type: String,
+    trim: true,
+    index: true,
+  },
   country: {
     type: String,
     required: true,

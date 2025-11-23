@@ -1,6 +1,8 @@
 export interface User {
-  id: string;
-  nickname: string;
+  id: string; // Может быть либо telegramId, либо локальный ID
+  telegramId?: string; // Основной ID из Telegram (профильный)
+  nickname: string; // Выбранный никнейм пользователя
+  telegramUsername?: string; // Оригинальный username из Telegram (если есть)
   country: string;
   city: string;
   radius: number;

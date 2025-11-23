@@ -15,9 +15,15 @@ router.get('/', async (req, res) => {
 // Регистрация пользователя
 router.post('/register', async (req, res) => {
   try {
-    const { id, nickname, country, city, radius, language, contacts } = req.body;
+    const { id, nickname, telegramUsername, country, city, radius, language, contacts } = req.body;
 
-    console.log('📝 Регистрация пользователя:', { id, nickname, country, city });
+    console.log('📝 Регистрация пользователя:', { 
+      telegramId: id, 
+      nickname, 
+      telegramUsername,
+      country, 
+      city 
+    });
 
     // Проверка существующего пользователя по Telegram ID
     let user = await User.findOne({ telegramId: id });
@@ -26,6 +32,7 @@ router.post('/register', async (req, res) => {
       console.log('👤 Пользователь уже существует, обновляем данные');
       // Обновляем данные существующего пользователя
       user.nickname = nickname;
+      user.telegramUsername = telegramUsername;
       user.country = country;
       user.city = city;
       user.radius = radius;
@@ -45,6 +52,7 @@ router.post('/register', async (req, res) => {
     user = new User({
       telegramId: id,
       nickname,
+      telegramUsername,
       country,
       city,
       radius,
@@ -53,7 +61,7 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
-    console.log('✅ Пользователь создан:', user._id);
+    console.log('✅ Пользователь создан:', user._id, `(Telegram: ${id}, Nickname: ${nickname})`);
     res.status(201).json(user);
   } catch (error) {
     console.error('❌ Ошибка регистрации:', error);

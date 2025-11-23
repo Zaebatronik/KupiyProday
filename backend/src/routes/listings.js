@@ -100,20 +100,45 @@ router.get('/admin/all', async (req, res) => {
 });
 
 // Создать объявление
-router.post('/', upload.array('photos', 5), async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const photos = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
-    
     console.log('📝 Создание объявления:', {
       userId: req.body.userId,
       title: req.body.title,
-      photosCount: photos.length
+      category: req.body.category,
+      photosReceived: Array.isArray(req.body.photos) ? req.body.photos.length : 0
     });
     
+    // Проверяем обязательные поля
+    if (!req.body.userId || !req.body.userNickname) {
+      return res.status(400).json({ 
+        message: 'Отсутствуют данные пользователя',
+        details: 'userId и userNickname обязательны'
+      });
+    }
+    
+    if (!req.body.title || !req.body.description) {
+      return res.status(400).json({ 
+        message: 'Заполните все поля',
+        details: 'title и description обязательны'
+      });
+    }
+    
+    // Фото уже в base64 от фронтенда, сохраняем как есть
+    const photos = req.body.photos || [];
+    
     const listing = new Listing({
-      ...req.body,
+      userId: req.body.userId,
+      userNickname: req.body.userNickname,
+      category: req.body.category,
+      title: req.body.title,
+      description: req.body.description,
+      price: req.body.price,
+      negotiable: req.body.negotiable || false,
+      city: req.body.city,
+      country: req.body.country,
       photos,
-      status: 'active', // Автоматически активное
+      status: 'active',
       views: 0,
     });
 
@@ -123,6 +148,32 @@ router.post('/', upload.array('photos', 5), async (req, res) => {
     res.status(201).json(listing);
   } catch (error) {
     console.error('❌ Ошибка создания объявления:', error);
+    res.status(500).json({ 
+      message: 'Ошибка сервера', 
+      error: error.message,
+      details: error.stack
+    });
+  }
+});
+
+// Создать объявление с загрузкой файлов (альтернативный метод)
+router.post('/upload', upload.array('photos', 5), async (req, res) => {
+  try {
+    const photos = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+    
+    const listing = new Listing({
+      ...req.body,
+      photos,
+      status: 'active',
+      views: 0,
+    });
+
+    await listing.save();
+    console.log('✅ Объявление создано через upload:', listing._id);
+    
+    res.status(201).json(listing);
+  } catch (error) {
+    console.error('❌ Ошибка создания объявления через upload:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });
