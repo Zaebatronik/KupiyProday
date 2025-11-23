@@ -52,6 +52,17 @@ export default function CatalogPage() {
   // Фильтры
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
+  const [onlyNegotiable, setOnlyNegotiable] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
+
+  // Загрузка истории поиска
+  useEffect(() => {
+    const saved = localStorage.getItem('searchHistory');
+    if (saved) {
+      setSearchHistory(JSON.parse(saved));
+    }
+  }, []);
 
   // Загрузка данных с сервера
   useEffect(() => {
@@ -141,6 +152,11 @@ export default function CatalogPage() {
       result = result.filter((listing) => listing.price <= Number(priceMax));
     }
 
+    // Только с торгом
+    if (onlyNegotiable) {
+      result = result.filter((listing) => listing.negotiable);
+    }
+
     // Сортировка
     switch (sortBy) {
       case 'date-desc':
@@ -159,7 +175,7 @@ export default function CatalogPage() {
 
     setFilteredListings(result);
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, sortBy, priceMin, priceMax, listings]);
+  }, [searchQuery, selectedCategory, sortBy, priceMin, priceMax, onlyNegotiable, listings]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
@@ -187,9 +203,28 @@ export default function CatalogPage() {
     navigate(`/listing/${listingId}`);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    
+    // Сохранение в историю
+    if (query.trim() && !searchHistory.includes(query.trim())) {
+      const newHistory = [query.trim(), ...searchHistory].slice(0, 10);
+      setSearchHistory(newHistory);
+      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+    }
+    
+    setShowSearchHistory(false);
+  };
+
+  const clearSearchHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  };
+
   const resetFilters = () => {
     setPriceMin('');
     setPriceMax('');
+    setOnlyNegotiable(false);
     setShowFilter(false);
   };
 
@@ -243,17 +278,114 @@ export default function CatalogPage() {
           <h1 className="catalog-title" style={{ margin: 0, flex: 1 }}>{t('catalog.title')}</h1>
         </div>
 
-        <div className="search-bar">
+        <div className="search-bar" style={{ position: 'relative' }}>
           <input
             type="text"
             className="search-input"
             placeholder={t('catalog.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSearchHistory(true)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch(searchQuery);
+              }
+            }}
           />
+          {searchQuery && (
+            <button
+              className="clear-search"
+              onClick={() => {
+                setSearchQuery('');
+                setShowSearchHistory(false);
+              }}
+              style={{
+                position: 'absolute',
+                right: '120px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                fontSize: '18px',
+                cursor: 'pointer',
+                padding: '5px',
+                color: '#999'
+              }}
+            >
+              ✕
+            </button>
+          )}
           <button className="filter-button" onClick={() => setShowFilter(true)}>
             🎚️ {t('catalog.filter')}
           </button>
+
+          {/* История поиска */}
+          {showSearchHistory && searchHistory.length > 0 && (
+            <div 
+              className="search-history"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                background: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                marginTop: '8px',
+                zIndex: 100,
+                maxHeight: '300px',
+                overflowY: 'auto'
+              }}
+            >
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                padding: '12px 16px',
+                borderBottom: '1px solid #eee'
+              }}>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: '#666' }}>
+                  {t('catalog.recentSearches')}
+                </span>
+                <button
+                  onClick={clearSearchHistory}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#667eea',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    fontWeight: '600'
+                  }}
+                >
+                  {t('catalog.clearHistory')}
+                </button>
+              </div>
+              {searchHistory.map((item, index) => (
+                <div
+                  key={index}
+                  onClick={() => {
+                    setSearchQuery(item);
+                    handleSearch(item);
+                  }}
+                  style={{
+                    padding: '12px 16px',
+                    cursor: 'pointer',
+                    borderBottom: index < searchHistory.length - 1 ? '1px solid #f0f0f0' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span style={{ color: '#999' }}>🔍</span>
+                  <span style={{ color: '#333', fontSize: '14px' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="categories-scroll">
@@ -386,7 +518,7 @@ export default function CatalogPage() {
 
             <div className="filter-body">
               <div className="filter-section">
-                <div className="filter-section-title">Цена, ₽</div>
+                <div className="filter-section-title">💰 Цена, ₽</div>
                 <div className="price-inputs">
                   <input
                     type="number"
@@ -404,6 +536,57 @@ export default function CatalogPage() {
                     onChange={(e) => setPriceMax(e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="filter-section">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={onlyNegotiable}
+                    onChange={(e) => setOnlyNegotiable(e.target.checked)}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      marginRight: '10px',
+                      cursor: 'pointer'
+                    }}
+                  />
+                  <span>🤝 {t('catalog.onlyNegotiable')}</span>
+                </label>
+              </div>
+
+              <div className="filter-section">
+                <div className="filter-section-title">📊 {t('catalog.sortBy')}</div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '1px solid #ddd',
+                    fontSize: '14px',
+                    background: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="date-desc">{t('catalog.newest')}</option>
+                  <option value="date-asc">{t('catalog.oldest')}</option>
+                  <option value="price-asc">{t('catalog.cheapest')}</option>
+                  <option value="price-desc">{t('catalog.expensive')}</option>
+                </select>
+              </div>
+
+              <div className="filter-stats" style={{
+                marginTop: '20px',
+                padding: '12px',
+                background: '#f8f9fa',
+                borderRadius: '12px',
+                textAlign: 'center',
+                fontSize: '14px',
+                color: '#666'
+              }}>
+                {t('catalog.found')}: <strong>{filteredListings.length}</strong> {t('catalog.listings')}
               </div>
             </div>
 
