@@ -233,15 +233,14 @@ export default function AddListingPage() {
             />
             <span className="currency">₽</span>
           </div>
-          <div className="price-hint">{t('addListing.priceHint')}</div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', cursor: 'pointer' }}>
+          <label className="checkbox-label">
             <input
               type="checkbox"
               checked={negotiable}
               onChange={(e) => setNegotiable(e.target.checked)}
-              style={{ width: '18px', height: '18px' }}
+              className="checkbox-input"
             />
-            <span>{t('addListing.negotiable') || 'Торг уместен'}</span>
+            <span className="checkbox-text">{t('addListing.negotiable')}</span>
           </label>
         </div>
 
