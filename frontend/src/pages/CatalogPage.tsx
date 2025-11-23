@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { currencyService } from '../services/currency';
+import LocationSelector from '../components/LocationSelector';
 import '../styles/CatalogPage.css';
 
 interface Listing {
@@ -57,8 +58,6 @@ export default function CatalogPage() {
   // Фильтры локации (по умолчанию показываем ВСЕ объявления)
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
-  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
-  const [availableCities, setAvailableCities] = useState<string[]>([]);
 
   // Фильтры
   const [priceMin, setPriceMin] = useState('');
@@ -75,38 +74,7 @@ export default function CatalogPage() {
     }
   }, []);
 
-  // Загрузка списка стран
-  useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const { listingsAPI } = await import('../services/api');
-        const response = await listingsAPI.getCountries();
-        setAvailableCountries(response.data);
-        console.log('🌍 Загружены страны:', response.data);
-      } catch (error) {
-        console.error('❌ Ошибка загрузки стран:', error);
-      }
-    };
-    loadCountries();
-  }, []);
-
-  // Загрузка списка городов при смене страны
-  useEffect(() => {
-    const loadCities = async () => {
-      if (!selectedCountry) {
-        setAvailableCities([]);
-        return;
-      }
-      try {
-        const { listingsAPI } = await import('../services/api');
-        const response = await listingsAPI.getCities(selectedCountry);
-        setAvailableCities(response.data);
-        console.log(`🏙️ Загружены города для ${selectedCountry}:`, response.data);
-      } catch (error) {
-        console.error('❌ Ошибка загрузки городов:', error);
-      }
-    };
-    loadCities();
+  // Теперь страны и города загружаются через LocationSelector
   }, [selectedCountry]);
 
   // Загрузка данных с сервера + live-обновление через Socket.IO
@@ -631,96 +599,38 @@ export default function CatalogPage() {
             <div className="filter-body">
               <div className="filter-section">
                 <div className="filter-section-title">🌍 Локация</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => {
-                      setSelectedCountry(e.target.value);
-                      setSelectedCity(''); // Сбрасываем город при смене страны
+                <LocationSelector
+                  selectedCountry={selectedCountry}
+                  selectedCity={selectedCity}
+                  onCountryChange={setSelectedCountry}
+                  onCityChange={setSelectedCity}
+                  compact={false}
+                />
+                {user && (
+                  <button
+                    onClick={() => {
+                      setSelectedCountry(user.country);
+                      setSelectedCity(user.city);
                     }}
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      marginTop: '12px',
+                      padding: '10px 12px',
                       borderRadius: '12px',
-                      border: '1px solid #ddd',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
                       fontSize: '14px',
-                      background: 'white',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      fontWeight: '600'
                     }}
+                    onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+                    onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
-                    <option value="">Все страны</option>
-                    {availableCountries.map(country => (
-                      <option key={country} value={country}>{country}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    disabled={!selectedCountry}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '12px',
-                      border: '1px solid #ddd',
-                      fontSize: '14px',
-                      background: selectedCountry ? 'white' : '#f5f5f5',
-                      cursor: selectedCountry ? 'pointer' : 'not-allowed'
-                    }}
-                  >
-                    <option value="">Все города</option>
-                    {availableCities.map(city => (
-                      <option key={city} value={city}>{city}</option>
-                    ))}
-                  </select>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {user && (
-                      <button
-                        onClick={() => {
-                          setSelectedCountry(user.country);
-                          setSelectedCity(user.city);
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          color: 'white',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s',
-                          fontWeight: '600'
-                        }}
-                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      >
-                        📍 Мой город
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        setSelectedCountry('');
-                        setSelectedCity('');
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '2px solid #667eea',
-                        background: 'white',
-                        color: '#667eea',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        fontWeight: '600'
-                      }}
-                      onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-                      onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    >
-                      🌍 Все города
-                    </button>
-                  </div>
-                </div>
+                    📍 Фильтр по моему городу
+                  </button>
+                )}
               </div>
 
               <div className="filter-section">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import LocationSelector from '../components/LocationSelector';
 import '../styles/CityPage.css';
 
 // Населённые пункты по странам (города, пригороды, посёлки)
@@ -66,73 +67,90 @@ const citiesByCountry: Record<string, { top: string[]; all: string[] }> = {
 export default function CityPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
-  const [countryCode, setCountryCode] = useState('RU');
-  const [cities, setCities] = useState<string[]>([]);
 
   useEffect(() => {
-    // Получаем выбранную страну
+    // Загружаем сохранённую страну из CountryPage
     const savedCountry = localStorage.getItem('registrationCountry');
     if (savedCountry) {
       const country = JSON.parse(savedCountry);
-      setCountryCode(country.code);
+      setSelectedCountry(country.nameRu || country.name);
     }
   }, []);
 
-  useEffect(() => {
-    // Определяем какие города показывать
-    const countryData = citiesByCountry[countryCode] || citiesByCountry['RU'];
-    
-    if (searchQuery) {
-      // При поиске показываем все совпадения
-      const filtered = countryData.all.filter((city) =>
-        city.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setCities(filtered);
-    } else {
-      // Без поиска показываем только топ-5
-      setCities(countryData.top);
+  const handleContinue = () => {
+    if (selectedCity) {
+      localStorage.setItem('registrationCity', selectedCity);
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+      navigate('/radius');
     }
-  }, [searchQuery, countryCode]);
-
-  const filteredCities = cities;
+  };
 
   return (
     <div className="city-page">
-      <div className="container">
-        <h1 className="page-title">{t('registration.selectCity')}</h1>
+      <div className="container" style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+        <h1 style={{ 
+          fontSize: '28px', 
+          fontWeight: '700', 
+          marginBottom: '12px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
+          {t('registration.selectCity')}
+        </h1>
+        <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '15px' }}>
+          Выберите страну и город для продажи и покупки товаров поблизости
+        </p>
 
-        <input
-          type="text"
-          className="input search-input"
-          placeholder={t('registration.searchCity')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+        <LocationSelector
+          selectedCountry={selectedCountry}
+          selectedCity={selectedCity}
+          onCountryChange={setSelectedCountry}
+          onCityChange={setSelectedCity}
+          placeholder="Начните вводить название"
         />
 
-      <div className="city-list">
-        {filteredCities.map((city) => (
-          <button
-            key={city}
-            className={`city-item ${selectedCity === city ? 'selected' : ''}`}
-            onClick={() => {
-              setSelectedCity(city);
-              setSearchQuery(city);
-              if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-              }
-              // Автоматический переход после выбора
-              localStorage.setItem('registrationCity', city);
-              setTimeout(() => {
-                navigate('/radius');
-              }, 300);
-            }}
-          >
-            {city}
-          </button>
-        ))}
-      </div>
+        <button
+          onClick={handleContinue}
+          disabled={!selectedCity}
+          style={{
+            width: '100%',
+            marginTop: '32px',
+            padding: '16px',
+            borderRadius: '16px',
+            border: 'none',
+            background: selectedCity 
+              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              : '#e5e7eb',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: '700',
+            cursor: selectedCity ? 'pointer' : 'not-allowed',
+            boxShadow: selectedCity ? '0 8px 24px rgba(102, 126, 234, 0.4)' : 'none',
+            transition: 'all 0.3s',
+            transform: 'scale(1)'
+          }}
+          onMouseDown={(e) => selectedCity && (e.currentTarget.style.transform = 'scale(0.97)')}
+          onMouseUp={(e) => selectedCity && (e.currentTarget.style.transform = 'scale(1)')}
+        >
+          {selectedCity ? `Продолжить → ${selectedCity}` : 'Выберите город'}
+        </button>
+
+        <div style={{
+          marginTop: '24px',
+          padding: '16px',
+          background: 'rgba(102, 126, 234, 0.1)',
+          borderRadius: '12px',
+          fontSize: '14px',
+          color: '#64748b',
+          lineHeight: '1.6'
+        }}>
+          💡 <strong>Подсказка:</strong> Начните вводить название города в поле поиска. Система поддерживает более 1000 городов по всему миру!
+        </div>
       </div>
     </div>
   );
