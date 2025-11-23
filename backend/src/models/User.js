@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  telegramId: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true,
+  },
   nickname: {
     type: String,
     required: true,
@@ -8,6 +14,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     minlength: 3,
     maxlength: 20,
+    index: true,
   },
   country: {
     type: String,
@@ -30,11 +37,16 @@ const userSchema = new mongoose.Schema({
     phone: String,
     email: String,
   },
-  telegramId: String,
+  banned: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('User', userSchema);
