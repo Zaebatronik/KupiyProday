@@ -1,45 +1,59 @@
 import axios from 'axios';
 
-// Локальный сервер JSON Server на твоем компьютере
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// API URL - используем backend сервер
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 5000,
+  timeout: 10000, // Увеличили таймаут до 10 секунд
 });
 
-// Interceptor для добавления Telegram user data
+// Interceptor для добавления Telegram user data и логирования
 api.interceptors.request.use((config) => {
   if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
     config.headers['X-Telegram-User'] = JSON.stringify(
       window.Telegram.WebApp.initDataUnsafe.user
     );
   }
+  console.log('🌐 API Request:', config.method?.toUpperCase(), config.url);
   return config;
 });
 
+// Interceptor для логирования ответов и ошибок
+api.interceptors.response.use(
+  (response) => {
+    console.log('✅ API Response:', response.config.url, `(${response.data?.length || 'OK'})`);
+    return response;
+  },
+  (error) => {
+    console.error('❌ API Error:', error.config?.url, error.message);
+    if (error.response) {
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const userAPI = {
-  // JSON Server endpoints
+  // MongoDB backend endpoints
   getAll: () => api.get('/users'),
-  register: (data: any) => api.post('/users', data),
+  register: (data: any) => api.post('/users/register', data),
   getProfile: (userId: string) => api.get(`/users/${userId}`),
   updateProfile: (userId: string, data: any) => api.put(`/users/${userId}`, data),
+  deleteProfile: (userId: string) => api.delete(`/users/${userId}`),
   checkNickname: (nickname: string) => 
-    api.get('/users').then(res => ({
-      data: { available: !res.data.some((u: any) => u.nickname === nickname) }
-    })),
+    api.get(`/users/check-nickname/${nickname}`),
 };
 
 export const listingsAPI = {
   getAll: (params?: any) => api.get('/listings', { params }),
+  getAllForAdmin: () => api.get('/listings/admin/all'),
   getById: (id: string) => api.get(`/listings/${id}`),
-  getByUser: (userId: string) => 
-    api.get('/listings').then(res => ({
-      data: res.data.filter((l: any) => l.userId === userId)
-    })),
+  getByUser: (userId: string) => api.get(`/listings/user/${userId}`),
   create: (data: any) => api.post('/listings', data),
   update: (id: string, data: any) => api.put(`/listings/${id}`, data),
   delete: (id: string) => api.delete(`/listings/${id}`),
@@ -62,6 +76,20 @@ export const reportsAPI = {
   getAll: () => api.get('/reports'),
   updateStatus: (id: string, status: string) =>
     api.patch(`/reports/${id}/status`, { status }),
+};
+
+export const notificationsAPI = {
+  getAll: (userId: string, params?: any) => 
+    api.get(`/notifications/${userId}`, { params }),
+  markAsRead: (notificationId: string) =>
+    api.patch(`/notifications/${notificationId}/read`),
+  markAllAsRead: (userId: string) =>
+    api.patch(`/notifications/user/${userId}/read-all`),
+  create: (data: any) => api.post('/notifications', data),
+  delete: (notificationId: string) =>
+    api.delete(`/notifications/${notificationId}`),
+  clearRead: (userId: string) =>
+    api.delete(`/notifications/user/${userId}/clear-read`),
 };
 
 export default api;
