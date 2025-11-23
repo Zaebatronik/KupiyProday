@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API URL - используем backend сервер
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// API URL - backend без префикса /api
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -39,7 +39,7 @@ api.interceptors.response.use(
 );
 
 export const userAPI = {
-  // MongoDB backend endpoints
+  // MongoDB backend endpoints (без /api префикса)
   getAll: () => api.get('/users'),
   register: (data: any) => api.post('/users/register', data),
   getProfile: (userId: string) => api.get(`/users/${userId}`),
