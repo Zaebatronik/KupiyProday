@@ -24,7 +24,7 @@ const DRAFT_KEY = 'listing_draft';
 export default function AddListingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, addListing } = useStore();
+  const { user } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
@@ -71,21 +71,47 @@ export default function AddListingPage() {
     return () => clearTimeout(timer);
   }, [title, description, price, category, photos, negotiable]);
 
-  // Валидация в реальном времени
+  // Умная валидация в реальном времени с подсказками
   useEffect(() => {
     const newErrors: Record<string, string> = {};
     
-    if (title && title.length < 3) {
-      newErrors.title = 'Название должно быть минимум 3 символа';
+    if (title) {
+      if (title.length < 3) {
+        newErrors.title = `✏️ Еще ${3 - title.length} символ${3 - title.length === 1 ? '' : 'а'}...`;
+      } else if (title.length > 100) {
+        newErrors.title = '⚠️ Слишком длинное название (макс 100 символов)';
+      } else if (title.length >= 3 && title.length < 10) {
+        newErrors.title = '✅ Хорошо! Можно подробнее';
+      }
     }
-    if (description && description.length < 10) {
-      newErrors.description = 'Описание должно быть минимум 10 символов';
+    
+    if (description) {
+      if (description.length < 10) {
+        newErrors.description = `✏️ Еще ${10 - description.length} символов...`;
+      } else if (description.length >= 10 && description.length < 50) {
+        newErrors.description = '✅ Отлично! Чем подробнее, тем лучше';
+      } else if (description.length > 1000) {
+        newErrors.description = '⚠️ Слишком длинное описание (макс 1000 символов)';
+      }
     }
-    if (price && parseFloat(price) <= 0) {
-      newErrors.price = 'Цена должна быть больше 0';
+    
+    if (price) {
+      const priceNum = parseFloat(price);
+      if (priceNum <= 0) {
+        newErrors.price = '💰 Цена должна быть больше 0';
+      } else if (priceNum > 0 && priceNum < 10) {
+        newErrors.price = '✅ Низкая цена - привлечёт внимание!';
+      } else if (priceNum >= 10000) {
+        newErrors.price = '💎 Дорогой товар - добавьте больше фото!';
+      }
     }
+    
     if (photos.length === 0 && (title || description)) {
-      newErrors.photos = 'Добавьте хотя бы 1 фото';
+      newErrors.photos = '📷 Добавьте хотя бы 1 фото - с фото продаётся лучше!';
+    } else if (photos.length === 1) {
+      newErrors.photos = '✅ Отлично! Добавьте ещё фото (макс 5)';
+    } else if (photos.length >= 2) {
+      newErrors.photos = `✅ Супер! ${photos.length} фото - покупатели любят подробность!`;
     }
     
     setErrors(newErrors);
