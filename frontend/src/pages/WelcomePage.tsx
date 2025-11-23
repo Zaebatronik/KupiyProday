@@ -33,6 +33,20 @@ export default function WelcomePage() {
 
   return (
     <div className="welcome-page">
+      {/* ТЕСТОВЫЙ БАННЕР */}
+      <div style={{
+        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        color: 'white',
+        padding: '16px',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: '18px',
+        borderRadius: '12px',
+        margin: '12px',
+        boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)'
+      }}>
+        🚀 ТЕСТОВАЯ ВЕРСИЯ - АВТОДЕПЛОЙ РАБОТАЕТ!
+      </div>
       <div className="welcome-header">
         {/* Анимация медведя с корзинкой */}
         <div className="bear-cart-animation">
