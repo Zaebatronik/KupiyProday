@@ -41,19 +41,22 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
 
-  // Загружаем пользователей с сервера
+  // Умная загрузка пользователей с инкрементальными обновлениями
   useEffect(() => {
-    const loadUsers = async () => {
+    let isSubscribed = true;
+    let pollTimeout: NodeJS.Timeout;
+    
+    const loadUsers = async (isInitial = false) => {
+      if (!isSubscribed) return;
+      
       try {
-        // Импортируем API
         const { userAPI } = await import('../services/api');
         const response = await userAPI.getAll();
         const serverUsers = response.data;
 
-        console.log('🔄 AdminPage: Загружено пользователей с сервера:', serverUsers.length);
-        console.log('📋 Пользователи:', serverUsers.map((u: any) => `${u.id}:${u.nickname}`));
+        if (!isSubscribed) return;
 
-        const adminUsers: AdminUser[] = serverUsers.map((user: any) => ({
+        const newAdminUsers: AdminUser[] = serverUsers.map((user: any) => ({
           id: user.id,
           nickname: user.nickname,
           country: user.country,
@@ -65,42 +68,80 @@ export default function AdminPage() {
         }));
 
         // Сортируем: админ первый, остальные по дате
-        adminUsers.sort((a, b) => {
+        newAdminUsers.sort((a, b) => {
           if (a.isAdmin) return -1;
           if (b.isAdmin) return 1;
           return 0;
         });
 
-        setUsers(adminUsers);
-        console.log('✅ AdminPage: Список обновлён, всего пользователей:', adminUsers.length);
-        console.log('👥 Активных:', adminUsers.filter(u => u.status === 'active').length);
-        console.log('🚫 Забаненных:', adminUsers.filter(u => u.status === 'banned').length);
+        // Умное обновление: только если данные изменились
+        setUsers(prev => {
+          const hasChanges = prev.length !== newAdminUsers.length || 
+            prev.some((p, i) => 
+              p.id !== newAdminUsers[i]?.id || 
+              p.status !== newAdminUsers[i]?.status ||
+              p.nickname !== newAdminUsers[i]?.nickname
+            );
+          
+          if (hasChanges || isInitial) {
+            if (!isInitial) {
+              console.log('🔄 Обнаружены изменения:', {
+                было: prev.length,
+                стало: newAdminUsers.length,
+                новые: newAdminUsers.filter(n => !prev.find(p => p.id === n.id)).map(u => u.nickname),
+                удалены: prev.filter(p => !newAdminUsers.find(n => n.id === p.id)).map(u => u.nickname),
+              });
+              
+              // Haptic feedback при изменениях
+              if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+              }
+            }
+            return newAdminUsers;
+          }
+          
+          return prev;
+        });
+
+        if (isInitial) {
+          console.log('✅ Загружено пользователей:', newAdminUsers.length, {
+            активных: newAdminUsers.filter(u => u.status === 'active').length,
+            забаненных: newAdminUsers.filter(u => u.status === 'banned').length,
+          });
+        }
       } catch (error) {
-        console.error('❌ Failed to load users from server:', error);
-        // Fallback на локальные данные
-        const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
-          id: user.id,
-          nickname: user.nickname,
-          country: user.country,
-          city: user.city,
-          listingsCount: listings.filter((l) => l.userId === user.id).length,
-          joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
-          status: 'active' as const,
-          isAdmin: user.id === ADMIN_ID,
-        }));
-        setUsers(adminUsers);
+        console.error('❌ Ошибка загрузки пользователей:', error);
+        
+        // Fallback на локальные данные только при первой загрузке
+        if (isInitial) {
+          const adminUsers: AdminUser[] = allUsers.map((user: User) => ({
+            id: user.id,
+            nickname: user.nickname,
+            country: user.country,
+            city: user.city,
+            listingsCount: listings.filter((l) => l.userId === user.id).length,
+            joinedAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно',
+            status: 'active' as const,
+            isAdmin: user.id === ADMIN_ID,
+          }));
+          setUsers(adminUsers);
+        }
+      }
+      
+      // Планируем следующее обновление (умный поллинг)
+      if (isSubscribed) {
+        pollTimeout = setTimeout(() => loadUsers(false), 5000); // Каждые 5 секунд
       }
     };
 
-    loadUsers();
-    
-    // Обновляем список каждые 10 секунд (вместо 3)
-    const interval = setInterval(() => {
-      console.log('🔄 AdminPage: Автообновление списка пользователей...');
-      loadUsers();
-    }, 10000);
+    // Начальная загрузка
+    loadUsers(true);
 
-    return () => clearInterval(interval);
+    // Cleanup
+    return () => {
+      isSubscribed = false;
+      if (pollTimeout) clearTimeout(pollTimeout);
+    };
   }, [allUsers, listings]);
 
   // Проверка доступа (в реальном приложении это будет на бэкенде)
@@ -125,44 +166,64 @@ export default function AdminPage() {
   }
 
   const handleBanUser = async (userId: string) => {
-    if (window.confirm('Забанить этого пользователя? Он будет немедленно выкинут из приложения!')) {
-      // Обновляем локально
+    const targetUser = users.find(u => u.id === userId);
+    if (!targetUser) return;
+    
+    if (window.confirm(`Забанить "${targetUser.nickname}"? Пользователь будет немедленно выкинут из приложения!`)) {
+      // Оптимистичное обновление UI
       setUsers(prev => prev.map(u => 
-        u.id === userId ? { ...u, status: 'banned' } : u
+        u.id === userId ? { ...u, status: 'banned' as const } : u
       ));
+
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+      }
 
       // Сохраняем на сервер
       try {
         const { userAPI } = await import('../services/api');
         await userAPI.updateProfile(userId, { banned: true });
-        console.log(`User ${userId} banned on server`);
+        console.log(`✅ Пользователь ${targetUser.nickname} (${userId}) забанен`);
       } catch (error) {
-        console.error('Failed to ban user on server:', error);
-      }
-
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+        console.error('❌ Ошибка бана на сервере:', error);
+        
+        // Откатываем изменения при ошибке
+        setUsers(prev => prev.map(u => 
+          u.id === userId ? { ...u, status: 'active' as const } : u
+        ));
+        
+        alert('Ошибка! Не удалось забанить пользователя. Проверьте соединение.');
       }
     }
   };
 
   const handleUnbanUser = async (userId: string) => {
-    // Обновляем локально
+    const targetUser = users.find(u => u.id === userId);
+    if (!targetUser) return;
+    
+    // Оптимистичное обновление UI
     setUsers(prev => prev.map(u => 
-      u.id === userId ? { ...u, status: 'active' } : u
+      u.id === userId ? { ...u, status: 'active' as const } : u
     ));
+
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
 
     // Сохраняем на сервер
     try {
       const { userAPI } = await import('../services/api');
       await userAPI.updateProfile(userId, { banned: false });
-      console.log(`User ${userId} unbanned on server`);
+      console.log(`✅ Пользователь ${targetUser.nickname} (${userId}) разбанен`);
     } catch (error) {
-      console.error('Failed to unban user on server:', error);
-    }
-
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      console.error('❌ Ошибка разбана на сервере:', error);
+      
+      // Откатываем изменения при ошибке
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, status: 'banned' as const } : u
+      ));
+      
+      alert('Ошибка! Не удалось разбанить пользователя. Проверьте соединение.');
     }
   };
 
