@@ -6,7 +6,7 @@ import '../styles/MainMenu.css';
 export default function MainMenu() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { setUser } = useStore();
+  const { clearUser } = useStore();
 
   // ID админа
   const ADMIN_ID = '670170626';
@@ -25,11 +25,11 @@ export default function MainMenu() {
 
   const handleLogout = () => {
     if (window.confirm('Вы уверены, что хотите выйти? Придётся пройти регистрацию заново.')) {
-      // Очищаем данные пользователя
-      setUser(null);
+      // Очищаем данные пользователя и состояние регистрации
+      clearUser();
       localStorage.clear();
-      // Переходим на домашнюю страницу
-      navigate('/');
+      // Переходим на главную страницу
+      navigate('/', { replace: true });
     }
   };
 
