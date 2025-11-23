@@ -44,7 +44,7 @@ export default function AdminPage() {
   // Умная загрузка пользователей с инкрементальными обновлениями
   useEffect(() => {
     let isSubscribed = true;
-    let pollTimeout: NodeJS.Timeout;
+    let pollTimeout: number;
     
     const loadUsers = async (isInitial = false) => {
       if (!isSubscribed) return;
