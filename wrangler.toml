@@ -1,14 +1,3 @@
-name = "kupyprodai-frontend"
+name = "morning-shape-e5ac"
 compatibility_date = "2024-01-15"
-
-[build]
-command = "cd frontend && npm install && npm run build"
-cwd = "."
-watch_dir = "frontend"
-
-[build.upload]
-format = "service-worker"
-dir = "./frontend/dist"
-
-[[pages_build_output_dir]]
-value = "frontend/dist"
+pages_build_output_dir = "frontend/dist"
