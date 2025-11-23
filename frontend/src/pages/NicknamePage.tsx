@@ -14,7 +14,7 @@ export default function NicknamePage() {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [nicknameAvailable, setNicknameAvailable] = useState<boolean|null>(null);
-  const debounceRef = useRef<NodeJS.Timeout|null>(null);
+  const debounceRef = useRef<number | null>(null);
 
   const validateNickname = (nick: string): boolean => {
     if (nick.length < 3 || nick.length > 20) {
