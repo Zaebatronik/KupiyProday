@@ -22,16 +22,20 @@ i18n
     },
     lng: 'ru',
     fallbackLng: 'ru',
-    debug: false,
+    debug: true, // Включаем отладку
     interpolation: {
       escapeValue: false,
     },
     react: {
       useSuspense: false,
     },
+  }).then(() => {
+    // Проверяем что переводы загружены
+    console.log('✅ i18n initialized!');
+    console.log('Languages:', Object.keys(i18n.store.data));
+    console.log('Current language:', i18n.language);
+    console.log('Test translation menu.catalog:', i18n.t('menu.catalog'));
+    console.log('All menu keys:', Object.keys(ru.menu || {}));
   });
-
-// Проверяем что переводы загружены
-console.log('i18n initialized with languages:', Object.keys(i18n.store.data));
 
 export default i18n;
