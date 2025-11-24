@@ -298,12 +298,12 @@ export default function LocationPage() {
                 }}>
                   ⏳
                 </span>
-                <span>Определяем ваше местоположение...</span>
+                <span>{t('registration.detecting')}</span>
               </>
             ) : (
               <>
                 <span style={{ fontSize: '20px' }}>📍</span>
-                <span>Определить автоматически</span>
+                <span>{t('registration.detectAutomatically')}</span>
               </>
             )}
           </button>
@@ -328,7 +328,7 @@ export default function LocationPage() {
               position: 'relative',
               zIndex: 1
             }}>
-              или выберите вручную
+              {t('registration.selectManuallyHint')}
             </span>
             <div style={{
               position: 'absolute',
