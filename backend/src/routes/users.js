@@ -200,4 +200,70 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Забанить пользователя
+router.post('/:id/ban', async (req, res) => {
+  try {
+    let user;
+    
+    // Пробуем найти по Telegram ID
+    user = await User.findOneAndUpdate(
+      { telegramId: req.params.id },
+      { banned: true },
+      { new: true }
+    );
+    
+    // Если не нашли, пробуем по MongoDB ID
+    if (!user && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await User.findByIdAndUpdate(
+        req.params.id,
+        { banned: true },
+        { new: true }
+      );
+    }
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+    
+    console.log(`🚫 Пользователь ${user.nickname} (${user.telegramId}) забанен`);
+    res.json(user);
+  } catch (error) {
+    console.error('❌ Ошибка бана:', error);
+    res.status(500).json({ message: 'Ошибка сервера', error: error.message });
+  }
+});
+
+// Разбанить пользователя
+router.post('/:id/unban', async (req, res) => {
+  try {
+    let user;
+    
+    // Пробуем найти по Telegram ID
+    user = await User.findOneAndUpdate(
+      { telegramId: req.params.id },
+      { banned: false },
+      { new: true }
+    );
+    
+    // Если не нашли, пробуем по MongoDB ID
+    if (!user && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await User.findByIdAndUpdate(
+        req.params.id,
+        { banned: false },
+        { new: true }
+      );
+    }
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+    
+    console.log(`✅ Пользователь ${user.nickname} (${user.telegramId}) разбанен`);
+    res.json(user);
+  } catch (error) {
+    console.error('❌ Ошибка разбана:', error);
+    res.status(500).json({ message: 'Ошибка сервера', error: error.message });
+  }
+});
+
 module.exports = router;
