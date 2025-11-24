@@ -53,18 +53,8 @@ export default function ListingDetailPage() {
   const handleContactSeller = () => {
     if (!listing) return;
     
-    // Открываем Telegram чат с продавцом
-    const sellerTelegramId = listing.userId;
-    
-    // Формируем ссылку на Telegram
-    const telegramUrl = `https://t.me/user?id=${sellerTelegramId}`;
-    
-    // Открываем в Telegram
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openTelegramLink(telegramUrl);
-    } else {
-      window.open(telegramUrl, '_blank');
-    }
+    // Открываем внутренний чат
+    navigate(`/chat/${listing.id}`);
     
     if (window.Telegram?.WebApp?.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
