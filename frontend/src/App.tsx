@@ -27,6 +27,7 @@ function App() {
   const { i18n } = useTranslation();
   const { isRegistered, language, user } = useStore();
   const [isBanned, setIsBanned] = useState(false);
+  const [i18nReady, setI18nReady] = useState(false);
 
   useEffect(() => {
     // Инициализация Telegram Web App
@@ -36,8 +37,12 @@ function App() {
       tg.expand();
     }
 
-    // Установка языка
-    i18n.changeLanguage(language);
+    // Установка языка и ожидание инициализации
+    const initLanguage = async () => {
+      await i18n.changeLanguage(language);
+      setI18nReady(true);
+    };
+    initLanguage();
 
     // Проверка и отправка отложенных регистраций
     const processPendingRegistration = async () => {
@@ -90,6 +95,24 @@ function App() {
     const interval = setInterval(checkBanStatus, 5000);
     return () => clearInterval(interval);
   }, [isRegistered, user]);
+
+  // Ожидание инициализации i18n
+  if (!i18nReady) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        fontSize: '18px',
+        fontWeight: '600'
+      }}>
+        🐻 Загрузка...
+      </div>
+    );
+  }
 
   // Если пользователь забанен - показываем только страницу бана
   if (isBanned) {
