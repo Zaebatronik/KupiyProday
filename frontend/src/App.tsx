@@ -20,6 +20,7 @@ import SupportPage from './pages/SupportPage';
 import SimpleChatPage from './pages/SimpleChatPage';
 import ChatsListPage from './pages/ChatsListPage';
 import AdminPage from './pages/AdminPage';
+import AdminUserProfile from './pages/AdminUserProfile';
 import UserProfilePage from './pages/UserProfilePage';
 import GoodbyePage from './pages/GoodbyePage';
 import BannedPage from './pages/BannedPage';
@@ -158,6 +159,7 @@ function App() {
             <Route path="/chats" element={<ChatsListPage />} />
             <Route path="/chat/:listingId" element={<SimpleChatPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/user/:userId" element={<AdminUserProfile />} />
             <Route path="/user/:userId" element={<UserProfilePage />} />
           </>
         )}

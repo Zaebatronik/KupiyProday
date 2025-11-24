@@ -671,7 +671,7 @@ export default function AdminPage() {
                 <div 
                   key={user.id} 
                   className={`user-card ${user.isAdmin ? 'admin-card' : ''} ${user.status === 'banned' ? 'banned' : ''}`}
-                  onClick={() => navigate(`/user/${user.id}`)}
+                  onClick={() => navigate(`/admin/user/${user.id}`)}
                   style={{ cursor: 'pointer', transition: 'all 0.3s' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
@@ -723,7 +723,7 @@ export default function AdminPage() {
                       className="action-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/user/${user.id}`);
+                        navigate(`/admin/user/${user.id}`);
                       }}
                       style={{
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -731,7 +731,7 @@ export default function AdminPage() {
                         marginBottom: '8px'
                       }}
                     >
-                      👤 Профиль
+                      👤 Управление
                     </button>
                     {!user.isAdmin && (
                       user.status === 'active' ? (
@@ -777,7 +777,20 @@ export default function AdminPage() {
           <div className="users-content">
             <div className="users-list">
               {users.filter(u => u.status === 'active').map(user => (
-                <div key={user.id} className={`user-card ${user.isAdmin ? 'admin-card' : ''}`}>
+                <div 
+                  key={user.id} 
+                  className={`user-card ${user.isAdmin ? 'admin-card' : ''}`}
+                  onClick={() => navigate(`/admin/user/${user.id}`)}
+                  style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
+                >
                   <div className="user-info">
                     <div className="user-header">
                       <span className="user-nickname">
@@ -812,18 +825,38 @@ export default function AdminPage() {
                       <span>С {user.joinedAt}</span>
                     </div>
                   </div>
-                  <div className="user-actions">
+                  <div className="user-actions" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/admin/user/${user.id}`);
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      ⚙️ Управление
+                    </button>
                     {!user.isAdmin && user.status === 'active' ? (
                       <button 
                         className="action-btn ban-btn"
-                        onClick={() => handleBanUser(user.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBanUser(user.id);
+                        }}
                       >
                         🚫 Забанить
                       </button>
                     ) : !user.isAdmin && user.status === 'banned' ? (
                       <button 
                         className="action-btn unban-btn"
-                        onClick={() => handleUnbanUser(user.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnbanUser(user.id);
+                        }}
                       >
                         ✅ Разбанить
                       </button>
@@ -846,7 +879,20 @@ export default function AdminPage() {
                 </div>
               ) : (
                 users.filter(u => u.status === 'banned').map(user => (
-                  <div key={user.id} className="user-card banned">
+                  <div 
+                    key={user.id} 
+                    className="user-card banned"
+                    onClick={() => navigate(`/admin/user/${user.id}`)}
+                    style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '';
+                    }}
+                  >
                     <div className="user-info">
                       <div className="user-header">
                         <span className="user-nickname">
@@ -880,10 +926,27 @@ export default function AdminPage() {
                         <span>С {user.joinedAt}</span>
                       </div>
                     </div>
-                    <div className="user-actions">
+                    <div className="user-actions" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        className="action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/admin/user/${user.id}`);
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white',
+                          marginBottom: '8px'
+                        }}
+                      >
+                        ⚙️ Управление
+                      </button>
                       <button 
                         className="action-btn unban-btn"
-                        onClick={() => handleUnbanUser(user.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnbanUser(user.id);
+                        }}
                       >
                         ✅ Разбанить
                       </button>
