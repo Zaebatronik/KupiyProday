@@ -76,17 +76,32 @@ export default function LocationPage() {
   const handleGeolocation = async () => {
     setLoadingLocation(true);
     
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+    
     try {
-      // Проверяем Telegram WebApp API
+      // Telegram WebApp 6.9+ поддерживает геолокацию через LocationManager
       if (window.Telegram?.WebApp?.LocationManager) {
+        console.log('📍 Используем Telegram LocationManager');
+        
+        // Инициализируем LocationManager если нужно
+        if (window.Telegram.WebApp.LocationManager.init) {
+          window.Telegram.WebApp.LocationManager.init();
+        }
+        
+        // Запрашиваем локацию
         window.Telegram.WebApp.LocationManager.getLocation((location) => {
-          if (location) {
+          if (location && location.latitude && location.longitude) {
+            console.log('✅ Telegram location:', location);
             reverseGeocode(location.latitude, location.longitude);
           } else {
+            console.log('⚠️ Telegram location failed, fallback to navigator');
             fallbackToNavigator();
           }
         });
       } else {
+        console.log('📍 Telegram LocationManager недоступен, используем Navigator API');
         fallbackToNavigator();
       }
     } catch (error) {
@@ -116,46 +131,110 @@ export default function LocationPage() {
 
   const reverseGeocode = async (lat: number, lon: number) => {
     try {
+      console.log(`🌍 Определяем местоположение: ${lat}, ${lon}`);
+      
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru&zoom=10`
       );
       const data = await response.json();
       
+      console.log('📍 Nominatim ответ:', data);
+      
       if (data && data.address) {
-        const country = data.address.country;
-        const city = data.address.city || data.address.town || data.address.village;
+        const address = data.address;
         
-        if (country && city) {
+        // Определяем страну (пробуем разные поля)
+        const country = address.country;
+        
+        // Определяем город (пробуем все возможные варианты)
+        const city = address.city || 
+                     address.town || 
+                     address.village || 
+                     address.municipality ||
+                     address.suburb ||
+                     address.county;
+        
+        console.log(`🏙️ Найдено: ${country}, ${city}`);
+        
+        if (country) {
           // Ищем страну в списке
           const foundCountry = popularCountries.find(c => 
-            c.nameRu.toLowerCase() === country.toLowerCase() || 
-            c.name.toLowerCase() === country.toLowerCase()
+            c.nameRu.toLowerCase().includes(country.toLowerCase()) || 
+            c.name.toLowerCase().includes(country.toLowerCase()) ||
+            country.toLowerCase().includes(c.nameRu.toLowerCase()) ||
+            country.toLowerCase().includes(c.name.toLowerCase())
           );
           
           if (foundCountry) {
+            console.log(`✅ Страна найдена: ${foundCountry.nameRu}`);
             setSelectedCountry(foundCountry);
+            
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+              window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+            
             setStep('city');
             
-            // Загружаем города и ищем нужный
+            // Загружаем города
             const citiesData = await locationService.getCities(foundCountry.nameRu);
             setCities(citiesData);
             
-            const foundCity = citiesData.find(c => 
-              c.nameRu.toLowerCase() === city.toLowerCase() ||
-              c.name.toLowerCase() === city.toLowerCase()
-            );
-            
-            if (foundCity) {
-              setCitySearch(foundCity.nameRu);
-            } else {
-              setCitySearch(city);
+            if (city) {
+              // Ищем город в базе
+              const foundCity = citiesData.find(c => 
+                c.nameRu.toLowerCase().includes(city.toLowerCase()) ||
+                c.name.toLowerCase().includes(city.toLowerCase()) ||
+                city.toLowerCase().includes(c.nameRu.toLowerCase()) ||
+                city.toLowerCase().includes(c.name.toLowerCase())
+              );
+              
+              if (foundCity) {
+                console.log(`✅ Город найден в базе: ${foundCity.nameRu}`);
+                setCitySearch(foundCity.nameRu);
+                
+                // Показываем уведомление
+                if (window.Telegram?.WebApp) {
+                  window.Telegram.WebApp.showAlert(
+                    `📍 Определено: ${foundCountry.nameRu}, ${foundCity.nameRu}\n\nВы можете изменить город или нажать на найденный для продолжения.`
+                  );
+                }
+              } else {
+                console.log(`⚠️ Город не найден в базе, используем: ${city}`);
+                setCitySearch(city);
+                
+                if (window.Telegram?.WebApp) {
+                  window.Telegram.WebApp.showAlert(
+                    `📍 Определено: ${foundCountry.nameRu}, ${city}\n\nНачните вводить название города для уточнения.`
+                  );
+                }
+              }
             }
+          } else {
+            console.log(`⚠️ Страна не найдена в списке: ${country}`);
+            setLoadingLocation(false);
+            alert(`Страна "${country}" пока не поддерживается. Выберите вручную.`);
           }
+        } else {
+          throw new Error('Не удалось определить страну');
         }
+      } else {
+        throw new Error('Некорректный ответ от сервиса геолокации');
       }
     } catch (error) {
-      console.error('Reverse geocoding error:', error);
-      alert(t('registration.geolocationError') || 'Не удалось определить местоположение');
+      console.error('❌ Reverse geocoding error:', error);
+      setLoadingLocation(false);
+      
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+      }
+      
+      const errorMessage = t('registration.geolocationError') || 'Не удалось определить местоположение. Пожалуйста, выберите вручную.';
+      
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert(errorMessage);
+      } else {
+        alert(errorMessage);
+      }
     } finally {
       setLoadingLocation(false);
     }
@@ -187,23 +266,54 @@ export default function LocationPage() {
             style={{
               width: '100%',
               marginBottom: '20px',
-              padding: '16px',
+              padding: '18px',
               borderRadius: '16px',
-              border: '2px solid #667eea',
-              background: 'white',
-              color: '#667eea',
+              border: 'none',
+              background: loadingLocation 
+                ? '#e5e7eb' 
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
               fontSize: '16px',
-              fontWeight: '600',
+              fontWeight: '700',
               cursor: loadingLocation ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '10px',
+              boxShadow: loadingLocation ? 'none' : '0 8px 24px rgba(102, 126, 234, 0.4)',
+              transform: 'scale(1)',
+              position: 'relative',
+              overflow: 'hidden'
             }}
+            onMouseDown={(e) => !loadingLocation && (e.currentTarget.style.transform = 'scale(0.97)')}
+            onMouseUp={(e) => !loadingLocation && (e.currentTarget.style.transform = 'scale(1)')}
+            onMouseLeave={(e) => !loadingLocation && (e.currentTarget.style.transform = 'scale(1)')}
           >
-            {loadingLocation ? '⏳ Определяем...' : '📍 Определить автоматически'}
+            {loadingLocation ? (
+              <>
+                <span style={{ 
+                  animation: 'spin 1s linear infinite',
+                  display: 'inline-block'
+                }}>
+                  ⏳
+                </span>
+                <span>Определяем ваше местоположение...</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: '20px' }}>📍</span>
+                <span>Определить автоматически</span>
+              </>
+            )}
           </button>
+          
+          <style>{`
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
 
           <div style={{ 
             textAlign: 'center', 
