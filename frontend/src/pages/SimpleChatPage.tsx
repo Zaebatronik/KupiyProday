@@ -4,15 +4,17 @@ import { useStore } from '../store';
 import { io, Socket } from 'socket.io-client';
 import { chatsAPI, listingsAPI } from '../services/api';
 
-interface Message {
-  _id?: string;
-  senderId: string;
-  text: string;
-  createdAt?: string;
-}
-
 const API_URL = import.meta.env.VITE_API_URL || 'https://kupiyproday.onrender.com';
 let socket: Socket | null = null;
+
+interface Message {
+  id: string;
+  senderId: string;
+  text: string;
+  timestamp: number;
+  _id?: string;
+  createdAt?: string;
+}
 
 export default function SimpleChatPage() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -36,12 +38,25 @@ export default function SimpleChatPage() {
         // Сначала пробуем найти в локальном store
         let foundListing = listings.find((l: any) => l.id === listingId);
         
-        // Если нет - загружаем с сервера
+        // Если нет - пробуем загрузить с сервера
         if (!foundListing) {
           console.log('📥 Загружаем объявление с сервера:', listingId);
-          const response = await listingsAPI.getById(listingId);
-          foundListing = response.data;
-          console.log('✅ Объявление загружено:', foundListing);
+          try {
+            const response = await listingsAPI.getById(listingId);
+            foundListing = response.data;
+            console.log('✅ Объявление загружено с сервера:', foundListing);
+          } catch (serverError) {
+            console.log('⚠️ Сервер недоступен, проверяем localStorage');
+            // Fallback: проверяем localStorage
+            const localListings = localStorage.getItem('listings');
+            if (localListings) {
+              const parsedListings = JSON.parse(localListings);
+              foundListing = parsedListings.find((l: any) => l.id === listingId);
+              if (foundListing) {
+                console.log('✅ Объявление найдено в localStorage');
+              }
+            }
+          }
         }
 
         if (!foundListing) {
@@ -74,26 +89,42 @@ export default function SimpleChatPage() {
         const sellerId = foundListing.userId;
         const buyerId = isSeller ? 'temp_buyer' : user.id;
 
-        // Создаём чат (если существует - вернётся существующий)
-        const response = await chatsAPI.create({
-          listingId,
-          participants: [
-            { userId: sellerId, nickname: foundListing.userNickname },
-            { userId: buyerId, nickname: isSeller ? 'Покупатель' : user.nickname }
-          ]
-        });
+        try {
+          // Пробуем создать чат на сервере
+          const response = await chatsAPI.create({
+            listingId,
+            participants: [
+              { userId: sellerId, nickname: foundListing.userNickname },
+              { userId: buyerId, nickname: isSeller ? 'Покупатель' : user.nickname }
+            ]
+          });
 
-        const chat = response.data;
-        setChatId(chat._id);
-        setMessages(chat.messages || []);
+          const chat = response.data;
+          setChatId(chat._id);
+          setMessages(chat.messages || []);
 
-        // Присоединяемся к комнате чата
-        socket?.emit('join-chat', chat._id);
+          // Присоединяемся к комнате чата
+          socket?.emit('join-chat', chat._id);
 
-        // Слушаем новые сообщения
-        socket?.on('new-message', (message: Message) => {
-          setMessages(prev => [...prev, message]);
-        });
+          // Слушаем новые сообщения
+          socket?.on('new-message', (message: Message) => {
+            setMessages(prev => [...prev, message]);
+          });
+
+          console.log('✅ Чат загружен с сервера');
+        } catch (serverError) {
+          console.log('⚠️ Сервер недоступен, работаем в режиме localStorage');
+          // Fallback: работаем с localStorage
+          const localChatKey = `chat_${listingId}_${user.id}`;
+          const localChat = localStorage.getItem(localChatKey);
+          const chatId = localChatKey;
+          setChatId(chatId);
+          
+          if (localChat) {
+            const parsedChat = JSON.parse(localChat);
+            setMessages(parsedChat.messages || []);
+          }
+        }
 
         setLoading(false);
       } catch (error) {
@@ -120,26 +151,38 @@ export default function SimpleChatPage() {
     if (!messageText.trim() || !user || !chatId) return;
 
     const newMessage: Message = {
+      id: Date.now().toString(),
       senderId: user.id,
-      text: messageText.trim()
+      text: messageText.trim(),
+      timestamp: Date.now()
     };
 
     try {
-      // Отправляем на сервер
-      await chatsAPI.sendMessage(chatId, newMessage);
-
-      // Отправляем через Socket.IO для моментальной доставки
-      socket?.emit('send-message', {
-        chatId,
-        message: newMessage
-      });
-
-      // Очищаем поле ввода
+      // Добавляем сообщение локально сразу
+      setMessages(prev => [...prev, newMessage]);
       setMessageText('');
 
       // Тактильная обратная связь
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+
+      // Пробуем отправить на сервер
+      try {
+        await chatsAPI.sendMessage(chatId, newMessage);
+        // Отправляем через Socket.IO для моментальной доставки
+        socket?.emit('send-message', {
+          chatId,
+          message: newMessage
+        });
+      } catch (serverError) {
+        console.log('⚠️ Сервер недоступен, сохраняем локально');
+        // Сохраняем в localStorage
+        const localChatKey = `chat_${listingId}_${user.id}`;
+        const localChat = localStorage.getItem(localChatKey);
+        const chat = localChat ? JSON.parse(localChat) : { messages: [] };
+        chat.messages.push(newMessage);
+        localStorage.setItem(localChatKey, JSON.stringify(chat));
       }
     } catch (error) {
       console.error('Ошибка отправки:', error);
