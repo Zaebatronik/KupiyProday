@@ -18,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import FavoritesPage from './pages/FavoritesPage';
 import SupportPage from './pages/SupportPage';
 import SimpleChatPage from './pages/SimpleChatPage';
+import ChatsListPage from './pages/ChatsListPage';
 import AdminPage from './pages/AdminPage';
 import UserProfilePage from './pages/UserProfilePage';
 import GoodbyePage from './pages/GoodbyePage';
@@ -154,6 +155,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/support" element={<SupportPage />} />
+            <Route path="/chats" element={<ChatsListPage />} />
             <Route path="/chat/:listingId" element={<SimpleChatPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/user/:userId" element={<UserProfilePage />} />

@@ -28,6 +28,7 @@ export default function MainMenu() {
     { icon: '📁', label: t('menu.catalog'), path: '/catalog' },
     { icon: '➕', label: t('menu.addListing'), path: '/add' },
     { icon: '📋', label: t('menu.myListings'), path: '/my-listings' },
+    { icon: '💬', label: t('menu.chats'), path: '/chats' },
     { icon: '👤', label: t('menu.profile'), path: '/profile' },
     { icon: '⭐', label: t('menu.favorites'), path: '/favorites' },
     { icon: '❓', label: t('menu.support'), path: '/support' },

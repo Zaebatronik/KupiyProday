@@ -56,10 +56,11 @@
     "catalog": "Katalog",
     "addListing": "Dodaj",
     "myListings": "Moje ogłoszenia",
+    "chats": "Wiadomości",
     "profile": "Profil",
     "favorites": "Ulubione",
     "support": "Pomoc",
-    "logout": "Wyjście"
+    "logout": "Wyloguj"
   },
   "catalog": {
     "title": "Katalog ogłoszeń",
