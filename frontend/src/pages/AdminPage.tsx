@@ -47,6 +47,7 @@ export default function AdminPage() {
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
   const [liveUpdating, setLiveUpdating] = useState(false);
   const socketRef = useRef<Socket | null>(null);
+  const [selectedUserListings, setSelectedUserListings] = useState<{userId: string, nickname: string} | null>(null);
 
   // Проверка доступа: только админ может видеть эту страницу
   useEffect(() => {
@@ -695,27 +696,23 @@ export default function AdminPage() {
                       <span>ID: {user.id}</span>
                       <span>{user.country} • {user.city}</span>
                       <span>
-                        📦 {user.listingsCount} объявлений
-                        {user.listingsCount > 0 && (
-                          <button 
+                        📦 {user.listingsCount > 0 ? (
+                          <span 
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/user/${user.id}`);
+                              setSelectedUserListings({ userId: user.id, nickname: user.nickname });
                             }}
                             style={{
-                              marginLeft: '8px',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              background: '#667eea',
-                              color: 'white',
+                              color: '#667eea',
+                              textDecoration: 'underline',
                               cursor: 'pointer',
-                              fontSize: '12px',
                               fontWeight: '600'
                             }}
                           >
-                            👁️ Смотреть
-                          </button>
+                            {user.listingsCount} объявлений
+                          </span>
+                        ) : (
+                          `${user.listingsCount} объявлений`
                         )}
                       </span>
                       <span>С {user.joinedAt}</span>
@@ -792,7 +789,26 @@ export default function AdminPage() {
                     <div className="user-details">
                       <span>ID: {user.id}</span>
                       <span>{user.country} • {user.city}</span>
-                      <span>{user.listingsCount} объявлений</span>
+                      <span>
+                        {user.listingsCount > 0 ? (
+                          <span 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedUserListings({ userId: user.id, nickname: user.nickname });
+                            }}
+                            style={{
+                              color: '#667eea',
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {user.listingsCount} объявлений
+                          </span>
+                        ) : (
+                          `${user.listingsCount} объявлений`
+                        )}
+                      </span>
                       <span>С {user.joinedAt}</span>
                     </div>
                   </div>
@@ -841,7 +857,26 @@ export default function AdminPage() {
                       <div className="user-details">
                         <span>ID: {user.id}</span>
                         <span>{user.country} • {user.city}</span>
-                        <span>{user.listingsCount} объявлений</span>
+                        <span>
+                          {user.listingsCount > 0 ? (
+                            <span 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedUserListings({ userId: user.id, nickname: user.nickname });
+                              }}
+                              style={{
+                                color: '#667eea',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                fontWeight: '600'
+                              }}
+                            >
+                              {user.listingsCount} объявлений
+                            </span>
+                          ) : (
+                            `${user.listingsCount} объявлений`
+                          )}
+                        </span>
                         <span>С {user.joinedAt}</span>
                       </div>
                     </div>
@@ -1108,6 +1143,104 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Модальное окно с объявлениями пользователя */}
+      {selectedUserListings && (
+        <div 
+          className="modal-overlay"
+          onClick={() => setSelectedUserListings(null)}
+        >
+          <div 
+            className="modal-content-listings"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>📦 Объявления пользователя: {selectedUserListings.nickname}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setSelectedUserListings(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {listings
+                .filter(l => l.userId === selectedUserListings.userId)
+                .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+                .map(listing => (
+                  <div key={listing.id} className="modal-listing-card">
+                    {listing.photos && listing.photos.length > 0 && (
+                      <img 
+                        src={listing.photos[0]} 
+                        alt={listing.title} 
+                        className="modal-listing-image"
+                        onClick={() => navigate(`/listing/${listing.id}`)}
+                      />
+                    )}
+                    
+                    <div className="modal-listing-info">
+                      <h4 
+                        className="modal-listing-title"
+                        onClick={() => navigate(`/listing/${listing.id}`)}
+                      >
+                        {listing.title}
+                      </h4>
+                      <p className="modal-listing-price">
+                        {listing.price ? `${listing.price} €` : 'Договорная'}
+                      </p>
+                      <p className="modal-listing-details">
+                        📍 {listing.city}, {listing.country}
+                      </p>
+                      <p className="modal-listing-details">
+                        📅 {new Date(listing.createdAt || '').toLocaleDateString('ru-RU')}
+                      </p>
+                      <p className="modal-listing-details">
+                        👁️ {listing.views || 0} просмотров
+                      </p>
+                      <div className="modal-listing-status">
+                        {listing.status === 'active' ? (
+                          <span className="status-badge active">✅ Активно</span>
+                        ) : (
+                          <span className="status-badge inactive">❌ Неактивно</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="modal-listing-actions">
+                      <button 
+                        className="modal-btn view"
+                        onClick={() => {
+                          setSelectedUserListings(null);
+                          navigate(`/listing/${listing.id}`);
+                        }}
+                      >
+                        👁️ Открыть
+                      </button>
+                      <button 
+                        className="modal-btn delete"
+                        onClick={() => {
+                          if (confirm(`Удалить объявление "${listing.title}"?`)) {
+                            setLogs(lgs => [`🗑️ Удалено объявление: ${listing.title}`, ...lgs]);
+                          }
+                        }}
+                      >
+                        🗑️ Удалить
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              
+              {listings.filter(l => l.userId === selectedUserListings.userId).length === 0 && (
+                <div className="modal-empty">
+                  <div className="empty-icon">📭</div>
+                  <p>У пользователя нет объявлений</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
