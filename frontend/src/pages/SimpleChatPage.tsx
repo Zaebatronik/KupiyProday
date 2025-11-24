@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { io, Socket } from 'socket.io-client';
-import { chatsAPI } from '../services/api';
+import { chatsAPI, listingsAPI } from '../services/api';
 
 interface Message {
   _id?: string;
@@ -34,25 +34,26 @@ export default function SimpleChatPage() {
     const loadListing = async () => {
       try {
         // Сначала пробуем найти в локальном store
-        let foundListing = listings.find(l => l.id === listingId);
+        let foundListing = listings.find((l: any) => l.id === listingId);
         
         // Если нет - загружаем с сервера
         if (!foundListing) {
-          const { listingsAPI } = await import('../services/api');
+          console.log('📥 Загружаем объявление с сервера:', listingId);
           const response = await listingsAPI.getById(listingId);
           foundListing = response.data;
+          console.log('✅ Объявление загружено:', foundListing);
         }
 
         if (!foundListing) {
           alert('Объявление не найдено');
           navigate('/catalog');
-          return;
+          return null;
         }
 
         setListing(foundListing);
         return foundListing;
       } catch (error) {
-        console.error('Ошибка загрузки объявления:', error);
+        console.error('❌ Ошибка загрузки объявления:', error);
         alert('Не удалось загрузить объявление');
         navigate('/catalog');
         return null;
