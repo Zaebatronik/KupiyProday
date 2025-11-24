@@ -23,6 +23,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Делаем io доступным для всех роутов
 app.set('io', io);
+global.io = io; // Делаем io глобальным для доступа из других модулей
 
 // Routes - добавляем как с префиксом /api, так и без для совместимости
 const usersRouter = require('./routes/users');
@@ -65,19 +66,27 @@ app.get('*', (req, res) => {
 
 // Socket.IO для чатов
 io.on('connection', (socket) => {
-  console.log('Пользователь подключился:', socket.id);
+  console.log('✅ Пользователь подключился к Socket.IO:', socket.id);
 
   socket.on('join-chat', (chatId) => {
     socket.join(chatId);
-    console.log(`Пользователь присоединился к чату: ${chatId}`);
+    console.log(`📥 Пользователь ${socket.id} присоединился к чату: ${chatId}`);
+    // Уведомляем пользователя что он успешно присоединился
+    socket.emit('joined-chat', { chatId, socketId: socket.id });
   });
 
   socket.on('send-message', (data) => {
+    console.log('📨 Socket.IO: Получено сообщение для отправки:', {
+      chatId: data.chatId,
+      messagePreview: data.message?.text?.substring(0, 50)
+    });
+    // Отправляем сообщение всем в комнате чата (включая отправителя для подтверждения)
     io.to(data.chatId).emit('new-message', data.message);
+    console.log('📡 Socket.IO: Сообщение отправлено в комнату:', data.chatId);
   });
 
   socket.on('disconnect', () => {
-    console.log('Пользователь отключился:', socket.id);
+    console.log('❌ Пользователь отключился от Socket.IO:', socket.id);
   });
 });
 
