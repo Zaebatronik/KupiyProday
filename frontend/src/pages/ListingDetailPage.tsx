@@ -15,6 +15,7 @@ export default function ListingDetailPage() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [error, setError] = useState('');
   const [displayPrice, setDisplayPrice] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const loadListing = async () => {
@@ -72,6 +73,14 @@ export default function ListingDetailPage() {
     if (listing && listing.photos.length > 1) {
       setCurrentPhotoIndex((prev) => (prev - 1 + listing.photos.length) % listing.photos.length);
     }
+  };
+
+  const openFullscreen = () => {
+    setIsFullscreen(true);
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreen(false);
   };
 
   if (loading) {
@@ -142,10 +151,12 @@ export default function ListingDetailPage() {
             <img
               src={listing.photos[currentPhotoIndex]}
               alt={listing.title}
+              onClick={openFullscreen}
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain'
+                objectFit: 'contain',
+                cursor: 'pointer'
               }}
             />
             
@@ -519,6 +530,179 @@ export default function ListingDetailPage() {
           </button>
         )}
       </div>
+
+      {/* Fullscreen фото галерея */}
+      {isFullscreen && listing.photos && listing.photos.length > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.95)',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={closeFullscreen}
+        >
+          {/* Кнопка закрыть */}
+          <button
+            onClick={closeFullscreen}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            ✕
+          </button>
+
+          {/* Счетчик фото */}
+          {listing.photos.length > 1 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '16px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0, 0, 0, 0.6)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: '600',
+                backdropFilter: 'blur(10px)',
+                zIndex: 10000
+              }}
+            >
+              {currentPhotoIndex + 1} / {listing.photos.length}
+            </div>
+          )}
+
+          {/* Изображение */}
+          <img
+            src={listing.photos[currentPhotoIndex]}
+            alt={listing.title}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              userSelect: 'none'
+            }}
+          />
+
+          {/* Навигация */}
+          {listing.photos.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevPhoto();
+                }}
+                style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10000,
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                ‹
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextPhoto();
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10000,
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {/* Индикаторы */}
+          {listing.photos.length > 1 && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '24px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: '8px',
+                zIndex: 10000
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {listing.photos.map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentPhotoIndex(index)}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: index === currentPhotoIndex 
+                      ? 'white' 
+                      : 'rgba(255, 255, 255, 0.4)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
