@@ -10,6 +10,11 @@ export default function ProfilePage() {
   const ADMIN_ID = '670170626';
   const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
   const isAdmin = currentUserId === ADMIN_ID;
+  
+  // Временная отладка - показываем ID в консоли
+  console.log('🔍 DEBUG: Current User ID:', currentUserId);
+  console.log('🔍 DEBUG: User from store:', user);
+  console.log('🔍 DEBUG: Is Admin?', isAdmin);
 
   // Статистика пользователя
   const myListings = listings.filter(l => l.userId === user?.id);
