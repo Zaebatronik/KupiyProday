@@ -179,6 +179,27 @@ export default function ProfilePage() {
             </div>
             <span className="action-arrow">→</span>
           </button>
+
+          <button 
+            className="action-button danger-action" 
+            onClick={() => {
+              if (window.confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+                localStorage.clear();
+                navigate('/goodbye', { replace: true });
+              }
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: 'white'
+            }}
+          >
+            <span className="action-icon">🚪</span>
+            <div className="action-content">
+              <span className="action-text">Выйти из аккаунта</span>
+              <span className="action-subtitle">Сменить пользователя</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
         </div>
       </div>
 

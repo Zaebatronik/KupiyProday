@@ -109,6 +109,13 @@ export default function ChatsListPage() {
     );
   }
 
+  // Фильтруем чаты - только с сообщениями и с другими участниками
+  const activeChats = chats.filter(chat => {
+    if (!chat.messages || chat.messages.length === 0) return false;
+    const otherUser = getOtherParticipant(chat);
+    return otherUser !== undefined;
+  });
+
   return (
     <div className="chats-list-page">
       <div className="header">
@@ -118,7 +125,7 @@ export default function ChatsListPage() {
         <h1>💬 Мои сообщения</h1>
       </div>
 
-      {chats.length === 0 ? (
+      {activeChats.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">💬</div>
           <p>У вас пока нет сообщений</p>
@@ -128,7 +135,7 @@ export default function ChatsListPage() {
         </div>
       ) : (
         <div className="chats-list">
-          {chats.map(chat => {
+          {activeChats.map(chat => {
             const otherUser = getOtherParticipant(chat);
             const lastMessage = getLastMessage(chat);
             const unreadCount = getUnreadCount(chat);
