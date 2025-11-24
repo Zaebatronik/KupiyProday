@@ -224,6 +224,17 @@ export default function MyListingsPage() {
 
                     <div className="listing-actions">
                       <button 
+                        className="action-btn chat-btn"
+                        onClick={() => navigate(`/chat/${listing.id}`)}
+                        title="Открыть чаты"
+                        style={{
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white'
+                        }}
+                      >
+                        💬
+                      </button>
+                      <button 
                         className="action-btn edit-btn"
                         onClick={() => handleEdit(listing.id)}
                         title={t('common.edit')}

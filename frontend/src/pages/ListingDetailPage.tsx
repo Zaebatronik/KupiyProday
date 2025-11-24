@@ -393,21 +393,51 @@ export default function ListingDetailPage() {
           borderRadius: '16px',
           padding: '20px',
           marginBottom: '16px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
-        }}>
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+          cursor: 'pointer',
+          transition: 'all 0.3s'
+        }}
+        onClick={() => {
+          if (listing.userId) {
+            navigate(`/user/${listing.userId}`);
+          }
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = '0 4px 16px rgba(102, 126, 234, 0.2)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+        >
           <h3 style={{
             margin: '0 0 12px 0',
             fontSize: '16px',
             fontWeight: '600',
-            color: '#1f2937'
+            color: '#1f2937',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
             👤 Продавец
+            <span style={{
+              fontSize: '12px',
+              color: '#667eea',
+              fontWeight: '500',
+              padding: '2px 8px',
+              background: 'rgba(102, 126, 234, 0.1)',
+              borderRadius: '6px'
+            }}>
+              кликните чтобы открыть профиль
+            </span>
           </h3>
           <p style={{
             margin: 0,
-            fontSize: '15px',
-            color: '#4b5563',
-            fontWeight: '500'
+            fontSize: '18px',
+            color: '#667eea',
+            fontWeight: '700',
+            textDecoration: 'underline'
           }}>
             @{listing.userNickname}
           </p>

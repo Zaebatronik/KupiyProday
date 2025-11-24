@@ -24,18 +24,9 @@ export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState<'active' | 'sold' | 'all'>('active');
   const [dualPrices, setDualPrices] = useState<Map<string, string>>(new Map());
 
-  // Проверка: только админ может просматривать чужие профили
-  const ADMIN_ID = '670170626';
-  const isAdmin = currentUser?.telegramId === ADMIN_ID || currentUser?.id === ADMIN_ID;
-
   useEffect(() => {
-    if (!isAdmin) {
-      navigate('/');
-      return;
-    }
-
     loadUserData();
-  }, [userId, isAdmin]);
+  }, [userId]);
 
   const loadUserData = async () => {
     setLoading(true);
@@ -210,7 +201,7 @@ export default function UserProfilePage() {
         
         {/* Кнопка назад */}
         <button 
-          onClick={() => navigate('/admin')}
+          onClick={() => navigate(-1)}
           style={{
             marginBottom: '20px',
             padding: '10px 20px',
@@ -226,7 +217,7 @@ export default function UserProfilePage() {
             fontWeight: '600',
           }}
         >
-          ← Назад в админ-панель
+          ← Назад
         </button>
 
         {/* Карточка профиля */}
@@ -273,6 +264,44 @@ export default function UserProfilePage() {
                 {user.telegramUsername && <div>✈️ @{user.telegramUsername}</div>}
               </div>
             </div>
+            {/* Кнопка написать сообщение */}
+            {currentUser && (currentUser.id !== userId && currentUser.telegramId !== userId) && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Находим первое активное объявление пользователя для создания чата
+                  const firstListing = listings.find(l => l.status === 'active');
+                  if (firstListing) {
+                    navigate(`/chat/${firstListing.id}`);
+                  } else {
+                    alert('У пользователя нет активных объявлений для создания чата');
+                  }
+                }}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(255,255,255,0.2)',
+                  backdropFilter: 'blur(10px)',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                💬 Написать
+              </button>
+            )}
           </div>
         </div>
 

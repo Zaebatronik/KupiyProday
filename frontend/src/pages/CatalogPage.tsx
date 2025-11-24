@@ -562,6 +562,41 @@ export default function CatalogPage() {
                     </div>
                     <div className="listing-title">{listing.title}</div>
                     <div className="listing-location">📍 {listing.city}</div>
+                    {/* Информация о продавце */}
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (listing.userId) {
+                          navigate(`/user/${listing.userId}`);
+                        }
+                      }}
+                      style={{
+                        marginTop: '8px',
+                        padding: '6px 10px',
+                        background: 'rgba(102, 126, 234, 0.08)',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(102, 126, 234, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(102, 126, 234, 0.08)';
+                      }}
+                    >
+                      <span style={{ fontSize: '14px' }}>👤</span>
+                      <span style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: '#667eea',
+                      }}>
+                        @{(listing as any).userNickname || 'Продавец'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
