@@ -263,29 +263,25 @@ export default function AddListingPage() {
         photosCount: photos.length
       });
       
-      // НЕ сохраняем локально чтобы не переполнить localStorage
-      // addListing(listing); 
-      console.log('⏭️ Пропускаем локальное сохранение (большие фото)');
-
-      // Отправляем на сервер (только данные, без локальных ID)
-      console.log('🌐 Отправка на сервер:', {
-        url: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-        data: {
+      // Пытаемся отправить на сервер
+      console.log('🌐 Отправка на сервер:', import.meta.env.VITE_API_URL);
+      
+      try {
+        const response = await listingsAPI.create({
           ...listingData,
-          userId: listingData.userId,
-          userNickname: listingData.userNickname,
           city: listingData.city || user?.city || 'Не указан',
           country: listingData.country || user?.country || 'Не указана'
-        }
-      });
-      
-      const response = await listingsAPI.create({
-        ...listingData,
-        city: listingData.city || user?.city || 'Не указан',
-        country: listingData.country || user?.country || 'Не указана'
-      });
-      
-      console.log('✅ Объявление сохранено на сервере:', response.data);
+        });
+        
+        console.log('✅ Объявление сохранено на сервере:', response.data);
+      } catch (serverError) {
+        console.warn('⚠️ Сервер недоступен, сохраняем локально:', serverError);
+        
+        // Сохраняем локально если сервер недоступен
+        const { addListing } = useStore.getState();
+        addListing(listing);
+        console.log('💾 Объявление сохранено локально');
+      }
       
       // Вибрация успеха
       if (window.Telegram?.WebApp?.HapticFeedback) {
