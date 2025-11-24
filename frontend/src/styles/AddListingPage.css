@@ -203,6 +203,8 @@
   font-family: inherit;
   outline: none;
   transition: all 0.2s;
+  background-color: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
 }
 
 .input:focus,
