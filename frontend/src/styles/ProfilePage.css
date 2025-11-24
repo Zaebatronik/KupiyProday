@@ -227,28 +227,56 @@
 }
 
 /* Быстрые действия */
+/* Секции профиля */
+.profile-section {
+  margin: 20px;
+  animation: sectionFadeIn 0.6s ease-out;
+}
+
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+  padding: 0 4px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .profile-actions {
-  margin: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .action-button {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 20px;
-  margin-bottom: 12px;
-  background: white;
-  border: none;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.action-button:hover {
-  transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+.action-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .action-button.admin-action {
@@ -257,36 +285,51 @@
 }
 
 .action-icon {
-  font-size: 24px;
-  width: 40px;
-  height: 40px;
+  font-size: 28px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 12px;
+  background: rgba(102, 126, 234, 0.12);
+  border-radius: 14px;
+  flex-shrink: 0;
 }
 
 .admin-action .action-icon {
   background: rgba(245, 158, 11, 0.2);
 }
 
-.action-text {
+.action-content {
   flex: 1;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-text {
   font-size: 16px;
   font-weight: 600;
   color: #1a202c;
+  line-height: 1.2;
+}
+
+.action-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .action-arrow {
-  font-size: 20px;
+  font-size: 22px;
   color: #cbd5e0;
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
-.action-button:hover .action-arrow {
-  transform: translateX(5px);
+.action-button:active .action-arrow {
+  transform: translateX(4px);
 }
 
 /* Настройки */

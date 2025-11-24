@@ -99,27 +99,87 @@ export default function ProfilePage() {
         <div className="rating-hint">Пока нет отзывов</div>
       </div>
 
-      {/* Быстрые действия */}
-      <div className="profile-actions">
-        <button className="action-button" onClick={() => navigate('/my-listings')}>
-          <span className="action-icon">📦</span>
-          <span className="action-text">Мои объявления</span>
-          <span className="action-arrow">→</span>
-        </button>
-
-        <button className="action-button" onClick={() => navigate('/favorites')}>
-          <span className="action-icon">⭐</span>
-          <span className="action-text">Избранное</span>
-          <span className="action-arrow">→</span>
-        </button>
-
-        {isAdmin && (
-          <button className="action-button admin-action" onClick={() => navigate('/admin')}>
-            <span className="action-icon">👑</span>
-            <span className="action-text">Админ-панель</span>
+      {/* Быстрые действия - Основные */}
+      <div className="profile-section">
+        <h3 className="section-title">🚀 Основные действия</h3>
+        <div className="profile-actions">
+          <button className="action-button" onClick={() => navigate('/catalog')}>
+            <span className="action-icon">🏪</span>
+            <div className="action-content">
+              <span className="action-text">Каталог товаров</span>
+              <span className="action-subtitle">Смотреть все объявления</span>
+            </div>
             <span className="action-arrow">→</span>
           </button>
-        )}
+
+          <button className="action-button" onClick={() => navigate('/add')}>
+            <span className="action-icon">➕</span>
+            <div className="action-content">
+              <span className="action-text">Добавить объявление</span>
+              <span className="action-subtitle">Продать товар</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+
+          <button className="action-button" onClick={() => navigate('/chats')}>
+            <span className="action-icon">💬</span>
+            <div className="action-content">
+              <span className="action-text">Мои сообщения</span>
+              <span className="action-subtitle">Все чаты с покупателями</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Мои данные */}
+      <div className="profile-section">
+        <h3 className="section-title">📋 Мои данные</h3>
+        <div className="profile-actions">
+          <button className="action-button" onClick={() => navigate('/my-listings')}>
+            <span className="action-icon">📦</span>
+            <div className="action-content">
+              <span className="action-text">Мои объявления</span>
+              <span className="action-subtitle">{myListings.length} активных</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+
+          <button className="action-button" onClick={() => navigate('/favorites')}>
+            <span className="action-icon">⭐</span>
+            <div className="action-content">
+              <span className="action-text">Избранное</span>
+              <span className="action-subtitle">Сохраненные объявления</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+
+          {isAdmin && (
+            <button className="action-button admin-action" onClick={() => navigate('/admin')}>
+              <span className="action-icon">👑</span>
+              <div className="action-content">
+                <span className="action-text">Админ-панель</span>
+                <span className="action-subtitle">Управление платформой</span>
+              </div>
+              <span className="action-arrow">→</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Помощь и поддержка */}
+      <div className="profile-section">
+        <h3 className="section-title">❓ Помощь</h3>
+        <div className="profile-actions">
+          <button className="action-button" onClick={() => navigate('/support')}>
+            <span className="action-icon">💡</span>
+            <div className="action-content">
+              <span className="action-text">Поддержка</span>
+              <span className="action-subtitle">Связаться с администратором</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+        </div>
       </div>
 
       {/* Настройки */}
