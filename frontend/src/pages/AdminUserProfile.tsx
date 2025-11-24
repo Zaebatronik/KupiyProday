@@ -13,7 +13,7 @@ interface UserData {
   city: string;
   createdAt: string;
   telegramUsername?: string;
-  status: string;
+  banned: boolean;
 }
 
 interface UserListing {
@@ -87,7 +87,7 @@ export default function AdminUserProfile() {
         city: foundUser.city,
         createdAt: foundUser.createdAt instanceof Date ? foundUser.createdAt.toISOString() : foundUser.createdAt,
         telegramUsername: foundUser.telegramUsername,
-        status: (foundUser as any).status || 'active',
+        banned: (foundUser as any).banned || false,
       };
       
       setUserData(userDataFormatted);
@@ -268,7 +268,7 @@ export default function AdminUserProfile() {
             <div style={{ flex: 1 }}>
               <h1 style={{ color: 'white', fontSize: '32px', margin: '0 0 8px 0' }}>
                 {userData.nickname}
-                {userData.status === 'banned' && <span style={{ marginLeft: '12px', background: '#ef4444', padding: '4px 12px', borderRadius: '8px', fontSize: '14px' }}>🚫 ЗАБАНЕН</span>}
+                {userData.banned && <span style={{ marginLeft: '12px', background: '#ef4444', padding: '4px 12px', borderRadius: '8px', fontSize: '14px' }}>🚫 ЗАБАНЕН</span>}
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>
                 ID: {userData.telegramId || userData.id} • {userData.country}, {userData.city}
@@ -277,7 +277,7 @@ export default function AdminUserProfile() {
             
             {/* Быстрые действия */}
             <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-              {userData.status !== 'banned' ? (
+              {!userData.banned ? (
                 <button 
                   onClick={handleBanUser}
                   style={{
@@ -470,7 +470,7 @@ export default function AdminUserProfile() {
               <div>
                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: '#64748b' }}>Статус</label>
                 <p style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  {userData.status === 'banned' ? '🚫 Забанен' : '✅ Активен'}
+                  {userData.banned ? '🚫 Забанен' : '✅ Активен'}
                 </p>
               </div>
 
@@ -672,7 +672,7 @@ export default function AdminUserProfile() {
                 👤 Посмотреть публичный профиль
               </button>
 
-              {userData.status !== 'banned' ? (
+              {!userData.banned ? (
                 <button
                   onClick={handleBanUser}
                   style={{
