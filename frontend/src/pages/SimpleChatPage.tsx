@@ -84,9 +84,21 @@ export default function SimpleChatPage() {
       const foundListing = await loadListing();
       if (!foundListing) return;
 
-      // Подключаем Socket.IO
+      // Подключаем Socket.IO с автопереподключением
       if (!socket) {
-        socket = io(API_URL);
+        socket = io(API_URL, {
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 10
+        });
+        
+        socket.on('connect', () => {
+          console.log('✅ Socket.IO подключен:', socket?.id);
+        });
+        
+        socket.on('disconnect', () => {
+          console.log('⚠️ Socket.IO отключен');
+        });
       }
 
       try {
@@ -131,9 +143,30 @@ export default function SimpleChatPage() {
           // Присоединяемся к комнате чата
           socket?.emit('join-chat', chat._id);
 
-          // Слушаем новые сообщения
+          // Слушаем новые сообщения от других пользователей
           socket?.on('new-message', (message: Message) => {
-            setMessages(prev => [...prev, message]);
+            console.log('📨 Получено новое сообщение через Socket.IO:', message);
+            
+            // Добавляем только если это не наше сообщение и его еще нет
+            setMessages(prev => {
+              const exists = prev.some(m => 
+                (m._id && m._id === message._id) || 
+                (m.id === message.id && m.timestamp === message.timestamp)
+              );
+              
+              if (exists) {
+                console.log('⚠️ Сообщение уже существует, пропускаем');
+                return prev;
+              }
+              
+              if (message.senderId === user.id) {
+                console.log('⚠️ Это наше сообщение, пропускаем');
+                return prev;
+              }
+              
+              console.log('✅ Добавляем новое сообщение');
+              return [...prev, message];
+            });
           });
 
           console.log('✅ Чат готов к использованию');
@@ -160,11 +193,30 @@ export default function SimpleChatPage() {
 
     init();
 
+    // Периодическое обновление чата с сервера (каждые 5 секунд)
+    const intervalId = setInterval(async () => {
+      if (chatId && !chatId.startsWith('chat_')) {
+        try {
+          const response = await chatsAPI.getById(chatId);
+          const serverMessages = response.data.messages || [];
+          
+          // Обновляем только если есть новые сообщения
+          if (serverMessages.length > messages.length) {
+            console.log(`🔄 Обновлено ${serverMessages.length - messages.length} новых сообщений`);
+            setMessages(serverMessages);
+          }
+        } catch (error) {
+          console.log('⚠️ Не удалось обновить чат:', error);
+        }
+      }
+    }, 5000);
+
     // Очистка при размонтировании
     return () => {
       socket?.off('new-message');
+      clearInterval(intervalId);
     };
-  }, [listingId, user, listings, navigate]);
+  }, [listingId, user, listings, navigate, chatId, messages.length]);
 
   // Автопрокрутка
   useEffect(() => {
@@ -194,14 +246,22 @@ export default function SimpleChatPage() {
 
       // Пробуем отправить на сервер
       try {
-        await chatsAPI.sendMessage(chatId, newMessage);
-        // Отправляем через Socket.IO для моментальной доставки
+        const response = await chatsAPI.sendMessage(chatId, newMessage);
+        console.log('✅ Сообщение отправлено на сервер:', response.data);
+        
+        // Обновляем сообщения с сервера (чтобы получить правильные _id)
+        if (response.data.messages) {
+          setMessages(response.data.messages);
+        }
+        
+        // Отправляем через Socket.IO для моментальной доставки другому пользователю
         socket?.emit('send-message', {
           chatId,
           message: newMessage
         });
+        console.log('📡 Сообщение отправлено через Socket.IO');
       } catch (serverError) {
-        console.log('⚠️ Сервер недоступен, сохраняем локально');
+        console.error('⚠️ Ошибка отправки на сервер:', serverError);
         // Сохраняем в localStorage
         const localChatKey = `chat_${listingId}_${user.id}`;
         const localChat = localStorage.getItem(localChatKey);
