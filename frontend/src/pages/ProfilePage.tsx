@@ -9,10 +9,12 @@ export default function ProfilePage() {
   // ID админа
   const ADMIN_ID = '670170626';
   const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
-  const isAdmin = currentUserId === ADMIN_ID;
+  const userStoreId = user?.telegramId || user?.id || '';
+  const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
   
   // Временная отладка - показываем ID в консоли
-  console.log('🔍 DEBUG: Current User ID:', currentUserId);
+  console.log('🔍 DEBUG: Telegram WebApp ID:', currentUserId);
+  console.log('🔍 DEBUG: User Store ID:', userStoreId);
   console.log('🔍 DEBUG: User from store:', user);
   console.log('🔍 DEBUG: Is Admin?', isAdmin);
 

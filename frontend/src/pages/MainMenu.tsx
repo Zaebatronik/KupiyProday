@@ -6,12 +6,13 @@ import '../styles/MainMenu.css';
 export default function MainMenu() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { clearUser } = useStore();
+  const { clearUser, user } = useStore();
 
   // ID админа
   const ADMIN_ID = '670170626';
   const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
-  const isAdmin = currentUserId === ADMIN_ID;
+  const userStoreId = user?.telegramId || user?.id || '';
+  const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
 
   const handleLogout = () => {
     if (window.confirm(t('common.logoutConfirm'))) {
