@@ -590,6 +590,22 @@ export default function SimpleChatPage() {
     setMessages(prev => prev.filter(m => m._id !== messageId));
   };
 
+  // Отмечаем сообщения как прочитанные при открытии чата и при новых сообщениях
+  useEffect(() => {
+    if (chatId && messages.length > 0) {
+      // Сохраняем временную метку последнего сообщения
+      const lastMessage = messages[messages.length - 1];
+      const lastMessageTime = lastMessage.createdAt 
+        ? new Date(lastMessage.createdAt).getTime() 
+        : lastMessage.timestamp || Date.now();
+      
+      const lastReadKey = `chat_last_read_${chatId}`;
+      localStorage.setItem(lastReadKey, lastMessageTime.toString());
+      
+      console.log('✅ Сообщения отмечены как прочитанные:', { chatId, lastMessageTime });
+    }
+  }, [chatId, messages]);
+
   // Показываем загрузку только если реально грузим
   if (loading) {
     return (

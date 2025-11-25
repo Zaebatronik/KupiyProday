@@ -76,9 +76,23 @@ export default function ChatsListPage() {
   };
 
   const getUnreadCount = (chat: Chat) => {
-    // Простая логика: считаем сообщения не от текущего пользователя
     const myId = user?.telegramId || user?.id;
-    return chat.messages?.filter(m => m.senderId !== myId).length || 0;
+    
+    // Получаем метку последнего прочитанного сообщения из localStorage
+    const lastReadKey = `chat_last_read_${chat._id}`;
+    const lastReadTimestamp = localStorage.getItem(lastReadKey);
+    
+    if (!lastReadTimestamp) {
+      // Если ещё не читали - считаем все сообщения от других
+      return chat.messages?.filter(m => m.senderId !== myId && m.senderId !== 'system').length || 0;
+    }
+    
+    // Считаем только новые сообщения после последнего прочтения
+    const lastRead = parseInt(lastReadTimestamp);
+    return chat.messages?.filter(m => {
+      const messageTime = m.createdAt ? new Date(m.createdAt).getTime() : m.timestamp || 0;
+      return m.senderId !== myId && m.senderId !== 'system' && messageTime > lastRead;
+    }).length || 0;
   };
 
   const formatTime = (dateString: string) => {
