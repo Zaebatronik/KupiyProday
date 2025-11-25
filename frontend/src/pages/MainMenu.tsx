@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
+import { getTelegramId } from '../utils/telegram';
 import '../styles/MainMenu.css';
 
 export default function MainMenu() {
@@ -10,7 +11,7 @@ export default function MainMenu() {
 
   // ID админа
   const ADMIN_ID = '670170626';
-  const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
+  const currentUserId = getTelegramId();
   const userStoreId = user?.telegramId || user?.id || '';
   const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
 

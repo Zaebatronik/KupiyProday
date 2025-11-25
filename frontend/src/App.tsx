@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from './store';
+import { getTelegramId } from './utils/telegram';
 
 // Pages
 import WelcomePage from './pages/WelcomePage';
@@ -48,7 +49,7 @@ function App() {
 
     // Автоматический вход по Telegram ID
     const autoLogin = async () => {
-      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+      const telegramId = getTelegramId();
       
       if (telegramId && !isRegistered) {
         console.log('🔑 Проверка регистрации по Telegram ID:', telegramId);

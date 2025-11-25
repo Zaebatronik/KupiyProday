@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
+import { getTelegramId } from '../utils/telegram';
 import type { User } from '@/types';
 import '../styles/AdminPage.css';
 
@@ -51,7 +52,7 @@ export default function AdminPage() {
 
   // Проверка доступа: только админ может видеть эту страницу
   useEffect(() => {
-    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+    const telegramId = getTelegramId();
     console.log('🔐 Проверка доступа к админ-панели:', { telegramId, ADMIN_ID });
     
     if (!telegramId || telegramId !== ADMIN_ID) {
@@ -287,7 +288,7 @@ export default function AdminPage() {
 
 
   // Проверка доступа (в реальном приложении это будет на бэкенде)
-  const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '123456789';
+  const currentUserId = getTelegramId();
   const isAdmin = currentUserId === ADMIN_ID;
 
   if (!isAdmin) {

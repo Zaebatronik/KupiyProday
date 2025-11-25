@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
+import { getTelegramId } from '../utils/telegram';
 import '../styles/ProfilePage.css';
 
 export default function ProfilePage() {
@@ -8,7 +9,7 @@ export default function ProfilePage() {
 
   // ID админа
   const ADMIN_ID = '670170626';
-  const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
+  const currentUserId = getTelegramId();
   const userStoreId = user?.telegramId || user?.id || '';
   const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
   

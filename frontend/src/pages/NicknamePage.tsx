@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { userAPI } from '../services/api';
+import { getTelegramId, getTelegramUsername } from '../utils/telegram';
 import type { User } from '../types';
 
 export default function NicknamePage() {
@@ -19,7 +20,7 @@ export default function NicknamePage() {
   // Проверка - если пользователь уже зарегистрирован по Telegram ID, перенаправляем
   useEffect(() => {
     const checkExistingUser = async () => {
-      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+      const telegramId = getTelegramId();
       
       if (telegramId) {
         try {
@@ -63,9 +64,10 @@ export default function NicknamePage() {
       const country = JSON.parse(localStorage.getItem('registrationCountry') || '{}');
       const city = localStorage.getItem('registrationCity') || '';
       const radius = parseInt(localStorage.getItem('registrationRadius') || '0');
-      // Получаем Telegram ID пользователя (основной идентификатор)
-      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || `local_${Date.now()}`;
-      const telegramUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || '';
+      
+      // Получаем Telegram ID пользователя (в режиме разработки - тестовый ID)
+      const telegramId = getTelegramId();
+      const telegramUsername = getTelegramUsername();
       
       console.log('🔑 Регистрация пользователя:', {
         telegramId,
