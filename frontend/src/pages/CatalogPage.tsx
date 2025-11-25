@@ -73,6 +73,7 @@ export default function CatalogPage() {
   useEffect(() => {
     const loadCountries = async () => {
       const data = await locationService.getCountries();
+      console.log('🌍 Загружены страны для фильтра:', data.slice(0, 5));
       setCountries(data);
     };
     loadCountries();
@@ -82,7 +83,9 @@ export default function CatalogPage() {
   useEffect(() => {
     const loadCities = async () => {
       if (selectedCountry) {
+        console.log('🏙️ Загружаю города для страны:', selectedCountry);
         const data = await locationService.getCities(selectedCountry);
+        console.log('🏙️ Загружены города:', data.slice(0, 5));
         setCities(data);
       } else {
         setCities([]);

@@ -323,7 +323,18 @@ class LocationService {
   /**
    * Получить города страны
    */
-  async getCities(countryNameRu: string): Promise<City[]> {
+  async getCities(countryCodeOrName: string): Promise<City[]> {
+    // Определяем что передано - код или название
+    let countryNameRu = countryCodeOrName;
+    
+    // Если передан код (2 символа), найдём название
+    if (countryCodeOrName.length <= 3) {
+      const country = COUNTRIES_DATA.find(c => c.code === countryCodeOrName);
+      if (country) {
+        countryNameRu = country.nameRu;
+      }
+    }
+    
     // Проверяем кеш
     if (citiesCache.has(countryNameRu)) {
       return citiesCache.get(countryNameRu)!;
