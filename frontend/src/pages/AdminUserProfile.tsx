@@ -66,21 +66,43 @@ export default function AdminUserProfile() {
 
       if (!foundUser) {
         console.log('🔍 Пользователь не найден в store, загружаю с сервера...');
-        const usersResponse = await fetch(`${API_URL}/api/users`);
-        if (usersResponse.ok) {
-          const serverUsers = await usersResponse.json();
-          console.log('📥 Получено пользователей с сервера:', serverUsers.length);
-          foundUser = serverUsers.find((u: any) => {
-            const uId = u.id || u._id?.toString() || u.telegramId;
-            console.log('Проверка:', { uId, telegramId: u.telegramId, _id: u._id, userId });
-            return uId === userId || u.telegramId === userId || u._id?.toString() === userId;
-          });
+        
+        // Сначала пробуем прямой запрос по ID
+        try {
+          const directResponse = await fetch(`${API_URL}/users/${userId}`);
+          if (directResponse.ok) {
+            foundUser = await directResponse.json();
+            console.log('✅ Пользователь найден прямым запросом:', foundUser);
+          }
+        } catch (e) {
+          console.log('⚠️ Прямой запрос не удался, пробуем загрузить всех пользователей');
+        }
+        
+        // Если не нашли прямым запросом - загружаем всех
+        if (!foundUser) {
+          const usersResponse = await fetch(`${API_URL}/users`);
+          if (usersResponse.ok) {
+            const serverUsers = await usersResponse.json();
+            console.log('📥 Получено пользователей с сервера:', serverUsers.length);
+            foundUser = serverUsers.find((u: any) => {
+              const uId = u.id || u._id?.toString() || u.telegramId;
+              console.log('Проверка:', { uId, telegramId: u.telegramId, _id: u._id, userId });
+              return uId === userId || u.telegramId === userId || u._id?.toString() === userId;
+            });
+          }
         }
       }
 
       if (!foundUser) {
-        console.error('❌ Пользователь не найден! userId:', userId);
-        alert('Пользователь не найден');
+        console.error('❌ Пользователь не найден!');
+        console.error('Искали по userId:', userId);
+        console.error('Доступные пользователи в store:', allUsers.map((u: any) => ({
+          id: u.id,
+          telegramId: u.telegramId,
+          _id: u._id,
+          nickname: u.nickname
+        })));
+        alert(`Пользователь не найден (ID: ${userId}). Проверьте консоль для деталей.`);
         navigate('/admin');
         return;
       }
