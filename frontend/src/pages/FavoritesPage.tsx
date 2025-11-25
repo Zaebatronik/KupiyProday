@@ -26,11 +26,11 @@ export default function FavoritesPage() {
         const response = await listingsAPI.getAll();
         const allListings = response.data;
 
-        // Фильтруем только избранные
+        // Фильтруем только избранные (проверяем и _id и id)
         const favListings = allListings
-          .filter((l: any) => favorites.includes(l.id))
+          .filter((l: any) => favorites.includes(l._id || l.id))
           .map((l: any) => ({
-            id: l.id,
+            id: l._id || l.id,
             title: l.title,
             price: l.price || 0,
             photo: l.photos[0] || '',

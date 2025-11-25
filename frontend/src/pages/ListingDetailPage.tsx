@@ -8,7 +8,7 @@ export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useStore();
+  const { user, addToFavorites, removeFromFavorites, isFavorite } = useStore();
   
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -276,6 +276,43 @@ export default function ListingDetailPage() {
         >
           ←
         </button>
+
+        {/* Кнопка избранное */}
+        {id && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isFavorite(id)) {
+                removeFromFavorites(id);
+              } else {
+                addToFavorites(id);
+              }
+              if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+              }
+            }}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.9)',
+              color: '#667eea',
+              fontSize: '20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            }}
+          >
+            {isFavorite(id) ? '⭐' : '☆'}
+          </button>
+        )}
       </div>
 
       {/* Информация об объявлении */}

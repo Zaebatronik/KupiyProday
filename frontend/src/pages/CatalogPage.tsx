@@ -43,7 +43,7 @@ export default function CatalogPage() {
   const socketRef = useRef<Socket | null>(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { listings: storeListings, user } = useStore();
+  const { listings: storeListings, user, favorites: storeFavorites, addToFavorites, removeFromFavorites, isFavorite } = useStore();
   
   const [listings, setListings] = useState<Listing[]>([]);
   const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
@@ -54,7 +54,6 @@ export default function CatalogPage() {
   const [sortBy, setSortBy] = useState('date-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilter, setShowFilter] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   // Фильтры локации (по умолчанию показываем ВСЕ объявления)
   const [selectedCountry, setSelectedCountry] = useState<string>('');
@@ -122,7 +121,7 @@ export default function CatalogPage() {
           photos: l.photos,
           createdAt: l.createdAt,
           userId: l.userId,
-          isFavorite: false
+          isFavorite: isFavorite(l._id || l.id)
         }));
         if (isMounted) {
           setListings(formattedListings);
@@ -149,7 +148,7 @@ export default function CatalogPage() {
           photos: l.photos,
           createdAt: new Date(l.createdAt).toISOString(),
           userId: l.userId,
-          isFavorite: false
+          isFavorite: isFavorite(l.id)
         }));
         if (isMounted) {
           setListings(formattedListings);
@@ -302,17 +301,6 @@ export default function CatalogPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const toggleFavorite = (listingId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(listingId)) {
-      newFavorites.delete(listingId);
-    } else {
-      newFavorites.add(listingId);
-    }
-    setFavorites(newFavorites);
   };
 
   const handleListingClick = (listingId: string) => {
@@ -582,17 +570,46 @@ export default function CatalogPage() {
                   <div className="listing-category">
                     {categoryEmojis[listing.category]} {t(`categories.${listing.category}`)}
                   </div>
-                  <button
-                    className={`favorite-button ${favorites.has(listing.id) ? 'active' : ''}`}
-                    onClick={(e) => toggleFavorite(listing.id, e)}
-                  >
-                    {favorites.has(listing.id) ? '❤️' : '🤍'}
-                  </button>
-                  {listing.photos.length > 0 ? (
-                    <img src={listing.photos[0]} alt={listing.title} className="listing-image" />
-                  ) : (
-                    <div className="listing-placeholder">{categoryEmojis[listing.category]}</div>
-                  )}
+                  <div style={{ position: 'relative' }}>
+                    {listing.photos.length > 0 ? (
+                      <img src={listing.photos[0]} alt={listing.title} className="listing-image" />
+                    ) : (
+                      <div className="listing-placeholder">{categoryEmojis[listing.category]}</div>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isFavorite(listing.id)) {
+                          removeFromFavorites(listing.id);
+                        } else {
+                          addToFavorites(listing.id);
+                        }
+                        if (window.Telegram?.WebApp?.HapticFeedback) {
+                          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                        }
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        fontSize: '18px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'all 0.2s',
+                        zIndex: 2
+                      }}
+                    >
+                      {isFavorite(listing.id) ? '⭐' : '☆'}
+                    </button>
+                  </div>
                   <div className="listing-info">
                     <div className="listing-price">
                       {listing.negotiable ? '≈ ' : ''}
