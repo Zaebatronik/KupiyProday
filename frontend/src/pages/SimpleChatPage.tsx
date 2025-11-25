@@ -145,7 +145,16 @@ export default function SimpleChatPage() {
       }
       
       // Фильтр 2: Проверяем что это не наше сообщение
-      if (String(message.senderId) === String(myUserId)) {
+      const senderIdStr = String(message.senderId);
+      const myUserIdStr = String(myUserId);
+      
+      console.log('🔍 Сравнение отправителя:', {
+        senderIdStr,
+        myUserIdStr,
+        isMyMessage: senderIdStr === myUserIdStr
+      });
+      
+      if (senderIdStr === myUserIdStr) {
         console.log('⏭️ Пропускаем: наше сообщение');
         return;
       }
@@ -162,10 +171,18 @@ export default function SimpleChatPage() {
           return prev;
         }
         
-        console.log('✅ Добавляем новое сообщение в чат');
+        console.log('✅✅✅ ДОБАВЛЯЕМ НОВОЕ СООБЩЕНИЕ В ЧАТ ✅✅✅');
+        console.log('Сообщение:', {
+          text: message.text,
+          senderId: message.senderId,
+          timestamp: message.timestamp || message.createdAt
+        });
+        
         return [...prev, message];
       });
     });
+    
+    console.log('🎧 Слушатели Socket.IO настроены!');
   };
 
   // Инициализация Socket.IO и загрузка чата

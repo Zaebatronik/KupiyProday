@@ -42,6 +42,12 @@ router.post('/find-or-create', async (req, res) => {
     if (buyerId === sellerId) {
       return res.status(400).json({ message: 'Нельзя создать чат с самим собой' });
     }
+    
+    // Проверяем что ID валидные
+    if (!buyerId || !sellerId || buyerId === 'undefined' || sellerId === 'undefined') {
+      console.error('❌ Невалидные ID пользователей:', { buyerId, sellerId });
+      return res.status(400).json({ message: 'Невалидные ID пользователей' });
+    }
 
     // Сортируем ID чтобы всегда был единый порядок (меньший - participant1, больший - participant2)
     const [participant1, participant2] = [buyerId, sellerId].sort();
