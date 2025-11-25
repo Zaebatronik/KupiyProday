@@ -56,8 +56,9 @@ export default function CatalogPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   // Фильтры локации (по умолчанию - страна и город пользователя из профиля)
-  const [selectedCountry, setSelectedCountry] = useState<string>(user?.country || '');
-  const [selectedCity, setSelectedCity] = useState<string>(user?.city || '');
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [filtersInitialized, setFiltersInitialized] = useState(false);
 
   // Фильтры
   const [priceMin, setPriceMin] = useState('');
@@ -66,17 +67,15 @@ export default function CatalogPage() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
 
-  // Инициализация фильтров локации из профиля пользователя
+  // Инициализация фильтров локации из профиля пользователя (один раз)
   useEffect(() => {
-    if (user?.country && !selectedCountry) {
+    if (!filtersInitialized && user?.country && user?.city) {
       setSelectedCountry(user.country);
-      console.log('🌍 Установлена страна из профиля:', user.country);
-    }
-    if (user?.city && !selectedCity) {
       setSelectedCity(user.city);
-      console.log('🏙️ Установлен город из профиля:', user.city);
+      setFiltersInitialized(true);
+      console.log('🌍 Установлены фильтры из профиля:', user.country, user.city);
     }
-  }, [user]);
+  }, [user, filtersInitialized]);
 
   // Загрузка истории поиска
   useEffect(() => {
