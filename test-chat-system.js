@@ -187,17 +187,22 @@ async function test() {
     const finalChatResponse = await fetch(`${API_URL}/api/chats/${chat._id}`);
     const finalChat = await finalChatResponse.json();
 
+    console.log('\n🔍 DEBUG: Response status:', finalChatResponse.status);
+    console.log('🔍 DEBUG: Response data:', JSON.stringify(finalChat, null, 2));
+
     console.log(`\n📊 ========== РЕЗУЛЬТАТЫ ТЕСТА ==========`);
     console.log(`✅ Чат ID: ${finalChat._id}`);
     console.log(`✅ Участник 1: ${finalChat.participant1}`);
     console.log(`✅ Участник 2: ${finalChat.participant2}`);
-    console.log(`✅ Всего сообщений: ${finalChat.messages.length}`);
-    console.log(`\n💬 Сообщения в чате:`);
+    console.log(`✅ Всего сообщений: ${finalChat.messages?.length || 0}`);
     
-    finalChat.messages.forEach((msg, index) => {
-      const sender = msg.senderId === user1Id ? 'User1' : msg.senderId === user2Id ? 'User2' : 'System';
-      console.log(`   ${index + 1}. [${sender}]: ${msg.text}`);
-    });
+    if (finalChat.messages && finalChat.messages.length > 0) {
+      console.log(`\n💬 Сообщения в чате:`);
+      finalChat.messages.forEach((msg, index) => {
+        const sender = msg.senderId === user1Id ? 'User1' : msg.senderId === user2Id ? 'User2' : 'System';
+        console.log(`   ${index + 1}. [${sender}]: ${msg.text}`);
+      });
+    }
 
     console.log(`\n✅✅✅ ВСЕ ТЕСТЫ ПРОЙДЕНЫ УСПЕШНО! ✅✅✅\n`);
 

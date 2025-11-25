@@ -117,7 +117,7 @@ router.get('/:id', async (req, res) => {
       console.log('❌ Чат не найден:', req.params.id);
       return res.status(404).json({ message: 'Чат не найден' });
     }
-    console.log(`✅ Чат найден: ${chat._id}, сообщений: ${chat.messages.length}, участников: ${chat.participants.length}`);
+    console.log(`✅ Чат найден: ${chat._id}, сообщений: ${chat.messages.length}, участники: ${chat.participant1} <-> ${chat.participant2}`);
     res.json(chat);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
