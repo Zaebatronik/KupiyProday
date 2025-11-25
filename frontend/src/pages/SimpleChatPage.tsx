@@ -18,7 +18,7 @@ interface Message {
 }
 
 export default function SimpleChatPage() {
-  const { listingId } = useParams<{ listingId: string }>();
+  const { listingId, chatId: routeChatId } = useParams<{ listingId?: string; chatId?: string }>();
   const navigate = useNavigate();
   const { user, listings } = useStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,8 +33,163 @@ export default function SimpleChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
 
+  // Загрузка прямого чата по ID
+  const loadDirectChat = async (chatIdParam: string) => {
+    try {
+      console.log('🔍 Загрузка прямого чата:', chatIdParam);
+      
+      // Подключаем Socket.IO если еще не подключен
+      if (!socket) {
+        socket = io(API_URL, {
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 10
+        });
+        
+        socket.on('connect', () => {
+          console.log('✅ Socket.IO подключен:', socket?.id);
+          setConnectionStatus('connected');
+        });
+        
+        socket.on('disconnect', () => {
+          console.log('⚠️ Socket.IO отключен');
+          setConnectionStatus('disconnected');
+        });
+        
+        socket.on('reconnecting', () => {
+          console.log('🔄 Переподключение Socket.IO...');
+          setConnectionStatus('connecting');
+        });
+      }
+      
+      // Загружаем чат с сервера
+      const response = await chatsAPI.getById(chatIdParam);
+      const chat = response.data;
+      
+      console.log('✅ Чат загружен:', chat._id);
+      
+      const myId = user!.telegramId || user!.id;
+      const otherUserId = chat.participant1 === myId ? chat.participant2 : chat.participant1;
+      const otherUserInfo = chat.participantsInfo?.[otherUserId];
+      
+      console.log('👥 Идентификация участников:', {
+        myId,
+        participant1: chat.participant1,
+        participant2: chat.participant2,
+        otherUserId,
+        otherUserInfo
+      });
+      
+      setOtherUser({
+        id: otherUserId,
+        nickname: otherUserInfo?.nickname || 'Собеседник'
+      });
+      
+      setChatId(chat._id);
+      setMessages(chat.messages || []);
+      setLoading(false);
+      
+      // Присоединяемся к комнате чата
+      socket?.emit('join-chat', chat._id);
+      
+      // Слушаем события
+      setupSocketListeners(chat._id, myId);
+      
+    } catch (error) {
+      console.error('❌ Ошибка загрузки чата:', error);
+      alert('Не удалось загрузить чат');
+      navigate('/chats');
+    }
+  };
+
+  // Настройка слушателей Socket.IO
+  const setupSocketListeners = (chatIdParam: string, myId: string) => {
+    // Слушаем индикатор "печатает..."
+    socket?.on('user-typing', (data: { userId: string; chatId: string }) => {
+      if (data.chatId === chatIdParam && data.userId !== myId) {
+        setIsTyping(true);
+        setTimeout(() => setIsTyping(false), 3000);
+      }
+    });
+
+    socket?.on('user-stopped-typing', (data: { userId: string; chatId: string }) => {
+      if (data.chatId === chatIdParam && data.userId !== myId) {
+        setIsTyping(false);
+      }
+    });
+
+    // Слушаем новые сообщения
+    socket?.on('new-message', (message: Message) => {
+      console.log('📨 Получено новое сообщение через Socket.IO:', {
+        senderId: message.senderId,
+        text: message.text?.substring(0, 30),
+        myId
+      });
+      
+      const myUserId = user!.telegramId || user!.id;
+      
+      setMessages(prev => {
+        const exists = prev.some(m => 
+          (m._id && m._id === message._id) || 
+          (m.id === message.id && m.timestamp === message.timestamp)
+        );
+        
+        if (exists) {
+          console.log('⚠️ Сообщение уже существует, пропускаем');
+          return prev;
+        }
+        
+        if (message.senderId === myUserId) {
+          console.log('⚠️ Это наше сообщение, пропускаем');
+          return prev;
+        }
+        
+        console.log('✅ Добавляем новое сообщение');
+        return [...prev, message];
+      });
+    });
+
+    // Персональные уведомления
+    console.log('🔊 Подписываемся на персональные уведомления:', `message-to-${myId}`);
+    socket?.on(`message-to-${myId}`, (data: { chatId: string; message: Message }) => {
+      console.log('📨 Получено персональное уведомление:', {
+        chatId: data.chatId,
+        senderId: data.message.senderId,
+        text: data.message.text?.substring(0, 30),
+        expectedListener: `message-to-${myId}`
+      });
+      
+      if (data.chatId !== chatIdParam) {
+        console.log('⚠️ Сообщение не для этого чата');
+        return;
+      }
+      
+      setMessages(prev => {
+        const exists = prev.some(m => 
+          (m._id && m._id === data.message._id) || 
+          (m.id === data.message.id && m.timestamp === data.message.timestamp)
+        );
+        
+        if (exists) {
+          console.log('⚠️ Сообщение уже существует, пропускаем');
+          return prev;
+        }
+        
+        console.log('✅ Добавляем персональное сообщение');
+        return [...prev, data.message];
+      });
+    });
+  };
+
   // Инициализация Socket.IO и загрузка чата
   useEffect(() => {
+    // Режим 1: Прямой чат по ID (из списка чатов)
+    if (routeChatId && user) {
+      loadDirectChat(routeChatId);
+      return;
+    }
+    
+    // Режим 2: Чат по объявлению (создаем/находим чат)
     if (!listingId || !user) return;
 
     // Загружаем объявление с сервера
@@ -229,85 +384,8 @@ export default function SimpleChatPage() {
           // Присоединяемся к комнате чата
           socket?.emit('join-chat', chat._id);
 
-          // Слушаем индикатор "печатает..."
-          socket?.on('user-typing', (data: { userId: string; chatId: string }) => {
-            if (data.chatId === chat._id && data.userId !== myId) {
-              setIsTyping(true);
-              // Убираем индикатор через 3 секунды
-              setTimeout(() => setIsTyping(false), 3000);
-            }
-          });
-
-          socket?.on('user-stopped-typing', (data: { userId: string; chatId: string }) => {
-            if (data.chatId === chat._id && data.userId !== myId) {
-              setIsTyping(false);
-            }
-          });
-
-          // Слушаем новые сообщения от других пользователей (общий канал)
-          socket?.on('new-message', (message: Message) => {
-            console.log('📨 Получено новое сообщение через Socket.IO:', {
-              senderId: message.senderId,
-              text: message.text?.substring(0, 30),
-              myId
-            });
-            
-            const myUserId = user.telegramId || user.id;
-            
-            // Добавляем только если это не наше сообщение и его еще нет
-            setMessages(prev => {
-              const exists = prev.some(m => 
-                (m._id && m._id === message._id) || 
-                (m.id === message.id && m.timestamp === message.timestamp)
-              );
-              
-              if (exists) {
-                console.log('⚠️ Сообщение уже существует, пропускаем');
-                return prev;
-              }
-              
-              if (message.senderId === myUserId) {
-                console.log('⚠️ Это наше сообщение, пропускаем');
-                return prev;
-              }
-              
-              console.log('✅ Добавляем новое сообщение');
-              return [...prev, message];
-            });
-          });
-
-          // Слушаем персональные уведомления (на случай если не в комнате)
-          console.log('🔊 Подписываемся на персональные уведомления:', `message-to-${myId}`);
-          socket?.on(`message-to-${myId}`, (data: { chatId: string; message: Message }) => {
-            console.log('📨 Получено персональное уведомление:', {
-              chatId: data.chatId,
-              senderId: data.message.senderId,
-              text: data.message.text?.substring(0, 30),
-              expectedListener: `message-to-${myId}`
-            });
-            
-            // Проверяем что это наш чат
-            if (data.chatId !== chat._id) {
-              console.log('⚠️ Сообщение не для этого чата');
-              return;
-            }
-            
-            // Добавляем сообщение (с проверкой дубликатов)
-            setMessages(prev => {
-              const exists = prev.some(m => 
-                (m._id && m._id === data.message._id) || 
-                (m.id === data.message.id && m.timestamp === data.message.timestamp)
-              );
-              
-              if (exists) {
-                console.log('⚠️ Сообщение уже существует, пропускаем');
-                return prev;
-              }
-              
-              console.log('✅ Добавляем персональное сообщение');
-              return [...prev, data.message];
-            });
-          });
+          // Настраиваем слушатели Socket.IO
+          setupSocketListeners(chat._id, myId);
 
           console.log('✅ Чат готов к использованию');
         } catch (serverError) {

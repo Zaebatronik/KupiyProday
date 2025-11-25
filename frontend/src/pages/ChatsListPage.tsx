@@ -6,12 +6,15 @@ import '../styles/ChatsListPage.css';
 
 interface Chat {
   _id: string;
-  listingId: string;
-  listingTitle?: string;
-  participants: Array<{
-    userId: string;
-    nickname: string;
-  }>;
+  participant1: string;
+  participant2: string;
+  participantsInfo: {
+    [key: string]: {
+      nickname: string;
+      language?: string;
+    };
+  };
+  initialListingId?: string;
   messages: Array<{
     senderId: string;
     text: string;
@@ -42,29 +45,13 @@ export default function ChatsListPage() {
       
       // Пробуем загрузить с сервера
       try {
-        const response = await chatsAPI.getByUser(user!.id);
+        const userId = user!.telegramId || user!.id;
+        const response = await chatsAPI.getByUser(userId);
         setChats(response.data || []);
         console.log('✅ Чаты загружены с сервера:', response.data);
       } catch (serverError) {
-        console.log('⚠️ Сервер недоступен, проверяем localStorage');
-        // Fallback: загружаем из localStorage
-        const localChatsKeys = Object.keys(localStorage).filter(key => 
-          key.startsWith('chat_') && key.includes(user!.id)
-        );
-        
-        const localChats = localChatsKeys.map(key => {
-          const chat = JSON.parse(localStorage.getItem(key) || '{}');
-          return {
-            _id: key,
-            listingId: chat.listingId || key.split('_')[1],
-            participants: chat.participants || [],
-            messages: chat.messages || [],
-            updatedAt: chat.updatedAt || new Date().toISOString()
-          };
-        });
-        
-        setChats(localChats);
-        console.log('✅ Чаты загружены из localStorage:', localChats.length);
+        console.log('⚠️ Сервер недоступен, чаты недоступны');
+        setChats([]);
       }
     } catch (error) {
       console.error('❌ Ошибка загрузки чатов:', error);
@@ -74,7 +61,10 @@ export default function ChatsListPage() {
   };
 
   const getOtherParticipant = (chat: Chat) => {
-    return chat.participants.find(p => p.userId !== user?.id);
+    const myId = user?.telegramId || user?.id;
+    const otherUserId = chat.participant1 === myId ? chat.participant2 : chat.participant1;
+    const otherUserInfo = chat.participantsInfo?.[otherUserId];
+    return otherUserInfo ? { userId: otherUserId, nickname: otherUserInfo.nickname } : null;
   };
 
   const getLastMessage = (chat: Chat) => {
@@ -87,7 +77,8 @@ export default function ChatsListPage() {
 
   const getUnreadCount = (chat: Chat) => {
     // Простая логика: считаем сообщения не от текущего пользователя
-    return chat.messages?.filter(m => m.senderId !== user?.id).length || 0;
+    const myId = user?.telegramId || user?.id;
+    return chat.messages?.filter(m => m.senderId !== myId).length || 0;
   };
 
   const formatTime = (dateString: string) => {
@@ -144,7 +135,7 @@ export default function ChatsListPage() {
               <div
                 key={chat._id}
                 className="chat-item"
-                onClick={() => navigate(`/chat/${chat.listingId}`)}
+                onClick={() => navigate(`/direct-chat/${chat._id}`)}
               >
                 <div className="chat-avatar">
                   {otherUser?.nickname?.[0]?.toUpperCase() || '?'}

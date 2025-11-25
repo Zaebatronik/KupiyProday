@@ -195,6 +195,7 @@ function App() {
             <Route path="/support" element={<SupportPage />} />
             <Route path="/chats" element={<ChatsListPage />} />
             <Route path="/chat/:listingId" element={<SimpleChatPage />} />
+            <Route path="/direct-chat/:chatId" element={<SimpleChatPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/user/:userId" element={<AdminUserProfile />} />
             <Route path="/user/:userId" element={<UserProfilePage />} />
