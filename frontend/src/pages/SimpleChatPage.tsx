@@ -37,10 +37,19 @@ export default function SimpleChatPage() {
     // Загружаем объявление с сервера
     const loadListing = async () => {
       try {
-        // Сначала пробуем найти в локальном store (проверяем и id, и _id)
+        console.log('🔍 Поиск объявления с ID:', listingId);
+        
+        // Сначала пробуем найти в локальном store (проверяем все возможные ID)
         let foundListing = listings.find((l: any) => 
-          l.id === listingId || l._id === listingId
+          l.id === listingId || 
+          l._id === listingId || 
+          l.id?.toString() === listingId || 
+          l._id?.toString() === listingId
         );
+        
+        if (foundListing) {
+          console.log('✅ Объявление найдено в локальном store:', foundListing.title);
+        }
         
         // Если нет - пробуем загрузить с сервера
         if (!foundListing) {
@@ -48,15 +57,33 @@ export default function SimpleChatPage() {
           try {
             const response = await listingsAPI.getById(listingId);
             foundListing = response.data;
-            console.log('✅ Объявление загружено с сервера:', foundListing);
-          } catch (serverError) {
-            console.log('⚠️ Сервер недоступен, проверяем localStorage');
+            
+            if (foundListing) {
+              console.log('✅ Объявление загружено с сервера:', foundListing.title);
+              
+              // Добавляем в локальный store для будущего использования
+              const { addListing } = useStore.getState();
+              const existsInStore = listings.some((l: any) => 
+                l.id === foundListing!.id || l._id === foundListing!._id
+              );
+              if (!existsInStore) {
+                addListing(foundListing);
+                console.log('📝 Объявление добавлено в локальный store');
+              }
+            }
+          } catch (serverError: any) {
+            console.log('⚠️ Ошибка загрузки с сервера:', serverError.message);
+            console.log('⚠️ Проверяем localStorage как последний вариант');
+            
             // Fallback: проверяем localStorage
             const localListings = localStorage.getItem('listings');
             if (localListings) {
               const parsedListings = JSON.parse(localListings);
               foundListing = parsedListings.find((l: any) => 
-                l.id === listingId || l._id === listingId
+                l.id === listingId || 
+                l._id === listingId ||
+                l.id?.toString() === listingId || 
+                l._id?.toString() === listingId
               );
               if (foundListing) {
                 console.log('✅ Объявление найдено в localStorage');
@@ -66,7 +93,13 @@ export default function SimpleChatPage() {
         }
 
         if (!foundListing) {
-          alert('Объявление не найдено');
+          console.error('❌ Объявление не найдено нигде. ID:', listingId);
+          console.log('📋 Доступные объявления:', listings.map((l: any) => ({
+            id: l.id,
+            _id: l._id,
+            title: l.title
+          })));
+          alert('Объявление не найдено. Попробуйте перезагрузить каталог.');
           navigate('/catalog');
           return null;
         }
@@ -74,7 +107,7 @@ export default function SimpleChatPage() {
         setListing(foundListing);
         return foundListing;
       } catch (error) {
-        console.error('❌ Ошибка загрузки объявления:', error);
+        console.error('❌ Критическая ошибка загрузки объявления:', error);
         alert('Не удалось загрузить объявление');
         navigate('/catalog');
         return null;
