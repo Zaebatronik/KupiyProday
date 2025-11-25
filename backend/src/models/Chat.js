@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
   senderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String, // Изменено на String для поддержки "system" и Telegram ID
     required: true,
   },
   text: {
