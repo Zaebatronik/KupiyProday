@@ -307,7 +307,7 @@ export default function CatalogPage() {
 
     setFilteredListings(result);
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, sortBy, priceMin, priceMax, onlyNegotiable, listings]);
+  }, [searchQuery, selectedCategory, sortBy, priceMin, priceMax, onlyNegotiable, listings, selectedCountry, selectedCity]);
 
   // Пагинация
   const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
