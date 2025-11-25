@@ -11,7 +11,15 @@ export default function MainMenu() {
 
   // ID админа
   const ADMIN_ID = '670170626';
-  const currentUserId = getTelegramId();
+  
+  // Безопасное получение ID (с fallback на user из store)
+  let currentUserId = '';
+  try {
+    currentUserId = getTelegramId();
+  } catch {
+    currentUserId = user?.telegramId || user?.id || '';
+  }
+  
   const userStoreId = user?.telegramId || user?.id || '';
   const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
 

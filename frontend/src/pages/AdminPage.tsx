@@ -52,7 +52,15 @@ export default function AdminPage() {
 
   // Проверка доступа: только админ может видеть эту страницу
   useEffect(() => {
-    const telegramId = getTelegramId();
+    let telegramId = '';
+    try {
+      telegramId = getTelegramId();
+    } catch {
+      // Если не получилось - пользователь не авторизован
+      console.log('❌ Не авторизован через Telegram');
+      navigate('/');
+      return;
+    }
     console.log('🔐 Проверка доступа к админ-панели:', { telegramId, ADMIN_ID });
     
     if (!telegramId || telegramId !== ADMIN_ID) {
@@ -288,7 +296,13 @@ export default function AdminPage() {
 
 
   // Проверка доступа (в реальном приложении это будет на бэкенде)
-  const currentUserId = getTelegramId();
+  let currentUserId = '';
+  try {
+    currentUserId = getTelegramId();
+  } catch {
+    // Fallback - уже проверили в useEffect
+    currentUserId = '';
+  }
   const isAdmin = currentUserId === ADMIN_ID;
 
   if (!isAdmin) {

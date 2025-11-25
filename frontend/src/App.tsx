@@ -50,36 +50,44 @@ function App() {
 
     // Автоматический вход по Telegram ID
     const autoLogin = async () => {
-      const telegramId = getTelegramId();
-      
-      if (telegramId && !isRegistered) {
-        console.log('🔑 Проверка регистрации по Telegram ID:', telegramId);
+      try {
+        const telegramId = getTelegramId();
         
-        try {
-          const { userAPI } = await import('./services/api');
-          const response = await userAPI.getProfile(telegramId);
-          const existingUser = response.data;
+        if (telegramId && !isRegistered) {
+          console.log('🔑 Проверка регистрации по Telegram ID:', telegramId);
           
-          console.log('✅ Пользователь найден:', existingUser.nickname);
-          
-          // Проверяем бан
-          if (existingUser.banned) {
-            console.log('🚫 Пользователь забанен');
-            const { setUser } = useStore.getState();
+          try {
+            const { userAPI } = await import('./services/api');
+            const response = await userAPI.getProfile(telegramId);
+            const existingUser = response.data;
+            
+            console.log('✅ Пользователь найден:', existingUser.nickname);
+            
+            // Проверяем бан
+            if (existingUser.banned) {
+              console.log('🚫 Пользователь забанен');
+              const { setUser } = useStore.getState();
+              setUser(existingUser);
+              setIsBanned(true);
+              return;
+            }
+            
+            // Автоматический вход
+            const { setUser, addUserToRegistry } = useStore.getState();
             setUser(existingUser);
-            setIsBanned(true);
-            return;
+            addUserToRegistry(existingUser);
+            localStorage.setItem('currentUser', JSON.stringify(existingUser));
+            
+            console.log('✅ Автоматический вход выполнен');
+          } catch (error) {
+            console.log('ℹ️ Пользователь не найден, нужна регистрация');
           }
-          
-          // Автоматический вход
-          const { setUser, addUserToRegistry } = useStore.getState();
-          setUser(existingUser);
-          addUserToRegistry(existingUser);
-          localStorage.setItem('currentUser', JSON.stringify(existingUser));
-          
-          console.log('✅ Автоматический вход выполнен');
-        } catch (error) {
-          console.log('ℹ️ Пользователь не найден, нужна регистрация');
+        }
+      } catch (authError: any) {
+        if (authError.message === 'NOT_AUTHENTICATED') {
+          console.log('ℹ️ Пользователь не авторизован через Telegram');
+        } else {
+          console.error('❌ Ошибка автовхода:', authError);
         }
       }
     };
