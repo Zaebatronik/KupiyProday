@@ -56,10 +56,9 @@ export default function CatalogPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
-  // Фильтры локации (по умолчанию - страна и город пользователя из профиля)
+  // Фильтры локации (по умолчанию показываем ВСЕ объявления)
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
-  const [filtersInitialized, setFiltersInitialized] = useState(false);
   const [countries, setCountries] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
 
@@ -92,17 +91,7 @@ export default function CatalogPage() {
     loadCities();
   }, [selectedCountry]);
 
-  // Инициализация фильтров локации из профиля пользователя (один раз)
-  useEffect(() => {
-    if (!filtersInitialized && user?.country && user?.city) {
-      setSelectedCountry(user.country);
-      setSelectedCity(user.city);
-      setFiltersInitialized(true);
-      console.log('🌍 Установлены фильтры из профиля:', user.country, user.city);
-    }
-  }, [user, filtersInitialized]);
-
-  // Загрузка истории поиска
+  // Загрузка истории поиска из localStorage
   useEffect(() => {
     const saved = localStorage.getItem('searchHistory');
     if (saved) {
@@ -211,13 +200,13 @@ export default function CatalogPage() {
   useEffect(() => {
     let result = [...listings];
 
-    // Фильтрация по стране (на клиенте)
-    if (selectedCountry) {
+    // Фильтрация по стране (только если выбрана конкретная страна)
+    if (selectedCountry && selectedCountry !== '') {
       result = result.filter((listing) => listing.country === selectedCountry);
     }
 
-    // Фильтрация по городу (на клиенте)
-    if (selectedCity) {
+    // Фильтрация по городу (только если выбран конкретный город)
+    if (selectedCity && selectedCity !== '') {
       result = result.filter((listing) => listing.city === selectedCity);
     }
 
