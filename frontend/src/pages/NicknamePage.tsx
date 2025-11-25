@@ -56,7 +56,6 @@ export default function NicknamePage() {
   const handleFinish = async () => {
     if (!validateNickname(nickname)) return;
     
-    // Убираем блокировку - пусть сервер проверит при регистрации
     setLoading(true);
     setError('');
     try {
@@ -65,9 +64,22 @@ export default function NicknamePage() {
       const city = localStorage.getItem('registrationCity') || '';
       const radius = parseInt(localStorage.getItem('registrationRadius') || '0');
       
-      // Получаем Telegram ID пользователя (в режиме разработки - тестовый ID)
-      const telegramId = getTelegramId();
-      const telegramUsername = getTelegramUsername();
+      // СТРОГАЯ ПРОВЕРКА: Получаем Telegram ID
+      let telegramId: string;
+      let telegramUsername = '';
+      
+      try {
+        telegramId = getTelegramId();
+        telegramUsername = getTelegramUsername();
+      } catch (error: any) {
+        if (error.message === 'NOT_AUTHENTICATED') {
+          // Пользователь не авторизован через Telegram
+          setError('❌ Приложение должно быть запущено через Telegram бота!');
+          setLoading(false);
+          return;
+        }
+        throw error;
+      }
       
       console.log('🔑 Регистрация пользователя:', {
         telegramId,

@@ -25,6 +25,7 @@ import AdminUserProfile from './pages/AdminUserProfile';
 import UserProfilePage from './pages/UserProfilePage';
 import GoodbyePage from './pages/GoodbyePage';
 import BannedPage from './pages/BannedPage';
+import DevAdminPage from './pages/DevAdminPage';
 
 function App() {
   const { i18n } = useTranslation();
@@ -168,6 +169,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Секретная страница для включения режима админа */}
+        <Route path="/dev-admin" element={<DevAdminPage />} />
+        
         {/* Страница прощания (доступна всегда) */}
         <Route path="/goodbye" element={<GoodbyePage />} />
         

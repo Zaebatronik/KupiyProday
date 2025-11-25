@@ -2,24 +2,28 @@
  * Утилита для работы с Telegram WebApp
  */
 
+// ID админа для разработки
+const ADMIN_ID = '670170626';
+
 /**
  * Получает Telegram ID пользователя
- * В режиме разработки (браузер) использует сохранённый ID из currentUser
+ * ТОЛЬКО для залогиненных пользователей!
  */
 export function getTelegramId(): string {
+  // 1. Проверяем Telegram WebApp (основной способ)
   const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
   
   if (telegramId) {
     return telegramId;
   }
   
-  // РЕЖИМ РАЗРАБОТКИ: Проверяем есть ли уже залогиненный пользователь
+  // 2. Проверяем есть ли уже залогиненный пользователь
   const currentUser = localStorage.getItem('currentUser');
   if (currentUser) {
     try {
       const user = JSON.parse(currentUser);
       const userId = user.telegramId || user.id;
-      if (userId) {
+      if (userId && userId !== 'undefined' && !userId.startsWith('temp_') && !userId.startsWith('local_')) {
         console.log('🔑 Используется ID из currentUser:', userId);
         return userId;
       }
@@ -28,10 +32,31 @@ export function getTelegramId(): string {
     }
   }
   
-  // Если нет currentUser - значит пользователь не залогинен
-  // Возвращаем временный ID который будет заменён при регистрации
-  console.warn('⚠️ РЕЖИМ РАЗРАБОТКИ: Пользователь не залогинен, используется временный ID');
-  return 'temp_' + Date.now(); // Временный ID до регистрации
+  // 3. РЕЖИМ РАЗРАБОТКИ: Проверяем специальный флаг для админа
+  const devMode = localStorage.getItem('dev_admin_mode');
+  if (devMode === 'true') {
+    console.warn('⚠️ РЕЖИМ РАЗРАБОТКИ АДМИНА: Используется ID', ADMIN_ID);
+    return ADMIN_ID;
+  }
+  
+  // 4. Если нет ни Telegram, ни currentUser - выбрасываем ошибку
+  throw new Error('NOT_AUTHENTICATED');
+}
+
+/**
+ * Включить режим разработки админа (ТОЛЬКО ДЛЯ ТЕСТИРОВАНИЯ!)
+ */
+export function enableAdminDevMode() {
+  localStorage.setItem('dev_admin_mode', 'true');
+  console.log('✅ Режим разработки админа включён. ID:', ADMIN_ID);
+}
+
+/**
+ * Выключить режим разработки админа
+ */
+export function disableAdminDevMode() {
+  localStorage.removeItem('dev_admin_mode');
+  console.log('✅ Режим разработки админа выключен');
 }
 
 /**
