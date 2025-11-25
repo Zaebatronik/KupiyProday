@@ -70,19 +70,23 @@ io.on('connection', (socket) => {
 
   socket.on('join-chat', (chatId) => {
     socket.join(chatId);
+    const roomMembers = io.sockets.adapter.rooms.get(chatId)?.size || 0;
     console.log(`📥 Пользователь ${socket.id} присоединился к чату: ${chatId}`);
+    console.log(`👥 В комнате ${chatId} теперь ${roomMembers} участников`);
     // Уведомляем пользователя что он успешно присоединился
-    socket.emit('joined-chat', { chatId, socketId: socket.id });
+    socket.emit('joined-chat', { chatId, socketId: socket.id, roomMembers });
   });
 
   socket.on('send-message', (data) => {
+    const roomMembers = io.sockets.adapter.rooms.get(data.chatId)?.size || 0;
     console.log('📨 Socket.IO: Получено сообщение для отправки:', {
       chatId: data.chatId,
-      messagePreview: data.message?.text?.substring(0, 50)
+      messagePreview: data.message?.text?.substring(0, 50),
+      roomMembers
     });
     // Отправляем сообщение всем в комнате чата (включая отправителя для подтверждения)
     io.to(data.chatId).emit('new-message', data.message);
-    console.log('📡 Socket.IO: Сообщение отправлено в комнату:', data.chatId);
+    console.log(`📡 Socket.IO: Сообщение отправлено в комнату ${data.chatId} (${roomMembers} участников)`);
   });
 
   // Обработка индикатора "печатает..."

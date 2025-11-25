@@ -90,7 +90,13 @@ export default function SimpleChatPage() {
       setLoading(false);
       
       // Присоединяемся к комнате чата
+      console.log('🔗 Присоединяемся к комнате чата:', chat._id);
       socket?.emit('join-chat', chat._id);
+      
+      // Слушаем подтверждение присоединения
+      socket?.on('joined-chat', (data: any) => {
+        console.log('✅ Подтверждение присоединения к комнате:', data);
+      });
       
       // Слушаем события
       setupSocketListeners(chat._id, myId);
