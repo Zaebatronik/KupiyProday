@@ -46,6 +46,43 @@ function App() {
     };
     initLanguage();
 
+    // Автоматический вход по Telegram ID
+    const autoLogin = async () => {
+      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+      
+      if (telegramId && !isRegistered) {
+        console.log('🔑 Проверка регистрации по Telegram ID:', telegramId);
+        
+        try {
+          const { userAPI } = await import('./services/api');
+          const response = await userAPI.getProfile(telegramId);
+          const existingUser = response.data;
+          
+          console.log('✅ Пользователь найден:', existingUser.nickname);
+          
+          // Проверяем бан
+          if (existingUser.banned) {
+            console.log('🚫 Пользователь забанен');
+            const { setUser } = useStore.getState();
+            setUser(existingUser);
+            setIsBanned(true);
+            return;
+          }
+          
+          // Автоматический вход
+          const { setUser, addUserToRegistry } = useStore.getState();
+          setUser(existingUser);
+          addUserToRegistry(existingUser);
+          localStorage.setItem('currentUser', JSON.stringify(existingUser));
+          
+          console.log('✅ Автоматический вход выполнен');
+        } catch (error) {
+          console.log('ℹ️ Пользователь не найден, нужна регистрация');
+        }
+      }
+    };
+    autoLogin();
+
     // Проверка и отправка отложенных регистраций
     const processPendingRegistration = async () => {
       const pending = localStorage.getItem('pendingRegistration');

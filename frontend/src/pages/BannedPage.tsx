@@ -1,14 +1,61 @@
+import { useStore } from '../store';
 import '../styles/BannedPage.css';
 
 export default function BannedPage() {
+  const { user } = useStore();
+
   return (
     <div className="banned-page">
       <div className="banned-content">
         <div className="banned-icon">🚫</div>
         <h1 className="banned-title">ВЫ ЗАБАНЕНЫ!</h1>
+        
+        {user?.nickname && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            padding: '16px',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            border: '2px solid rgba(239, 68, 68, 0.3)'
+          }}>
+            <p style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#ef4444' }}>
+              👤 Пользователь: <strong>{user.nickname}</strong>
+            </p>
+            <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#94a3b8' }}>
+              ID: {user.telegramId || user.id}
+            </p>
+          </div>
+        )}
+        
         <p className="banned-message">
           Ваш аккаунт был заблокирован за нарушение правил платформы.
         </p>
+        
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.9)',
+          padding: '20px',
+          borderRadius: '16px',
+          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', color: '#1e293b', fontSize: '18px' }}>
+            ⚠️ Возможные причины бана:
+          </h3>
+          <ul style={{ 
+            textAlign: 'left', 
+            margin: 0, 
+            padding: '0 0 0 24px',
+            color: '#475569',
+            lineHeight: '1.8'
+          }}>
+            <li>Публикация запрещенных товаров</li>
+            <li>Мошенничество или обман пользователей</li>
+            <li>Спам или навязчивая реклама</li>
+            <li>Оскорбления других пользователей</li>
+            <li>Нарушение правил пользования</li>
+          </ul>
+        </div>
+        
         <div className="banned-emoji">😔📱</div>
         <div className="banned-advice">
           <p className="advice-title">👋 Совет от администрации:</p>

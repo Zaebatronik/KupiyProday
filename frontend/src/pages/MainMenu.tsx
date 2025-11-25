@@ -6,23 +6,13 @@ import '../styles/MainMenu.css';
 export default function MainMenu() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { clearUser, user } = useStore();
+  const { user } = useStore();
 
   // ID админа
   const ADMIN_ID = '670170626';
   const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
   const userStoreId = user?.telegramId || user?.id || '';
   const isAdmin = currentUserId === ADMIN_ID || userStoreId === ADMIN_ID;
-
-  const handleLogout = () => {
-    if (window.confirm(t('common.logoutConfirm'))) {
-      // Очищаем данные пользователя и состояние регистрации
-      clearUser();
-      localStorage.clear();
-      // Переходим на страницу прощания
-      navigate('/goodbye', { replace: true });
-    }
-  };
 
   const menuItems = [
     { icon: '📁', label: t('menu.catalog'), path: '/catalog' },
@@ -33,7 +23,6 @@ export default function MainMenu() {
     { icon: '⭐', label: t('menu.favorites'), path: '/favorites' },
     { icon: '❓', label: t('menu.support'), path: '/support' },
     ...(isAdmin ? [{ icon: '👑', label: 'Админ-панель', path: '/admin' }] : []),
-    { icon: '🚪', label: t('menu.logout'), onClick: handleLogout },
   ];
 
   return (
@@ -47,7 +36,7 @@ export default function MainMenu() {
           <button
             key={item.path || `action-${index}`}
             className="menu-item"
-            onClick={() => item.onClick ? item.onClick() : navigate(item.path!)}
+            onClick={() => navigate(item.path)}
           >
             <span className="menu-icon">{item.icon}</span>
             <span className="menu-label">{item.label}</span>

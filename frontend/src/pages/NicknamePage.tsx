@@ -16,6 +16,29 @@ export default function NicknamePage() {
   const [nicknameAvailable, setNicknameAvailable] = useState<boolean|null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Проверка - если пользователь уже зарегистрирован по Telegram ID, перенаправляем
+  useEffect(() => {
+    const checkExistingUser = async () => {
+      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+      
+      if (telegramId) {
+        try {
+          const response = await userAPI.getProfile(telegramId);
+          if (response.data) {
+            console.log('⚠️ Пользователь уже зарегистрирован, перенаправление...');
+            // Автоматический вход уже произойдет в App.tsx
+            navigate('/', { replace: true });
+          }
+        } catch (error) {
+          // Пользователь не найден - это нормально, продолжаем регистрацию
+          console.log('✅ Новый пользователь, продолжаем регистрацию');
+        }
+      }
+    };
+    
+    checkExistingUser();
+  }, [navigate]);
+
   const validateNickname = (nick: string): boolean => {
     if (nick.length < 3 || nick.length > 20) {
       setError(t('registration.nicknameRules'));

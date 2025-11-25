@@ -167,36 +167,53 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Помощь и поддержка */}
+      {/* Помощь и настройки */}
       <div className="profile-section">
-        <h3 className="section-title">❓ Помощь</h3>
+        <h3 className="section-title">⚙️ Настройки и помощь</h3>
         <div className="profile-actions">
+          <button 
+            className="action-button" 
+            onClick={() => {
+              const newNickname = prompt('Введите новый никнейм (3-20 символов):', user?.nickname || '');
+              
+              if (newNickname && newNickname.trim().length >= 3 && newNickname.trim().length <= 20) {
+                const updateNickname = async () => {
+                  try {
+                    const { userAPI } = await import('../services/api');
+                    const { updateUser } = useStore.getState();
+                    
+                    await userAPI.updateProfile(user?.id || '', { nickname: newNickname.trim() });
+                    updateUser({ nickname: newNickname.trim() });
+                    
+                    alert('✅ Никнейм успешно изменен!');
+                    window.location.reload();
+                  } catch (error) {
+                    alert('❌ Ошибка при изменении никнейма. Возможно, он уже занят.');
+                  }
+                };
+                updateNickname();
+              } else if (newNickname !== null) {
+                alert('❗ Никнейм должен быть от 3 до 20 символов');
+              }
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white'
+            }}
+          >
+            <span className="action-icon">✏️</span>
+            <div className="action-content">
+              <span className="action-text">Изменить никнейм</span>
+              <span className="action-subtitle">Текущий: {user?.nickname}</span>
+            </div>
+            <span className="action-arrow">→</span>
+          </button>
+
           <button className="action-button" onClick={() => navigate('/support')}>
             <span className="action-icon">💡</span>
             <div className="action-content">
               <span className="action-text">Поддержка</span>
               <span className="action-subtitle">Связаться с администратором</span>
-            </div>
-            <span className="action-arrow">→</span>
-          </button>
-
-          <button 
-            className="action-button danger-action" 
-            onClick={() => {
-              if (window.confirm('Вы уверены, что хотите выйти из аккаунта?')) {
-                localStorage.clear();
-                navigate('/goodbye', { replace: true });
-              }
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: 'white'
-            }}
-          >
-            <span className="action-icon">🚪</span>
-            <div className="action-content">
-              <span className="action-text">Выйти из аккаунта</span>
-              <span className="action-subtitle">Сменить пользователя</span>
             </div>
             <span className="action-arrow">→</span>
           </button>
