@@ -55,9 +55,9 @@ export default function CatalogPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
-  // Фильтры локации (по умолчанию показываем ВСЕ объявления)
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  // Фильтры локации (по умолчанию - страна и город пользователя из профиля)
+  const [selectedCountry, setSelectedCountry] = useState<string>(user?.country || '');
+  const [selectedCity, setSelectedCity] = useState<string>(user?.city || '');
 
   // Фильтры
   const [priceMin, setPriceMin] = useState('');
@@ -65,6 +65,18 @@ export default function CatalogPage() {
   const [onlyNegotiable, setOnlyNegotiable] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
+
+  // Инициализация фильтров локации из профиля пользователя
+  useEffect(() => {
+    if (user?.country && !selectedCountry) {
+      setSelectedCountry(user.country);
+      console.log('🌍 Установлена страна из профиля:', user.country);
+    }
+    if (user?.city && !selectedCity) {
+      setSelectedCity(user.city);
+      console.log('🏙️ Установлен город из профиля:', user.city);
+    }
+  }, [user]);
 
   // Загрузка истории поиска
   useEffect(() => {
