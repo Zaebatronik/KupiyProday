@@ -158,9 +158,21 @@ router.post('/:id/messages', async (req, res) => {
       return res.status(404).json({ message: 'Чат не найден' });
     }
 
-    // Проверяем что отправитель - участник чата
-    if (senderId !== chat.participant1 && senderId !== chat.participant2) {
-      console.log('❌ Пользователь не является участником чата:', senderId);
+    // Проверяем что отправитель - участник чата (приводим к строке для сравнения)
+    const senderIdStr = String(senderId);
+    const participant1Str = String(chat.participant1);
+    const participant2Str = String(chat.participant2);
+    
+    console.log('🔍 Проверка участника чата:', {
+      senderId: senderIdStr,
+      participant1: participant1Str,
+      participant2: participant2Str,
+      isParticipant1: senderIdStr === participant1Str,
+      isParticipant2: senderIdStr === participant2Str
+    });
+    
+    if (senderIdStr !== participant1Str && senderIdStr !== participant2Str) {
+      console.log('❌ Пользователь не является участником чата:', senderIdStr);
       return res.status(403).json({ message: 'Вы не являетесь участником этого чата' });
     }
 
@@ -189,14 +201,17 @@ router.post('/:id/messages', async (req, res) => {
         _id: chat.messages[chat.messages.length - 1]._id // Добавляем _id из MongoDB
       };
       
-      // Определяем получателя
-      const recipientId = senderId === chat.participant1 ? chat.participant2 : chat.participant1;
+      // Определяем получателя (приводим к строке)
+      const senderIdStr = String(senderId);
+      const participant1Str = String(chat.participant1);
+      const participant2Str = String(chat.participant2);
+      const recipientId = senderIdStr === participant1Str ? participant2Str : participant1Str;
       
       console.log('📡 Подготовка к отправке сообщения:', {
-        senderId,
+        senderId: senderIdStr,
         recipientId,
-        participant1: chat.participant1,
-        participant2: chat.participant2,
+        participant1: participant1Str,
+        participant2: participant2Str,
         chatRoom: chat._id.toString(),
         personalEvent: `message-to-${recipientId}`
       });
