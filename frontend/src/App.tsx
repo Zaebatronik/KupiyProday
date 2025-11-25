@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from './store';
 import { getTelegramId } from './utils/telegram';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Pages
 import WelcomePage from './pages/WelcomePage';
@@ -175,10 +176,11 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Секретная страница для включения режима админа */}
-        <Route path="/dev-admin" element={<DevAdminPage />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* Секретная страница для включения режима админа */}
+          <Route path="/dev-admin" element={<DevAdminPage />} />
         
         {/* Страница прощания (доступна всегда) */}
         <Route path="/goodbye" element={<GoodbyePage />} />
@@ -216,6 +218,7 @@ function App() {
         )}
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
