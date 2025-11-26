@@ -52,18 +52,12 @@ router.get('/', async (req, res) => {
 
     console.log('📋 Запрос объявлений с фильтрами:', query);
     const listings = await Listing.find(query)
-      .populate('userId', 'nickname')
       .sort({ createdAt: -1 })
       .lean();
     console.log(`✅ Найдено объявлений: ${listings.length}`);
     
-    // Добавляем userNickname в каждое объявление
-    const listingsWithNickname = listings.map(listing => ({
-      ...listing,
-      userNickname: listing.userId?.nickname || 'Пользователь'
-    }));
-    
-    res.json(listingsWithNickname);
+    // userNickname уже есть в модели Listing, просто возвращаем как есть
+    res.json(listings);
   } catch (error) {
     console.error('❌ Ошибка получения объявлений:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
