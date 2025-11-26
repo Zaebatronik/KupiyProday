@@ -375,8 +375,8 @@ class CurrencyService {
       ? Math.round(priceUSD).toLocaleString()
       : priceUSD.toFixed(priceUSD >= 10 ? 0 : 2);
 
-    // Основная цена - локальная, приблизительная - в долларах
-    return `${localSymbol}${formattedLocal} / ≈ $${formattedUSD}`;
+    // Разделяем валюты на разные строки для лучшей читаемости
+    return `${localSymbol}${formattedLocal}\n≈ $${formattedUSD}`;
   }
 
   /**

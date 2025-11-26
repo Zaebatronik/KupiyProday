@@ -606,8 +606,12 @@ export default function CatalogPage() {
                   </div>
                   <div className="listing-info">
                     <div className="listing-price">
-                      {listing.negotiable ? '≈ ' : ''}
-                      {dualPrices.get(listing.id) || '...'}
+                      {listing.negotiable && <span style={{ fontSize: '11px', opacity: 0.7 }}>≈ договорная</span>}
+                      {(dualPrices.get(listing.id) || '...').split('\n').map((line, i) => (
+                        <span key={i} style={{ fontSize: i === 0 ? '13px' : '11px', opacity: i === 0 ? 1 : 0.7 }}>
+                          {line}
+                        </span>
+                      ))}
                     </div>
                     <div className="listing-title">{listing.title}</div>
                     <div className="listing-location">📍 {listing.city}</div>
