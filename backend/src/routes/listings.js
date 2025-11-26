@@ -51,10 +51,19 @@ router.get('/', async (req, res) => {
     }
 
     console.log('📋 Запрос объявлений с фильтрами:', query);
-    const listings = await Listing.find(query).sort({ createdAt: -1 }).lean();
+    const listings = await Listing.find(query)
+      .populate('userId', 'nickname')
+      .sort({ createdAt: -1 })
+      .lean();
     console.log(`✅ Найдено объявлений: ${listings.length}`);
     
-    res.json(listings);
+    // Добавляем userNickname в каждое объявление
+    const listingsWithNickname = listings.map(listing => ({
+      ...listing,
+      userNickname: listing.userId?.nickname || 'Пользователь'
+    }));
+    
+    res.json(listingsWithNickname);
   } catch (error) {
     console.error('❌ Ошибка получения объявлений:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });

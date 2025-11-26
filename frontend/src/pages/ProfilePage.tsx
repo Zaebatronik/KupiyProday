@@ -353,7 +353,7 @@ export default function ProfilePage() {
       <div className="profile-footer">
         <div className="footer-info">
           <p>🐻 Берлога Marketplace</p>
-          <p className="footer-version">Версия 1.0.4</p>
+          <p className="footer-version">Версия 1.0.5</p>
         </div>
       </div>
 

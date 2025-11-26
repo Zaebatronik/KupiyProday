@@ -125,7 +125,8 @@ export default function CatalogPage() {
           country: l.country,
           photos: l.photos,
           createdAt: l.createdAt,
-          userId: l.userId,
+          userId: l.userId?._id || l.userId,
+          userNickname: l.userNickname || l.userId?.nickname || 'Пользователь',
           isFavorite: isFavorite(l._id || l.id)
         }));
         if (isMounted) {
