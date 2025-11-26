@@ -11,9 +11,14 @@ const api = axios.create({
   timeout: 60000, // 60 секунд для пробуждения Render сервера
 });
 
-// Interceptor для добавления Telegram user data и логирования
+// Interceptor для добавления Telegram auth data (с проверкой hash на backend)
 api.interceptors.request.use((config) => {
-  if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+  // ✅ Отправляем initData с hash для криптографической проверки
+  if (window.Telegram?.WebApp?.initData) {
+    config.headers['x-telegram-init-data'] = window.Telegram.WebApp.initData;
+  }
+  // Fallback для dev/testing (незащищённый)
+  else if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
     config.headers['X-Telegram-User'] = JSON.stringify(
       window.Telegram.WebApp.initDataUnsafe.user
     );
