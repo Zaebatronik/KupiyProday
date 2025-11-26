@@ -226,18 +226,27 @@ router.post('/upload', upload.array('photos', 5), async (req, res) => {
   }
 });
 
-// Обновить объявление
-router.put('/:id', async (req, res) => {
+// Обновить объявление (только владелец)
+router.put('/:id', verifyTelegramAuth, async (req, res) => {
   try {
-    const listing = await Listing.findByIdAndUpdate(
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: 'Объявление не найдено' });
+    }
+    
+    // ✅ Проверяем что пользователь владелец объявления
+    if (listing.userId !== req.userId) {
+      return res.status(403).json({ message: 'Можно редактировать только свои объявления' });
+    }
+    
+    const updatedListing = await Listing.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-    if (!listing) {
-      return res.status(404).json({ message: 'Объявление не найдено' });
-    }
-    res.json(listing);
+    
+    console.log(`✏️ Пользователь ${req.userId} обновил объявление ${req.params.id}`);
+    res.json(updatedListing);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
@@ -260,17 +269,26 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Удалить объявление
-router.delete('/:id', async (req, res) => {
+// Удалить объявление (только владелец)
+router.delete('/:id', verifyTelegramAuth, async (req, res) => {
   try {
-    const listing = await Listing.findByIdAndUpdate(
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: 'Объявление не найдено' });
+    }
+    
+    // ✅ Проверяем что пользователь владелец объявления
+    if (listing.userId !== req.userId) {
+      return res.status(403).json({ message: 'Можно удалять только свои объявления' });
+    }
+    
+    const deletedListing = await Listing.findByIdAndUpdate(
       req.params.id,
       { status: 'deleted' },
       { new: true }
     );
-    if (!listing) {
-      return res.status(404).json({ message: 'Объявление не найдено' });
-    }
+    
+    console.log(`🗑️ Пользователь ${req.userId} удалил объявление ${req.params.id}`);
     res.json({ message: 'Объявление удалено' });
   } catch (error) {
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });

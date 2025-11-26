@@ -153,10 +153,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Отправить сообщение
-router.post('/:id/messages', async (req, res) => {
+// Отправить сообщение (только авторизованные и не забаненные)
+router.post('/:id/messages', verifyTelegramAuth, checkNotBanned, async (req, res) => {
   try {
-    const { senderId, text } = req.body;
+    const { text } = req.body;
+    // ✅ КРИТИЧНО: senderId берём из проверенного auth, не из req.body!
+    const senderId = req.userId;
     
     console.log('📨 Получен запрос на отправку сообщения:', {
       chatId: req.params.id,
@@ -262,16 +264,19 @@ router.post('/:id/messages', async (req, res) => {
   }
 });
 
-// Поделиться контактами
-router.post('/:id/share-contacts', async (req, res) => {
+// Поделиться контактами (только авторизованные)
+router.post('/:id/share-contacts', verifyTelegramAuth, async (req, res) => {
   try {
     const chat = await Chat.findById(req.params.id);
     if (!chat) {
       return res.status(404).json({ message: 'Чат не найден' });
     }
 
+    // ✅ КРИТИЧНО: userId берём из проверенного auth, не из req.body!
+    const userId = req.userId;
+
     const participant = chat.participants.find(
-      p => p.userId.toString() === req.body.userId
+      p => p.userId.toString() === userId
     );
 
     if (participant) {

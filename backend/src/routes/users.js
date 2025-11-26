@@ -147,9 +147,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Обновление профиля
-router.put('/:id', async (req, res) => {
+// Обновление профиля (только сам пользователь может редактировать свой профиль)
+router.put('/:id', verifyTelegramAuth, async (req, res) => {
   try {
+    // ✅ Проверяем что пользователь редактирует свой профиль
+    if (req.userId !== req.params.id) {
+      return res.status(403).json({ message: 'Можно редактировать только свой профиль' });
+    }
+    
     let user;
     
     // Пробуем обновить по Telegram ID
@@ -178,8 +183,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Удаление пользователя
-router.delete('/:id', async (req, res) => {
+// Удаление пользователя (только админ)
+router.delete('/:id', verifyTelegramAuth, requireAdmin, async (req, res) => {
   try {
     let user;
     
@@ -195,21 +200,22 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
     
+    console.log(`🗑️ Админ удалил пользователя: ${user.nickname} (${user.telegramId})`);
     res.json({ message: 'Пользователь удалён' });
   } catch (error) {
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });
 
-// Забанить пользователя
-router.post('/:id/ban', async (req, res) => {
+// Забанить пользователя (только админ)
+router.post('/:id/ban', verifyTelegramAuth, requireAdmin, async (req, res) => {
   try {
     let user;
     
     // Пробуем найти по Telegram ID
     user = await User.findOneAndUpdate(
       { telegramId: req.params.id },
-      { banned: true },
+      { banned: true, bannedAt: new Date() },
       { new: true }
     );
     
@@ -217,7 +223,7 @@ router.post('/:id/ban', async (req, res) => {
     if (!user && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       user = await User.findByIdAndUpdate(
         req.params.id,
-        { banned: true },
+        { banned: true, bannedAt: new Date() },
         { new: true }
       );
     }
@@ -226,7 +232,7 @@ router.post('/:id/ban', async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
     
-    console.log(`🚫 Пользователь ${user.nickname} (${user.telegramId}) забанен`);
+    console.log(`🚫 Админ забанил пользователя: ${user.nickname} (${user.telegramId})`);
     res.json(user);
   } catch (error) {
     console.error('❌ Ошибка бана:', error);
@@ -234,15 +240,15 @@ router.post('/:id/ban', async (req, res) => {
   }
 });
 
-// Разбанить пользователя
-router.post('/:id/unban', async (req, res) => {
+// Разбанить пользователя (только админ)
+router.post('/:id/unban', verifyTelegramAuth, requireAdmin, async (req, res) => {
   try {
     let user;
     
     // Пробуем найти по Telegram ID
     user = await User.findOneAndUpdate(
       { telegramId: req.params.id },
-      { banned: false },
+      { banned: false, bannedAt: null },
       { new: true }
     );
     
@@ -250,7 +256,7 @@ router.post('/:id/unban', async (req, res) => {
     if (!user && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       user = await User.findByIdAndUpdate(
         req.params.id,
-        { banned: false },
+        { banned: false, bannedAt: null },
         { new: true }
       );
     }
@@ -259,7 +265,7 @@ router.post('/:id/unban', async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
     
-    console.log(`✅ Пользователь ${user.nickname} (${user.telegramId}) разбанен`);
+    console.log(`✅ Админ разбанил пользователя: ${user.nickname} (${user.telegramId})`);
     res.json(user);
   } catch (error) {
     console.error('❌ Ошибка разбана:', error);
