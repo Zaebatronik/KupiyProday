@@ -7,6 +7,9 @@ import { currencyService } from '../services/currency';
 import { locationService } from '../services/location';
 import '../styles/CatalogPage.css';
 
+// Доступные страны (соответствуют языкам)
+const AVAILABLE_COUNTRIES = ['RU', 'US', 'UA', 'DE', 'FR', 'ES', 'PL'];
+
 interface Listing {
   id: string;
   title: string;
@@ -68,11 +71,13 @@ export default function CatalogPage() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
 
-  // Загрузка списка стран
+  // Загрузка списка стран (только 7 доступных)
   useEffect(() => {
     const loadCountries = async () => {
       const data = await locationService.getCountries();
-      setCountries(data);
+      // Фильтруем только доступные страны
+      const filtered = data.filter(country => AVAILABLE_COUNTRIES.includes(country.code));
+      setCountries(filtered);
     };
     loadCountries();
   }, []);

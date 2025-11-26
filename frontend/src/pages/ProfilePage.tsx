@@ -1,11 +1,43 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { getTelegramId } from '../utils/telegram';
+import { usersAPI } from '../services/api';
 import '../styles/ProfilePage.css';
+
+// Доступные страны (по языкам)
+const AVAILABLE_COUNTRIES = [
+  { code: 'RU', name: 'Россия', flag: '🇷🇺' },
+  { code: 'US', name: 'США', flag: '🇺🇸' },
+  { code: 'UA', name: 'Украина', flag: '🇺🇦' },
+  { code: 'DE', name: 'Германия', flag: '🇩🇪' },
+  { code: 'FR', name: 'Франция', flag: '🇫🇷' },
+  { code: 'ES', name: 'Испания', flag: '🇪🇸' },
+  { code: 'PL', name: 'Польша', flag: '🇵🇱' },
+];
+
+// Доступные языки
+const AVAILABLE_LANGUAGES = [
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+];
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, listings } = useStore();
+  const { t, i18n } = useTranslation();
+  const { user, listings, setUser } = useStore();
+  
+  const [showCountryModal, setShowCountryModal] = useState(false);
+  const [showRadiusModal, setShowRadiusModal] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+  const [tempRadius, setTempRadius] = useState(user?.radius || 10);
 
   // ID админа
   const ADMIN_ID = '670170626';
@@ -45,6 +77,47 @@ export default function ProfilePage() {
       })
     : 'Недавно';
 
+  // Обработчики изменения данных
+  const handleCountryChange = async (countryCode: string) => {
+    try {
+      if (user) {
+        const updatedUser = { ...user, country: countryCode };
+        await usersAPI.updateUser(user.id, { country: countryCode });
+        setUser(updatedUser);
+        setShowCountryModal(false);
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating country:', error);
+    }
+  };
+
+  const handleRadiusChange = async () => {
+    try {
+      if (user) {
+        const updatedUser = { ...user, radius: tempRadius };
+        await usersAPI.updateUser(user.id, { radius: tempRadius });
+        setUser(updatedUser);
+        setShowRadiusModal(false);
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating radius:', error);
+    }
+  };
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    setShowLanguageModal(false);
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
+  };
+
   return (
     <div className="profile-page">
       {/* Шапка профиля */}
@@ -57,11 +130,16 @@ export default function ProfilePage() {
 
       {/* Аватар и основная информация */}
       <div className="profile-card">
-        <div className="profile-avatar">
+        <div 
+          className="profile-avatar" 
+          onClick={() => setShowAvatarMenu(true)}
+          style={{ cursor: 'pointer' }}
+        >
           <div className="avatar-circle">
             {user?.nickname?.charAt(0).toUpperCase() || '👤'}
           </div>
           {isAdmin && <div className="admin-crown">👑</div>}
+          <div className="avatar-edit-hint">📷</div>
         </div>
 
         <div className="profile-info">
@@ -69,11 +147,19 @@ export default function ProfilePage() {
             {user?.nickname || 'Аноним'}
             {isAdmin && <span className="admin-badge-small">ADMIN</span>}
           </h2>
-          <div className="profile-location">
-            📍 {user?.city || 'Не указан'}, {user?.country || 'RU'}
+          <div 
+            className="profile-location clickable-field" 
+            onClick={() => setShowCountryModal(true)}
+          >
+            📍 {user?.city || 'Не указан'}, {AVAILABLE_COUNTRIES.find(c => c.code === user?.country)?.flag || '🌍'} {AVAILABLE_COUNTRIES.find(c => c.code === user?.country)?.name || user?.country || 'RU'}
+            <span className="edit-icon">✏️</span>
           </div>
-          <div className="profile-radius">
+          <div 
+            className="profile-radius clickable-field" 
+            onClick={() => setShowRadiusModal(true)}
+          >
             🔍 Радиус поиска: {user?.radius || 10} км
+            <span className="edit-icon">✏️</span>
           </div>
           <div className="profile-date">
             📅 На платформе с {registrationDate}
@@ -233,12 +319,23 @@ export default function ProfilePage() {
       <div className="profile-settings">
         <h3 className="settings-title">⚙️ Настройки</h3>
         
-        <div className="setting-item">
+        <div className="setting-item clickable-field" onClick={() => setShowLanguageModal(true)}>
           <div className="setting-label">
             <span>🌍 Язык</span>
           </div>
           <div className="setting-value">
-            {user?.language === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}
+            {AVAILABLE_LANGUAGES.find(l => l.code === i18n.language)?.flag || '🇷🇺'} {AVAILABLE_LANGUAGES.find(l => l.code === i18n.language)?.name || 'Русский'}
+            <span className="edit-icon">✏️</span>
+          </div>
+        </div>
+
+        <div className="setting-item clickable-field" onClick={() => setShowCountryModal(true)}>
+          <div className="setting-label">
+            <span>📍 Изменить местоположение</span>
+          </div>
+          <div className="setting-value">
+            {AVAILABLE_COUNTRIES.find(c => c.code === user?.country)?.flag || '🌍'}
+            <span className="edit-icon">✏️</span>
           </div>
         </div>
 
@@ -259,6 +356,122 @@ export default function ProfilePage() {
           <p className="footer-version">Версия 1.0.0</p>
         </div>
       </div>
+
+      {/* Модальное окно выбора страны */}
+      {showCountryModal && (
+        <div className="modal-overlay" onClick={() => setShowCountryModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Выберите страну</h3>
+            <div className="country-list">
+              {AVAILABLE_COUNTRIES.map((country) => (
+                <div
+                  key={country.code}
+                  className="country-item"
+                  onClick={() => handleCountryChange(country.code)}
+                >
+                  <span className="country-flag">{country.flag}</span>
+                  <span className="country-name">{country.name}</span>
+                </div>
+              ))}
+            </div>
+            <button className="modal-close" onClick={() => setShowCountryModal(false)}>
+              Закрыть
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Модальное окно изменения радиуса */}
+      {showRadiusModal && (
+        <div className="modal-overlay" onClick={() => setShowRadiusModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Радиус поиска</h3>
+            <div className="radius-selector">
+              <p className="radius-value">{tempRadius} км</p>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                step="5"
+                value={tempRadius}
+                onChange={(e) => setTempRadius(Number(e.target.value))}
+                className="radius-slider"
+              />
+              <div className="radius-labels">
+                <span>10 км</span>
+                <span>100 км</span>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => setShowRadiusModal(false)}>
+                Отмена
+              </button>
+              <button className="modal-save" onClick={handleRadiusChange}>
+                Сохранить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальное окно выбора языка */}
+      {showLanguageModal && (
+        <div className="modal-overlay" onClick={() => setShowLanguageModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Выберите язык</h3>
+            <div className="language-list">
+              {AVAILABLE_LANGUAGES.map((lang) => (
+                <div
+                  key={lang.code}
+                  className="language-item"
+                  onClick={() => handleLanguageChange(lang.code)}
+                >
+                  <span className="language-flag">{lang.flag}</span>
+                  <span className="language-name">{lang.name}</span>
+                </div>
+              ))}
+            </div>
+            <button className="modal-close" onClick={() => setShowLanguageModal(false)}>
+              Закрыть
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Меню аватара */}
+      {showAvatarMenu && (
+        <div className="modal-overlay" onClick={() => setShowAvatarMenu(false)}>
+          <div className="modal-content avatar-menu" onClick={(e) => e.stopPropagation()}>
+            <h3>Фото профиля</h3>
+            <div className="avatar-actions">
+              <label className="avatar-action-item">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // TODO: Implement avatar upload
+                      console.log('Upload avatar:', file);
+                    }
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <span>📷 Загрузить фото</span>
+              </label>
+              <div className="avatar-action-item" onClick={() => {
+                // TODO: Implement avatar removal
+                console.log('Remove avatar');
+              }}>
+                <span>🗑️ Удалить фото</span>
+              </div>
+            </div>
+            <button className="modal-close" onClick={() => setShowAvatarMenu(false)}>
+              Закрыть
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
