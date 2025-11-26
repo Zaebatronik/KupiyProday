@@ -585,7 +585,7 @@ export default function AddListingPage() {
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               borderRadius: '16px',
               padding: '20px',
-              marginBottom: '20px',
+              marginBottom: '100px',
               boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
               color: 'white'
             }}>
@@ -602,27 +602,18 @@ export default function AddListingPage() {
           </>
         )}
 
-        {/* Кнопка публикации */}
-        <div className="form-actions">
-          {!isFormValid() && !showPreview && (
-            <div style={{
-              textAlign: 'center',
-              color: '#f59e0b',
-              fontSize: '14px',
-              marginBottom: '12px',
-              fontWeight: '600',
-              background: 'rgba(245, 158, 11, 0.1)',
-              padding: '12px',
-              borderRadius: '12px',
-              border: '2px solid rgba(245, 158, 11, 0.3)'
-            }}>
-              💡 {title.length < 3 ? 'Добавьте название (минимум 3 символа)' : 
-                   description.length < 5 ? 'Добавьте описание (минимум 5 символов)' :
-                   !price || parseFloat(price) <= 0 ? 'Укажите цену' :
-                   !category ? 'Выберите категорию' :
-                   'Заполните обязательные поля'}
-            </div>
-          )}
+        {/* Кнопка публикации - зафиксирована внизу */}
+        <div className="form-actions" style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '16px',
+          background: 'linear-gradient(to top, rgba(255,255,255,0.98) 70%, rgba(255,255,255,0.95) 85%, transparent)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 100,
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
+        }}>
           <button
             className="btn btn-primary btn-large"
             onClick={() => {
@@ -636,7 +627,8 @@ export default function AddListingPage() {
             disabled={isSubmitting || !isFormValid()}
             style={{
               opacity: isFormValid() ? 1 : 0.5,
-              cursor: isFormValid() ? 'pointer' : 'not-allowed'
+              cursor: isFormValid() ? 'pointer' : 'not-allowed',
+              width: '100%'
             }}
           >
             {isSubmitting ? t('addListing.publishing') : showPreview ? '✅ Опубликовать' : '👁️ Предпросмотр и публикация'}

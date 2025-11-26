@@ -6,6 +6,7 @@
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   position: relative;
+  overflow-x: hidden;
 }
 
 @keyframes gradientShift {
@@ -173,7 +174,7 @@
 
 .listings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 16px;
 }
