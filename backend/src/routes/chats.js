@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Chat = require('../models/Chat');
 const Listing = require('../models/Listing');
+const { verifyTelegramAuth, checkNotBanned } = require('../middleware/auth');
 
 // Получить все чаты пользователя
 router.get('/user/:userId', async (req, res) => {
@@ -26,9 +27,14 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // НОВЫЙ ЭНДПОИНТ: Найти или создать чат между двумя пользователями
-router.post('/find-or-create', async (req, res) => {
+router.post('/find-or-create', verifyTelegramAuth, checkNotBanned, async (req, res) => {
   try {
     const { buyerId, sellerId, listingId, buyerNickname, sellerNickname } = req.body;
+    
+    // Проверяем что пользователь участвует в чате
+    if (req.userId !== buyerId && req.userId !== sellerId) {
+      return res.status(403).json({ error: 'Можно создавать только свои чаты' });
+    }
     
     console.log('🔍 Поиск/создание чата между:', {
       buyerId,

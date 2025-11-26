@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Listing = require('../models/Listing');
+const User = require('../models/User');
 const path = require('path');
+const { verifyTelegramAuth, requireAdmin, checkNotBanned } = require('../middleware/auth');
 
 // Настройка multer для загрузки файлов
 const storage = multer.diskStorage({
@@ -130,23 +132,20 @@ router.get('/admin/all', async (req, res) => {
   }
 });
 
-// Создать объявление
-router.post('/', async (req, res) => {
+// Создать объявление (только авторизованные и не забаненные)
+router.post('/', verifyTelegramAuth, checkNotBanned, async (req, res) => {
   try {
+    // userId берём из проверенного Telegram auth
+    const userId = req.userId;
+    const userNickname = req.user.nickname; // Из БД через checkNotBanned
+    
     console.log('📝 Создание объявления:', {
-      userId: req.body.userId,
+      userId,
+      userNickname,
       title: req.body.title,
       category: req.body.category,
       photosReceived: Array.isArray(req.body.photos) ? req.body.photos.length : 0
     });
-    
-    // Проверяем обязательные поля
-    if (!req.body.userId || !req.body.userNickname) {
-      return res.status(400).json({ 
-        message: 'Отсутствуют данные пользователя',
-        details: 'userId и userNickname обязательны'
-      });
-    }
     
     if (!req.body.title || !req.body.description) {
       return res.status(400).json({ 
@@ -158,9 +157,9 @@ router.post('/', async (req, res) => {
     // Фото уже в base64 от фронтенда, сохраняем как есть
     const photos = req.body.photos || [];
     
-    const listing = new Listing({
-      userId: req.body.userId,
-      userNickname: req.body.userNickname,
+    const newListing = new Listing({
+      userId, // Из проверенного auth
+      userNickname, // Из БД
       category: req.body.category,
       title: req.body.title,
       description: req.body.description,
@@ -173,16 +172,16 @@ router.post('/', async (req, res) => {
       views: 0,
     });
 
-    await listing.save();
-    console.log('✅ Объявление создано:', listing._id, listing.serialNumber);
+    await newListing.save();
+    console.log('✅ Объявление создано:', newListing._id, newListing.serialNumber);
     
     // Отправляем Socket.IO событие о новом объявлении
     if (req.app.get('io')) {
-      req.app.get('io').emit('listing-created', listing);
+      req.app.get('io').emit('listing-created', newListing);
       console.log('📡 Socket.IO: Отправлено событие listing-created');
     }
     
-    res.status(201).json(listing);
+    res.status(201).json(newListing);
   } catch (error) {
     console.error('❌ Ошибка создания объявления:', error);
     console.error('Полная ошибка:', {

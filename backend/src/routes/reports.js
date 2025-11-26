@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Report = require('../models/Report');
+const { verifyTelegramAuth, requireAdmin } = require('../middleware/auth');
 
 // Создать жалобу
 router.post('/', async (req, res) => {
