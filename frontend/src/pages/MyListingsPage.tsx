@@ -118,11 +118,6 @@ export default function MyListingsPage() {
     }
   };
 
-  const handleEdit = (id: string) => {
-    // Переходим к странице деталей объявления, где есть кнопка редактирования
-    navigate(`/listing/${id}`);
-  };
-
   const getStatusBadge = (status: string) => {
     const badges = {
       active: { text: t('myListings.statusActive'), color: '#10b981' },
