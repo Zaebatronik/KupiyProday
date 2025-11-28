@@ -43,6 +43,23 @@ router.post('/register', async (req, res) => {
     let user = await User.findOne({ telegramId: id });
     let isNewUser = false;
     
+    // Проверка уникальности никнейма (для всех случаев)
+    if (user && user.nickname !== nickname) {
+      // Если пользователь меняет никнейм, проверяем уникальность
+      const existingNickname = await User.findOne({ nickname });
+      if (existingNickname && existingNickname.telegramId !== id) {
+        console.log('❌ Никнейм уже занят другим пользователем');
+        return res.status(400).json({ message: 'Никнейм уже занят' });
+      }
+    } else if (!user) {
+      // Для новых пользователей также проверяем
+      const existingNickname = await User.findOne({ nickname });
+      if (existingNickname) {
+        console.log('❌ Никнейм уже занят');
+        return res.status(400).json({ message: 'Никнейм уже занят' });
+      }
+    }
+    
     if (user) {
       console.log('👤 Пользователь уже существует, обновляем данные');
       // Обновляем данные существующего пользователя
@@ -62,12 +79,6 @@ router.post('/register', async (req, res) => {
       }
       
       return res.json(user);
-    }
-
-    // Проверка уникальности никнейма
-    const existingNickname = await User.findOne({ nickname });
-    if (existingNickname) {
-      return res.status(400).json({ message: 'Никнейм уже занят' });
     }
 
     // Создаём нового пользователя
