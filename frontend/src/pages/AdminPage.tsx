@@ -393,6 +393,60 @@ export default function AdminPage() {
     }
   };
 
+  // Написать пользователю (открыть чат)
+  const handleMessageUser = (userId: string, userNickname: string) => {
+    navigate(`/direct-chat/admin-${userId}?userId=${userId}&nickname=${userNickname}`);
+  };
+
+  // Удалить пользователя навсегда
+  const handleDeleteUser = async (userId: string) => {
+    const targetUser = users.find(u => u.id === userId);
+    if (!targetUser) return;
+    
+    const confirmed = window.confirm(
+      `⚠️ ВНИМАНИЕ! Вы собираетесь ПОЛНОСТЬЮ УДАЛИТЬ пользователя "${targetUser.nickname}".\n\n` +
+      `Будут удалены:\n` +
+      `- Профиль пользователя\n` +
+      `- Все его объявления (${targetUser.listingsCount})\n` +
+      `- Все его чаты\n` +
+      `- Все его избранное\n\n` +
+      `ЭТО ДЕЙСТВИЕ НЕОБРАТИМО!\n\n` +
+      `Продолжить?`
+    );
+    
+    if (!confirmed) return;
+    
+    // Дополнительное подтверждение
+    const finalConfirm = window.confirm(
+      `Вы уверены на 100%? Введите "ДА" если уверены.`
+    );
+    
+    if (!finalConfirm) return;
+    
+    try {
+      const { userAPI } = await import('../services/api');
+      await userAPI.deleteProfile(userId);
+      
+      // Удаляем из UI
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      
+      console.log(`✅ Пользователь ${targetUser.nickname} (${userId}) УДАЛЁН НАВСЕГДА`);
+      alert(`✅ Пользователь ${targetUser.nickname} успешно удалён!`);
+      
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+    } catch (error) {
+      console.error('❌ Ошибка удаления пользователя:', error);
+      alert('❌ Ошибка! Не удалось удалить пользователя. Проверьте соединение.');
+    }
+  };
+
+  // Открыть объявления пользователя
+  const handleViewUserListings = (userId: string, userNickname: string) => {
+    setSelectedUserListings({ userId, nickname: userNickname });
+  };
+
   // Обработчик клика по статистике
   const handleStatClick = (tab: 'all' | 'users' | 'banned') => {
     setActiveTab(tab);
@@ -747,38 +801,70 @@ export default function AdminPage() {
                       className="action-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/admin/user/${user.id}`);
+                        handleMessageUser(user.id, user.nickname);
                       }}
                       style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                         color: 'white',
                         marginBottom: '8px'
                       }}
                     >
-                      👤 Управление
+                      💬 Написать
                     </button>
+                    {user.listingsCount > 0 && (
+                      <button 
+                        className="action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewUserListings(user.id, user.nickname);
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                          color: 'white',
+                          marginBottom: '8px'
+                        }}
+                      >
+                        📦 Объявления ({user.listingsCount})
+                      </button>
+                    )}
                     {!user.isAdmin && (
-                      user.status === 'active' ? (
+                      <>
+                        {user.status === 'active' ? (
+                          <button 
+                            className="action-btn ban-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBanUser(user.id);
+                            }}
+                          >
+                            🚫 Забанить
+                          </button>
+                        ) : (
+                          <button 
+                            className="action-btn unban-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUnbanUser(user.id);
+                            }}
+                          >
+                            ✅ Разбанить
+                          </button>
+                        )}
                         <button 
-                          className="action-btn ban-btn"
+                          className="action-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleBanUser(user.id);
+                            handleDeleteUser(user.id);
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                            color: 'white',
+                            marginTop: '8px'
                           }}
                         >
-                          🚫 Забанить
+                          🗑️ Удалить навсегда
                         </button>
-                      ) : (
-                        <button 
-                          className="action-btn unban-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUnbanUser(user.id);
-                          }}
-                        >
-                          ✅ Разбанить
-                        </button>
-                      )
+                      </>
                     )}
                   </div>
                 </div>

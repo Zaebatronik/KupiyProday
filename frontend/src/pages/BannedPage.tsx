@@ -66,8 +66,36 @@ export default function BannedPage() {
           </p>
         </div>
         <p className="banned-hint">
-          Для разблокировки обратитесь в службу поддержки
+          Для разблокировки обратитесь к администратору
         </p>
+        
+        <button
+          onClick={() => {
+            const ADMIN_ID = '670170626';
+            const message = `Здравствуйте! Я ${user?.nickname || 'пользователь'} (ID: ${user?.telegramId || user?.id}). Хочу узнать причину блокировки и возможность разблокировки аккаунта.`;
+            window.location.href = `/direct-chat/admin-${user?.telegramId || user?.id}?adminId=${ADMIN_ID}&message=${encodeURIComponent(message)}`;
+          }}
+          style={{
+            marginTop: '24px',
+            padding: '16px 32px',
+            fontSize: '18px',
+            fontWeight: '600',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            margin: '24px auto 0'
+          }}
+        >
+          <span>💬</span>
+          Написать администратору
+        </button>
       </div>
     </div>
   );
