@@ -224,28 +224,52 @@ function App() {
     processPendingRegistration();
   }, [language, i18n]);
 
-  // Проверка бана при загрузке приложения
+  // 🔒 КРИТИЧНО: Постоянная проверка регистрации и бана
   useEffect(() => {
-    const checkBanStatus = async () => {
+    const checkUserStatus = async () => {
       if (isRegistered && user?.id) {
         try {
+          const telegramId = getTelegramId();
           const { userAPI } = await import('./services/api');
-          const response = await userAPI.getProfile(user.id);
-          if (response.data.banned) {
-            setIsBanned(true);
+          
+          // Проверяем существование пользователя в базе
+          const response = await userAPI.getUserByTelegramId(telegramId);
+          
+          if (!response.data) {
+            // Пользователя нет в базе - ВЫХОД
+            console.error('🚫 БЛОКИРОВКА: Пользователь удалён из базы!');
+            useStore.getState().logout();
+            window.location.reload(); // Принудительная перезагрузка
+            return;
           }
-        } catch (error) {
-          console.error('Failed to check ban status:', error);
+          
+          // Проверяем бан
+          if (response.data.banned) {
+            console.log('🚫 Пользователь забанен');
+            setIsBanned(true);
+          } else if (isBanned) {
+            // Разбанили - снимаем флаг
+            setIsBanned(false);
+          }
+        } catch (error: any) {
+          if (error.response?.status === 404 || error.response?.status === 403) {
+            // Пользователь не найден или не зарегистрирован - ВЫХОД
+            console.error('🚫 БЛОКИРОВКА: Пользователь не найден в базе!');
+            useStore.getState().logout();
+            window.location.reload();
+          } else {
+            console.error('Failed to check user status:', error);
+          }
         }
       }
     };
 
-    checkBanStatus();
+    checkUserStatus();
     
-    // Проверяем бан каждые 5 секунд
-    const interval = setInterval(checkBanStatus, 5000);
+    // 🔒 Проверяем КАЖДЫЕ 3 СЕКУНДЫ
+    const interval = setInterval(checkUserStatus, 3000);
     return () => clearInterval(interval);
-  }, [isRegistered, user]);
+  }, [isRegistered, user, isBanned]);
 
   // Ожидание инициализации i18n и проверки аутентификации
   if (!i18nReady || !authChecked) {
