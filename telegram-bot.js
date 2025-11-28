@@ -3,7 +3,7 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 
 const token = process.env.TELEGRAM_BOT_TOKEN || '7939786678:AAHSujmve3UREb9YLpZZWY2fiA00qUj0Fz8';
-const webAppUrl = 'https://a8a3ca83.kupyprodai.pages.dev';
+const webAppUrl = 'https://kupyprodai.pages.dev';
 
 const bot = new TelegramBot(token, { polling: true });
 
