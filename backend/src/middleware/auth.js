@@ -139,8 +139,34 @@ async function checkNotBanned(req, res, next) {
   }
 }
 
+/**
+ * КРИТИЧНО: Middleware для проверки что пользователь зарегистрирован в базе
+ * Блокирует ЛЮБОЙ доступ к API для незарегистрированных пользователей
+ */
+async function requireRegistered(req, res, next) {
+  try {
+    const User = require('../models/User');
+    const user = await User.findOne({ telegramId: req.userId });
+    
+    if (!user) {
+      console.warn(`🚫 Незарегистрированный пользователь пытается получить доступ: ${req.userId}`);
+      return res.status(403).json({ 
+        error: 'Not registered',
+        message: 'Вы не зарегистрированы в системе. Пожалуйста, пройдите регистрацию.'
+      });
+    }
+
+    req.user = user; // Сохраняем полные данные пользователя
+    next();
+  } catch (error) {
+    console.error('❌ Error checking registration:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
 module.exports = {
   verifyTelegramAuth,
   requireAdmin,
-  checkNotBanned
+  checkNotBanned,
+  requireRegistered
 };

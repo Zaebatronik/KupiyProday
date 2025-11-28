@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Chat = require('../models/Chat');
 const Listing = require('../models/Listing');
-const { verifyTelegramAuth, checkNotBanned } = require('../middleware/auth');
+const { verifyTelegramAuth, checkNotBanned, requireRegistered } = require('../middleware/auth');
 
 // Получить все чаты пользователя
 router.get('/user/:userId', async (req, res) => {
@@ -27,7 +27,7 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // НОВЫЙ ЭНДПОИНТ: Найти или создать чат между двумя пользователями
-router.post('/find-or-create', verifyTelegramAuth, checkNotBanned, async (req, res) => {
+router.post('/find-or-create', verifyTelegramAuth, requireRegistered, checkNotBanned, async (req, res) => {
   try {
     const { buyerId, sellerId, listingId, buyerNickname, sellerNickname } = req.body;
     
@@ -154,7 +154,7 @@ router.post('/', async (req, res) => {
 });
 
 // Отправить сообщение (только авторизованные и не забаненные)
-router.post('/:id/messages', verifyTelegramAuth, checkNotBanned, async (req, res) => {
+router.post('/:id/messages', verifyTelegramAuth, requireRegistered, checkNotBanned, async (req, res) => {
   try {
     const { text } = req.body;
     // ✅ КРИТИЧНО: senderId берём из проверенного auth, не из req.body!
@@ -265,7 +265,7 @@ router.post('/:id/messages', verifyTelegramAuth, checkNotBanned, async (req, res
 });
 
 // Поделиться контактами (только авторизованные)
-router.post('/:id/share-contacts', verifyTelegramAuth, async (req, res) => {
+router.post('/:id/share-contacts', verifyTelegramAuth, requireRegistered, async (req, res) => {
   try {
     const chat = await Chat.findById(req.params.id);
     if (!chat) {

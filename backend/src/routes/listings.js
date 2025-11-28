@@ -4,7 +4,7 @@ const multer = require('multer');
 const Listing = require('../models/Listing');
 const User = require('../models/User');
 const path = require('path');
-const { verifyTelegramAuth, requireAdmin, checkNotBanned } = require('../middleware/auth');
+const { verifyTelegramAuth, requireAdmin, checkNotBanned, requireRegistered } = require('../middleware/auth');
 
 // Настройка multer для загрузки файлов
 const storage = multer.diskStorage({
@@ -133,7 +133,7 @@ router.get('/admin/all', async (req, res) => {
 });
 
 // Создать объявление (только авторизованные и не забаненные)
-router.post('/', verifyTelegramAuth, checkNotBanned, async (req, res) => {
+router.post('/', verifyTelegramAuth, requireRegistered, checkNotBanned, async (req, res) => {
   try {
     // userId берём из проверенного Telegram auth
     const userId = req.userId;
@@ -227,7 +227,7 @@ router.post('/upload', upload.array('photos', 5), async (req, res) => {
 });
 
 // Обновить объявление (только владелец)
-router.put('/:id', verifyTelegramAuth, async (req, res) => {
+router.put('/:id', verifyTelegramAuth, requireRegistered, async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
     if (!listing) {
@@ -270,7 +270,7 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 // Удалить объявление (только владелец)
-router.delete('/:id', verifyTelegramAuth, async (req, res) => {
+router.delete('/:id', verifyTelegramAuth, requireRegistered, async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
     if (!listing) {
