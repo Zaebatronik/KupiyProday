@@ -49,6 +49,27 @@ function App() {
     };
     initLanguage();
 
+    // Проверка версии хранилища ПЕРЕД автологином
+    const storageVersion = localStorage.getItem('kupyprodai-storage');
+    if (storageVersion) {
+      try {
+        const parsed = JSON.parse(storageVersion);
+        // Если версия < 3, полностью очищаем
+        if (!parsed.version || parsed.version < 3) {
+          console.log('🔄 Обнаружена старая версия хранилища, очищаем все данные...');
+          localStorage.clear();
+          // Перезагружаем страницу для применения изменений
+          window.location.reload();
+          return;
+        }
+      } catch (e) {
+        console.error('Ошибка парсинга версии, очищаем:', e);
+        localStorage.clear();
+        window.location.reload();
+        return;
+      }
+    }
+
     // Автоматический вход по Telegram ID
     const autoLogin = async () => {
       try {
