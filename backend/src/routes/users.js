@@ -4,7 +4,7 @@ const User = require('../models/User');
 const { verifyTelegramAuth, requireAdmin, requireRegistered, checkNotBanned } = require('../middleware/auth');
 
 // Получить всех пользователей (для админа)
-router.get('/', async (req, res) => {
+router.get('/', verifyTelegramAuth, requireAdmin, async (req, res) => {
   try {
     console.log('👥 Запрос всех пользователей...');
     const users = await User.find().sort({ createdAt: -1 });
