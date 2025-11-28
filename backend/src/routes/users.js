@@ -209,26 +209,59 @@ router.put('/:id', verifyTelegramAuth, requireRegistered, async (req, res) => {
   }
 });
 
-// Удаление пользователя (только админ)
+// Удаление пользователя (только админ) - ПОЛНОЕ УДАЛЕНИЕ ВСЕХ ДАННЫХ
 router.delete('/:id', verifyTelegramAuth, requireAdmin, async (req, res) => {
   try {
+    const Listing = require('../models/Listing');
+    const Chat = require('../models/Chat');
+    
     let user;
+    let userId = req.params.id;
     
     // Пробуем удалить по Telegram ID
-    user = await User.findOneAndDelete({ telegramId: req.params.id });
+    user = await User.findOne({ telegramId: userId });
     
     // Если не нашли, пробуем по MongoDB ID
-    if (!user && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      user = await User.findByIdAndDelete(req.params.id);
+    if (!user && userId.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await User.findById(userId);
+      if (user) {
+        userId = user.telegramId; // Получаем Telegram ID для удаления связанных данных
+      }
     }
     
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
     
-    console.log(`🗑️ Админ удалил пользователя: ${user.nickname} (${user.telegramId})`);
-    res.json({ message: 'Пользователь удалён' });
+    console.log(`🗑️ Админ удаляет пользователя: ${user.nickname} (${userId})`);
+    
+    // Удаляем все объявления пользователя
+    const deletedListings = await Listing.deleteMany({ userId: userId });
+    console.log(`  ✅ Удалено объявлений: ${deletedListings.deletedCount}`);
+    
+    // Удаляем все чаты где пользователь участник
+    const deletedChats = await Chat.deleteMany({
+      $or: [
+        { participant1: userId },
+        { participant2: userId }
+      ]
+    });
+    console.log(`  ✅ Удалено чатов: ${deletedChats.deletedCount}`);
+    
+    // Удаляем самого пользователя
+    await User.findOneAndDelete({ telegramId: userId });
+    console.log(`  ✅ Пользователь удалён из базы`);
+    
+    res.json({ 
+      message: 'Пользователь и все его данные удалены',
+      deleted: {
+        user: 1,
+        listings: deletedListings.deletedCount,
+        chats: deletedChats.deletedCount
+      }
+    });
   } catch (error) {
+    console.error('❌ Ошибка удаления пользователя:', error);
     res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });

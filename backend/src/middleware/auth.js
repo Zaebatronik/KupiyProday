@@ -164,9 +164,50 @@ async function requireRegistered(req, res, next) {
   }
 }
 
+/**
+ * Middleware для разрешения забаненным пользователям писать только админу
+ * Используется для чатов с поддержкой
+ */
+async function allowBannedToContactAdmin(req, res, next) {
+  try {
+    const User = require('../models/User');
+    const user = await User.findOne({ telegramId: req.userId });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Если пользователь забанен - проверяем что он пишет только админу
+    if (user.banned) {
+      const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID || '670170626';
+      
+      // Проверяем что это сообщение админу
+      const isMessageToAdmin = req.body.sellerId === ADMIN_ID || 
+                                req.body.buyerId === ADMIN_ID ||
+                                req.params.userId === ADMIN_ID;
+      
+      if (!isMessageToAdmin) {
+        return res.status(403).json({ 
+          error: 'Banned: Can only contact admin',
+          message: 'Ваш аккаунт заблокирован. Вы можете писать только администратору.'
+        });
+      }
+      
+      console.log(`ℹ️ Забаненный пользователь ${req.userId} пишет админу`);
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('❌ Error in allowBannedToContactAdmin:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
 module.exports = {
   verifyTelegramAuth,
   requireAdmin,
   checkNotBanned,
-  requireRegistered
+  requireRegistered,
+  allowBannedToContactAdmin
 };
