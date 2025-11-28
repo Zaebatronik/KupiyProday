@@ -26,6 +26,10 @@ const checkStorageVersion = () => {
       console.log(`🔄 Версия устарела! Очищаем localStorage и перезагружаем...`);
       localStorage.clear();
       sessionStorage.clear();
+      
+      // КРИТИЧНО: Устанавливаем флаг чтобы отключить автологин после перезагрузки
+      sessionStorage.setItem('skip-autologin', 'true');
+      
       // Принудительная перезагрузка с очисткой кэша
       window.location.href = window.location.href + '?v=' + Date.now();
       return false;
@@ -37,6 +41,7 @@ const checkStorageVersion = () => {
     console.error('❌ Ошибка проверки версии:', e);
     localStorage.clear();
     sessionStorage.clear();
+    sessionStorage.setItem('skip-autologin', 'true');
     window.location.href = window.location.href + '?v=' + Date.now();
     return false;
   }
@@ -93,6 +98,14 @@ function App() {
 
     // Автоматический вход по Telegram ID
     const autoLogin = async () => {
+      // КРИТИЧНО: Проверяем флаг skip-autologin (устанавливается после сброса версии)
+      const skipAutoLogin = sessionStorage.getItem('skip-autologin');
+      if (skipAutoLogin === 'true') {
+        console.log('⛔ Автологин пропущен: требуется регистрация после сброса версии');
+        sessionStorage.removeItem('skip-autologin');
+        return;
+      }
+      
       try {
         const telegramId = getTelegramId();
         
