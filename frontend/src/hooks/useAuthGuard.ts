@@ -32,8 +32,13 @@ export const useAuthGuard = () => {
           navigate('/', { replace: true });
         }
       } catch (error: any) {
-        if (error.response?.status === 404) {
+        // 🔒 403 = Not registered, 404 = Not found
+        if (error.response?.status === 404 || error.response?.status === 403) {
           console.log('🚫 AuthGuard: Пользователь не найден в базе - выход');
+          logout();
+          navigate('/', { replace: true });
+        } else if (error.message === 'NOT_AUTHENTICATED') {
+          console.log('🚫 AuthGuard: Нет Telegram ID - выход');
           logout();
           navigate('/', { replace: true });
         }

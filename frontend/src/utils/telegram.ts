@@ -10,36 +10,23 @@ const ADMIN_ID = '670170626';
  * ТОЛЬКО для залогиненных пользователей!
  */
 export function getTelegramId(): string {
-  // 1. Проверяем Telegram WebApp (основной способ)
+  // 1. Проверяем Telegram WebApp (основной и ЕДИНСТВЕННЫЙ способ)
   const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
   
   if (telegramId) {
     return telegramId;
   }
   
-  // 2. Проверяем есть ли уже залогиненный пользователь
-  const currentUser = localStorage.getItem('currentUser');
-  if (currentUser) {
-    try {
-      const user = JSON.parse(currentUser);
-      const userId = user.telegramId || user.id;
-      if (userId && userId !== 'undefined' && !userId.startsWith('temp_') && !userId.startsWith('local_')) {
-        console.log('🔑 Используется ID из currentUser:', userId);
-        return userId;
-      }
-    } catch (e) {
-      console.error('❌ Ошибка парсинга currentUser:', e);
-    }
-  }
-  
-  // 3. РЕЖИМ РАЗРАБОТКИ: Проверяем специальный флаг для админа
+  // 2. РЕЖИМ РАЗРАБОТКИ: Проверяем специальный флаг для админа
   const devMode = localStorage.getItem('dev_admin_mode');
   if (devMode === 'true') {
     console.warn('⚠️ РЕЖИМ РАЗРАБОТКИ АДМИНА: Используется ID', ADMIN_ID);
     return ADMIN_ID;
   }
   
-  // 4. Если нет ни Telegram, ни currentUser - выбрасываем ошибку
+  // 3. 🔒 КРИТИЧНО: Если нет Telegram ID - выбрасываем ошибку
+  // НЕ ИСПОЛЬЗУЕМ localStorage fallback - это дыра безопасности!
+  console.error('🚫 БЛОКИРОВКА: Telegram WebApp ID отсутствует');
   throw new Error('NOT_AUTHENTICATED');
 }
 

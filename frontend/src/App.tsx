@@ -102,8 +102,19 @@ function App() {
       try {
         const telegramId = getTelegramId();
         
+        // 🔒 КРИТИЧНО: Если НЕТ Telegram ID - выходим из приложения
+        if (!telegramId) {
+          console.error('🚫 БЛОКИРОВКА: Telegram ID отсутствует!');
+          if (isRegistered) {
+            console.log('❌ Пользователь считается зарегистрированным, но нет Telegram ID - выход!');
+            useStore.getState().logout();
+          }
+          setAuthChecked(true);
+          return;
+        }
+        
         // КРИТИЧНО: Если пользователь считается зарегистрированным - ОБЯЗАТЕЛЬНО проверяем его в базе
-        if (telegramId && isRegistered) {
+        if (isRegistered) {
           console.log('🔍 ОБЯЗАТЕЛЬНАЯ проверка существования пользователя в базе:', telegramId);
           
           try {
@@ -128,7 +139,7 @@ function App() {
             
             setAuthChecked(true);
           } catch (error: any) {
-            if (error.response?.status === 404) {
+            if (error.response?.status === 404 || error.response?.status === 403) {
               console.log('❌ Пользователь не найден в базе - ВЫХОД И РЕГИСТРАЦИЯ');
               // Очищаем localStorage и сбрасываем состояние
               useStore.getState().logout();
@@ -144,7 +155,7 @@ function App() {
         }
         
         // Автологин для незарегистрированных
-        if (telegramId && !isRegistered) {
+        if (!isRegistered) {
           console.log('🔑 Проверка регистрации по Telegram ID:', telegramId);
           
           try {
