@@ -1,0 +1,16 @@
+{
+  "name": "kupyprodai-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for KupyProdai marketplace",
+  "main": "telegram-bot.js",
+  "scripts": {
+    "start": "node telegram-bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "dotenv": "^16.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
