@@ -107,20 +107,24 @@ function App() {
           
           try {
             const { userAPI } = await import('./services/api');
-            const existingUser = await userAPI.getUserByTelegramId(telegramId);
+            const response = await userAPI.getUserByTelegramId(telegramId);
             
-            if (!existingUser) {
+            if (!response.data) {
               console.log('❌ Пользователь не найден в базе - требуется регистрация');
               // Очищаем localStorage и сбрасываем состояние
               useStore.getState().logout();
               return;
             }
             
-            console.log('✅ Пользователь найден в базе:', existingUser.nickname);
-          } catch (error) {
-            console.error('❌ Ошибка проверки пользователя:', error);
-            // При ошибке API очищаем состояние
-            useStore.getState().logout();
+            console.log('✅ Пользователь найден в базе:', response.data.nickname);
+          } catch (error: any) {
+            if (error.response?.status === 404) {
+              console.log('❌ Пользователь не найден в базе - требуется регистрация');
+              // Очищаем localStorage и сбрасываем состояние
+              useStore.getState().logout();
+            } else {
+              console.error('❌ Ошибка проверки пользователя:', error);
+            }
           }
         }
         
