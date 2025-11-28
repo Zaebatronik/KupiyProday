@@ -98,6 +98,10 @@ function App() {
 
     // Автоматический вход по Telegram ID
     const autoLogin = async () => {
+      // ВРЕМЕННО ОТКЛЮЧЕН для принудительной регистрации всех пользователей
+      console.log('⛔ Автологин временно отключен - требуется регистрация');
+      return;
+      
       // КРИТИЧНО: Проверяем флаг skip-autologin (устанавливается после сброса версии)
       const skipAutoLogin = sessionStorage.getItem('skip-autologin');
       if (skipAutoLogin === 'true') {
