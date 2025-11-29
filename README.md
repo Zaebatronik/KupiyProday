@@ -1,4 +1,4 @@
-# KupyProdai - Telegram Mini App
+# Berloga - Telegram Mini App Marketplace
 
 Доска объявлений в Telegram с анонимностью и безопасным обменом контактами.
 
