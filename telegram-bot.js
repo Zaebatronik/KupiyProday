@@ -3,13 +3,12 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 
 const token = process.env.TELEGRAM_BOT_TOKEN || '7939786678:AAHSujmve3UREb9YLpZZWY2fiA00qUj0Fz8';
-// Cache busting: добавляем версию и timestamp чтобы Telegram не кэшировал
-const webAppUrl = `https://kupyprodai.pages.dev?v=2.0.2&t=${Date.now()}`;
+const baseUrl = 'https://kupyprodai.pages.dev';
 
 const bot = new TelegramBot(token, { polling: true });
 
 console.log('🤖 Telegram Bot запущен!');
-console.log(`📱 WebApp URL: ${webAppUrl}`);
+console.log(`📱 Base URL: ${baseUrl}`);
 
 // Обработчик команды /start
 bot.onText(/\/start/, (msg) => {
@@ -19,6 +18,10 @@ bot.onText(/\/start/, (msg) => {
   const firstName = msg.from.first_name || '';
   
   console.log(`👤 /start от пользователя: ID=${userId}, @${username}, ${firstName}`);
+  
+  // КРИТИЧНО: Генерируем УНИКАЛЬНЫЙ URL для каждого пользователя чтобы обойти кэш Telegram
+  const webAppUrl = `${baseUrl}?v=2.0.2&uid=${userId}&t=${Date.now()}`;
+  console.log(`📱 Генерирую URL с cache busting: ${webAppUrl}`);
   
   const message = 
     '🐻 Добро пожаловать в Берлогу!\n' +
