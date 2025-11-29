@@ -150,7 +150,8 @@ router.get('/check-nickname/:nickname', async (req, res) => {
 });
 
 // Получение пользователя по Telegram ID (для проверки существования)
-router.get('/telegram/:telegramId', verifyTelegramAuth, requireRegistered, async (req, res) => {
+// БЕЗ requireRegistered - нужно для проверки ДО регистрации!
+router.get('/telegram/:telegramId', async (req, res) => {
   try {
     const user = await User.findOne({ telegramId: req.params.telegramId });
     

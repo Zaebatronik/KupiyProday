@@ -20,20 +20,25 @@ export default function NicknamePage() {
   // Проверка - если пользователь уже зарегистрирован по Telegram ID, перенаправляем
   useEffect(() => {
     const checkExistingUser = async () => {
-      const telegramId = getTelegramId();
-      
-      if (telegramId) {
-        try {
-          const response = await userAPI.getProfile(telegramId);
-          if (response.data) {
-            console.log('⚠️ Пользователь уже зарегистрирован, перенаправление...');
-            // Автоматический вход уже произойдет в App.tsx
-            navigate('/', { replace: true });
+      try {
+        const telegramId = getTelegramId();
+        
+        if (telegramId) {
+          try {
+            const response = await userAPI.getUserByTelegramId(telegramId);
+            if (response.data) {
+              console.log('⚠️ Пользователь уже зарегистрирован, перенаправление...');
+              // Автоматический вход уже произойдет в App.tsx
+              navigate('/', { replace: true });
+            }
+          } catch (error) {
+            // Пользователь не найден - это нормально, продолжаем регистрацию
+            console.log('✅ Новый пользователь, продолжаем регистрацию');
           }
-        } catch (error) {
-          // Пользователь не найден - это нормально, продолжаем регистрацию
-          console.log('✅ Новый пользователь, продолжаем регистрацию');
         }
+      } catch (error) {
+        // Если нет Telegram ID - пропускаем проверку
+        console.log('⚠️ Не удалось получить Telegram ID для проверки');
       }
     };
     
