@@ -3,7 +3,8 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 
 const token = process.env.TELEGRAM_BOT_TOKEN || '7939786678:AAHSujmve3UREb9YLpZZWY2fiA00qUj0Fz8';
-const webAppUrl = 'https://kupyprodai.pages.dev';
+// Cache busting: добавляем версию и timestamp чтобы Telegram не кэшировал
+const webAppUrl = `https://kupyprodai.pages.dev?v=2.0.2&t=${Date.now()}`;
 
 const bot = new TelegramBot(token, { polling: true });
 
